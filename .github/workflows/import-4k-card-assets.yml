@@ -29,7 +29,20 @@ jobs:
           fi
           echo "url=$URL" >> "$GITHUB_OUTPUT"
       - name: Download exact card package
-        run: curl --fail --location --retry 3 --output /tmp/shadow-cards.zip '${{ steps.url.outputs.url }}'
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --dump-header /tmp/headers.txt --output /tmp/download.bin '${{ steps.url.outputs.url }}'
+          if unzip -tqq /tmp/download.bin >/dev/null 2>&1; then
+            mv /tmp/download.bin /tmp/shadow-cards.zip
+            exit 0
+          fi
+          echo 'The supplied URL returned a web page instead of the ZIP.'
+          echo '--- response headers ---'
+          cat /tmp/headers.txt
+          echo '--- page content ---'
+          cat /tmp/download.bin
+          exit 42
       - name: Extract cards
         run: |
           rm -rf client/public/assets/cards
