@@ -1,0 +1,1 @@
+import app from './app.js';import { connectMongo, dbStatus } from './config/db.js';const port=Number(process.env.PORT)||4000;await connectMongo();app.listen(port,()=>console.log(`Shadow Deck API listening on http://localhost:${port} (${dbStatus()})`));

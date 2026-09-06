@@ -1,0 +1,4 @@
+import { z } from 'zod';
+const profileSchema = z.object({ name:z.string().max(50).optional().default(''), gender:z.string().max(30).optional().default(''), birthday:z.string().max(10).optional().default(''), preferredSpread:z.enum(['three','shadow','love','career','celtic']).optional().default('three') });
+export const generateSchema = z.object({ clientId:z.string().max(100).optional().default(''), profile:profileSchema.optional().default({}), question:z.string().max(180).optional().default(''), spread:z.enum(['three','shadow','love','career','celtic']).default('three'), focus:z.enum(['general','love','career','decision','healing','growth']).default('general'), need:z.enum(['clarity','direction','closure','courage','understanding']).default('clarity'), reversals:z.boolean().default(true) });
+export const profileUpsertSchema = profileSchema;
