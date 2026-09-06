@@ -1,12 +1,12 @@
 {
-  "source": "shadow78_atlas_web_small.webp",
-  "bytes": 687290,
-  "sha256": "30735c5b024c3060136c64f246a988de427ccf7550c3e0125ec99ec248f7e1a8",
-  "base64_chars": 916388,
-  "parts": 16,
+  "source": "shadow78_atlas_web_72.webp",
+  "bytes": 182340,
+  "sha256": "18c5e65709e89cc1660e78a4ca766cbcbd20b4f53e2430435f93bb48206fd3f1",
+  "base64_chars": 243120,
+  "parts": 5,
   "part_chars": 60000,
-  "atlas_size": [2016, 1512],
-  "cell_size": [144, 216],
+  "atlas_size": [1008, 756],
+  "cell_size": [72, 108],
   "layout": "14 columns x 7 rows; majors rows 0-1, wands 2, cups 3, swords 4, pentacles 5, card back row6 col0",
-  "master_policy": "Runtime-optimized atlas derived from the completed 78-card Shadow Deck. 4096px archival card masters are maintained separately for CDN/master delivery."
+  "master_policy": "Mobile runtime atlas derived from the completed 78-card Shadow Deck. 4096px archival card masters are maintained separately and are intended for CDN/full-card delivery."
 }
