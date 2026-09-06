@@ -1,0 +1,53 @@
+name: MERN v2 CI
+
+on:
+  push:
+    branches: [mern-restructure]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked workspaces
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Server syntax checks
+        run: npm run check
+      - name: Unit tests
+        run: npm test
+      - name: Build React client
+        run: npm run build
+      - name: Start Express API
+        run: |
+          npm run start --workspace server > /tmp/shadow-deck-api.log 2>&1 &
+          echo $! > /tmp/shadow-deck-api.pid
+          sleep 3
+      - name: Health endpoint
+        run: curl --fail --silent --show-error http://127.0.0.1:4000/api/health
+      - name: Deck endpoint returns 78 cards
+        run: |
+          curl --fail --silent http://127.0.0.1:4000/api/deck > /tmp/deck.json
+          node -e "const d=require('/tmp/deck.json'); if(d.cards.length!==78){console.error('Expected 78 cards, got',d.cards.length);process.exit(1)} console.log('Deck cards:',d.cards.length)"
+      - name: Generate reading smoke test
+        run: |
+          curl --fail --silent --show-error \
+            -H 'Content-Type: application/json' \
+            -H 'X-Shadow-Client: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef' \
+            -d '{"spread":"three","focus":"general","need":"clarity","reversals":true,"profile":{"name":"CI Seeker"}}' \
+            http://127.0.0.1:4000/api/readings/generate > /tmp/reading.json
+          node -e "const r=require('/tmp/reading.json'); if(r.cards?.length!==3||!r.analysis?.finalMessage){console.error(r);process.exit(1)} console.log('Generated:',r.cards.map(x=>x.card.name).join(' | '))"
+      - name: API log on failure
+        if: failure()
+        run: cat /tmp/shadow-deck-api.log || true

@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "10:00"
+      timezone: America/Chicago
+    open-pull-requests-limit: 5
+    groups:
+      runtime:
+        patterns:
+          - "react*"
+          - "express*"
+          - "mongoose"
+          - "helmet"
+          - "cors"
+          - "zod"
+      tooling:
+        patterns:
+          - "vite"
+          - "@vitejs/*"
+          - "concurrently"
+    labels:
+      - dependencies
