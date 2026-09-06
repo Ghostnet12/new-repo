@@ -2,40 +2,37 @@ name: MERN v2 CI
 
 on:
   push:
-    branches: [mern-restructure]
+    branches: [main]
   pull_request:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build-and-smoke-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Install workspaces
-        run: npm install --ignore-scripts --no-audit --no-fund
-      - name: Commit lockfile once
-        if: github.event_name == 'push'
-        run: |
-          if [ -n "$(git status --porcelain package-lock.json)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add package-lock.json
-            git commit -m "Lock MERN dependencies"
-            git push origin HEAD:mern-restructure
-          fi
+          cache: npm
+      - name: Frozen workspace install
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify 78 individual card masters
+        run: node scripts/verify-card-assets.mjs
       - name: Server syntax checks
         run: npm run check
       - name: Unit tests
         run: npm test
-      - name: Build React client
+      - name: Build React client and responsive card derivatives
         run: npm run build
+      - name: Verify generated card delivery assets
+        run: |
+          test "$(find client/public/assets/cards/web -maxdepth 1 -name '*.webp' | wc -l | tr -d ' ')" = '78'
+          test "$(find client/public/assets/cards/thumb -maxdepth 1 -name '*.webp' | wc -l | tr -d ' ')" = '78'
       - name: Start Express API
         run: |
           npm run start --workspace server > /tmp/shadow-deck-api.log 2>&1 &
