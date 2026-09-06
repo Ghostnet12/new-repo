@@ -1,11 +1,13 @@
-name: Materialize Shadow Deck card assets
+name: Materialize individual Shadow Deck card assets
 
 on:
   push:
     branches:
       - asset-refresh-4k
     paths:
-      - 'asset-source/shadow78_transport.part*.b64'
+      - 'asset-source/shadow_cards_web_320.zip'
+      - '.github/workflows/materialize-card-assets.yml'
+      - 'scripts/verify-card-assets.mjs'
 
 permissions:
   contents: write
@@ -18,16 +20,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
         with:
-          python-version: '3.12'
-      - run: python -m pip install --disable-pip-version-check pillow
-      - name: Reassemble source image
+          node-version: '24'
+      - name: Extract individual card files
         run: |
-          cat asset-source/shadow78_transport.part*.b64 | tr -d '\n\r ' | base64 --decode > asset-source/shadow78_transport.webp
-      - name: Create individual card assets
-        run: python scripts/materialize_card_assets.py
-      - name: Commit generated card files
+          rm -rf client/public/assets/cards
+          unzip -q asset-source/shadow_cards_web_320.zip -d .
+      - name: Verify exact 78-card set
+        run: node scripts/verify-card-assets.mjs
+      - name: Commit materialized assets
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
