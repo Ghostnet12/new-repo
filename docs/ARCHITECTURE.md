@@ -8,6 +8,7 @@
 
 ## Boundaries
 - `client/` owns UI, reveal state, navigation, and accessibility.
+- `client/public/shadow78_atlas.webp` is the first-party production artwork atlas shipped by Vite.
 - `server/src/tarot/` owns the canonical 78-card data.
 - `server/src/services/readingService.js` owns cryptographic shuffling, personalization, and synthesis.
 - MongoDB stores profiles and reading history only; reading generation remains usable without the database.
@@ -25,6 +26,7 @@ The browser creates a random 256-bit token and sends it in `X-Shadow-Client`. Th
 - Randomized draws use Node `crypto.randomInt` server-side.
 - Birthday input is validated as a real calendar date.
 - Reading mutations are scoped to the caller's hashed anonymous identity.
+- Card artwork is served from the app's own origin instead of a third-party runtime dependency.
 - No claim that tarot predicts a guaranteed future; outputs are framed as reflective/conditional.
 
 ## Quality gates
@@ -33,7 +35,6 @@ GitHub Actions installs clean dependencies, performs server syntax checks, runs 
 ## Next recommended upgrades
 1. Connect MongoDB Atlas and set `MONGODB_URI` in the deployment environment.
 2. Add real account authentication before describing reading history as private cross-device storage.
-3. Move the card atlas to first-party object storage/CDN instead of a raw GitHub URL.
-4. Add shareable reading snapshots with explicit privacy controls.
-5. Add admin-only deck/content editor and versioned meaning registry.
-6. Add browser E2E tests after the preview deployment is stable.
+3. Add shareable reading snapshots with explicit privacy controls.
+4. Add admin-only deck/content editor and versioned meaning registry.
+5. Add browser E2E tests after the preview deployment is stable.

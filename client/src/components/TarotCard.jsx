@@ -1,4 +1,4 @@
-const atlasUrl = import.meta.env.VITE_ATLAS_URL || 'https://raw.githubusercontent.com/Ghostnet12/new-repo/main/assets/shadow78_atlas.webp';
+const atlasUrl = import.meta.env.VITE_ATLAS_URL || '/shadow78_atlas.webp';
 
 function atlasPosition(id) {
   if (id < 22) return [id % 11, id < 11 ? 0 : 1];
