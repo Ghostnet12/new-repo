@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
-    "check": "node --check src/app.js && node --check src/server.js && node --check src/services/readingService.js"
+    "check": "node --check src/app.js && node --check src/server.js && node --check src/services/readingService.js && node --check src/tarot/deck.js",
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

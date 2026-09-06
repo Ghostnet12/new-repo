@@ -22,6 +22,8 @@ jobs:
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Server syntax checks
         run: npm run check
+      - name: Unit tests
+        run: npm test
       - name: Build React client
         run: npm run build
       - name: Start Express API
@@ -39,6 +41,7 @@ jobs:
         run: |
           curl --fail --silent --show-error \
             -H 'Content-Type: application/json' \
+            -H 'X-Shadow-Client: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef' \
             -d '{"spread":"three","focus":"general","need":"clarity","reversals":true,"profile":{"name":"CI Seeker"}}' \
             http://127.0.0.1:4000/api/readings/generate > /tmp/reading.json
           node -e "const r=require('/tmp/reading.json'); if(r.cards?.length!==3||!r.analysis?.finalMessage){console.error(r);process.exit(1)} console.log('Generated:',r.cards.map(x=>x.card.name).join(' | '))"

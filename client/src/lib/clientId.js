@@ -1,9 +1,16 @@
-const KEY = 'fracture-shadow-deck-client-id';
-export function getClientId() {
-  let id = localStorage.getItem(KEY);
-  if (!id) {
-    id = crypto.randomUUID ? crypto.randomUUID() : `guest-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    localStorage.setItem(KEY, id);
+const KEY = 'fracture-shadow-deck-client-token';
+
+function createToken() {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+}
+
+export function getClientToken() {
+  let token = localStorage.getItem(KEY);
+  if (!token || !/^[a-f0-9]{64}$/.test(token)) {
+    token = createToken();
+    localStorage.setItem(KEY, token);
   }
-  return id;
+  return token;
 }
