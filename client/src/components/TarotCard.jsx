@@ -1,11 +1,28 @@
-function cardAssetUrl(card) {
+function cardAssets(card, compact) {
   const id = Number(card?.id);
   if (!Number.isInteger(id) || id < 0 || id > 77) return null;
-  return `/assets/cards/${String(id).padStart(2, '0')}.webp`;
+
+  const stem = String(id).padStart(2, '0');
+  const original = `/assets/cards/${stem}.webp`;
+
+  if (!import.meta.env.PROD) {
+    return { src: original, srcSet: undefined, sizes: undefined };
+  }
+
+  const thumb = `/assets/cards/thumb/${stem}.webp`;
+  const web = `/assets/cards/web/${stem}.webp`;
+
+  return {
+    src: compact ? thumb : web,
+    srcSet: `${thumb} 360w, ${web} 900w`,
+    sizes: compact
+      ? '(max-width: 620px) 20vw, (max-width: 900px) 14vw, 9vw'
+      : '(max-width: 620px) 46vw, (max-width: 900px) 30vw, 20vw'
+  };
 }
 
 export default function TarotCard({ card, position, reversed, revealed, onReveal, compact = false }) {
-  const src = cardAssetUrl(card);
+  const assets = cardAssets(card, compact);
 
   if (!revealed) {
     return <button type="button" className={`tarot-card hidden-card ${compact ? 'compact' : ''}`} onClick={onReveal}>
@@ -16,7 +33,14 @@ export default function TarotCard({ card, position, reversed, revealed, onReveal
 
   return <article className={`tarot-card ${reversed ? 'is-reversed' : ''} ${compact ? 'compact' : ''}`}>
     <div className="card-art">
-      {src && <img src={src} alt={card.name} loading={compact ? 'lazy' : 'eager'} decoding="async" />}
+      {assets && <img
+        src={assets.src}
+        srcSet={assets.srcSet}
+        sizes={assets.sizes}
+        alt={card.name}
+        loading={compact ? 'lazy' : 'eager'}
+        decoding="async"
+      />}
     </div>
     {!compact && <div className="card-copy">
       {position && <small>{position}</small>}

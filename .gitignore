@@ -1,5 +1,7 @@
 node_modules
 client/dist
+client/public/assets/cards/web/
+client/public/assets/cards/thumb/
 .env
 .env.*
 !.env.example
