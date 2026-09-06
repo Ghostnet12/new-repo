@@ -1,0 +1,1 @@
+import { Router } from 'express';import { cards, spreads } from '../tarot/deck.js';import { DECK_VERSION } from '../tarot/version.js';const router=Router();router.get('/',(_req,res)=>res.json({version:DECK_VERSION,cards,spreads}));export default router;
