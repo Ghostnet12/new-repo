@@ -1,0 +1,1 @@
+Individual 4K Shadow Deck asset migration verified: 78 WebP card files, direct React asset loading, legacy client atlas removed.
