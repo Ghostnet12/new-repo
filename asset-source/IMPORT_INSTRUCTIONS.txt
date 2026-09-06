@@ -1,0 +1,1 @@
+The GitHub Actions workflow `.github/workflows/import-4k-card-assets.yml` watches `asset-source/ASSET_URL.txt`. Replace its placeholder with a public HTTPS URL to the prepared 78-card ZIP. The workflow downloads it, validates 00.webp through 77.webp, commits them under `client/public/assets/cards/`, and stops if the count is not exactly 78.
