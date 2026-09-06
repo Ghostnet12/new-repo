@@ -32,16 +32,33 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --location --retry 3 --dump-header /tmp/headers.txt --output /tmp/download.bin '${{ steps.url.outputs.url }}'
+          URL='${{ steps.url.outputs.url }}'
+          curl --fail --location --retry 3 --output /tmp/download.bin "$URL"
           if unzip -tqq /tmp/download.bin >/dev/null 2>&1; then
             mv /tmp/download.bin /tmp/shadow-cards.zip
             exit 0
           fi
-          echo 'The supplied URL returned a web page instead of the ZIP.'
-          echo '--- response headers ---'
-          cat /tmp/headers.txt
-          echo '--- page content ---'
-          cat /tmp/download.bin
+
+          echo 'Share URL returned HTML; inspecting the page client bundle for the download API.'
+          PAGE_JS="$(grep -oE '/_next/static/chunks/app/\(files\)/ja/f/page-[A-Za-z0-9._-]+\.js' /tmp/download.bin | head -n1 || true)"
+          if [ -z "$PAGE_JS" ]; then
+            echo 'Could not locate the firestorage page client bundle.'
+            exit 42
+          fi
+          echo "Client bundle: $PAGE_JS"
+          curl --fail --location --retry 3 --output /tmp/page.js "https://firestorage.ai$PAGE_JS"
+          echo '--- candidate API/download strings ---'
+          python - <<'PY'
+          import re
+          text=open('/tmp/page.js',encoding='utf-8',errors='ignore').read()
+          pats=[r'https?://[^"\' ]+', r'/api/[^"\' ]+', r'[^"\']*download[^"\']*', r'[^"\']*share[^"\']*', r'fetch\([^)]{0,300}\)']
+          out=[]
+          for p in pats:
+              for m in re.findall(p,text,re.I):
+                  if isinstance(m,tuple): m=''.join(m)
+                  if m not in out: out.append(m)
+          for x in out[:200]: print(x)
+          PY
           exit 42
       - name: Extract cards
         run: |
