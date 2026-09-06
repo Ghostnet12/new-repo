@@ -50,6 +50,10 @@ npm run build
 
 `npm run build` automatically runs the image derivative generator before Vite. The Vercel build output is `client/dist`.
 
+## Deployment
+
+The production Vercel project is `fracture-shadow-deck-mern-v2`, connected to the `main` branch of `Ghostnet12/new-repo`. Production persistence uses the `MONGODB_URI` environment variable.
+
 ## Environment variables
 
 - `MONGODB_URI` — optional Atlas connection string; omit for guest-only mode
