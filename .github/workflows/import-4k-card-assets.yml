@@ -39,25 +39,40 @@ jobs:
             exit 0
           fi
 
-          echo 'Share URL returned HTML; inspecting the page client bundle for the download API.'
-          PAGE_JS="$(grep -oE '/_next/static/chunks/app/\(files\)/ja/f/page-[A-Za-z0-9._-]+\.js' /tmp/download.bin | head -n1 || true)"
-          if [ -z "$PAGE_JS" ]; then
-            echo 'Could not locate the firestorage page client bundle.'
-            exit 42
-          fi
-          echo "Client bundle: $PAGE_JS"
-          curl --fail --location --retry 3 --output /tmp/page.js "https://firestorage.ai$PAGE_JS"
+          echo 'Share URL returned HTML; scanning all client chunks for the download API.'
+          grep -oE 'src="[^"]+\.js"' /tmp/download.bin | sed -E 's/^src="//;s/"$//' | sort -u > /tmp/chunks.txt
+          : > /tmp/all.js
+          while IFS= read -r CHUNK; do
+            case "$CHUNK" in
+              http*) FULL="$CHUNK" ;;
+              /*) FULL="https://firestorage.ai$CHUNK" ;;
+              *) FULL="https://firestorage.ai/$CHUNK" ;;
+            esac
+            echo "Fetching $FULL"
+            curl --fail --location --retry 3 "$FULL" >> /tmp/all.js
+            printf '\n' >> /tmp/all.js
+          done < /tmp/chunks.txt
+
           echo '--- candidate API/download strings ---'
           python - <<'PY'
           import re
-          text=open('/tmp/page.js',encoding='utf-8',errors='ignore').read()
-          pats=[r'https?://[^"\' ]+', r'/api/[^"\' ]+', r'[^"\']*download[^"\']*', r'[^"\']*share[^"\']*', r'fetch\([^)]{0,300}\)']
-          out=[]
+          text=open('/tmp/all.js',encoding='utf-8',errors='ignore').read()
+          pats=[
+              r'https?://[^"\' ]+',
+              r'/api/[^"\' ]+',
+              r'[^"\']{0,120}download[^"\']{0,180}',
+              r'[^"\']{0,120}share[^"\']{0,180}',
+              r'fetch\([^)]{0,500}\)',
+              r'axios[^;]{0,500}',
+          ]
+          seen=[]
           for p in pats:
               for m in re.findall(p,text,re.I):
                   if isinstance(m,tuple): m=''.join(m)
-                  if m not in out: out.append(m)
-          for x in out[:200]: print(x)
+                  m=m.strip()
+                  if m and m not in seen:
+                      seen.append(m)
+          for x in seen[:300]: print(x)
           PY
           exit 42
       - name: Extract cards
