@@ -1,0 +1,12 @@
+{
+  "source": "shadow78_atlas_web_small.webp",
+  "bytes": 687290,
+  "sha256": "30735c5b024c3060136c64f246a988de427ccf7550c3e0125ec99ec248f7e1a8",
+  "base64_chars": 916388,
+  "parts": 16,
+  "part_chars": 60000,
+  "atlas_size": [2016, 1512],
+  "cell_size": [144, 216],
+  "layout": "14 columns x 7 rows; majors rows 0-1, wands 2, cups 3, swords 4, pentacles 5, card back row6 col0",
+  "master_policy": "Runtime-optimized atlas derived from the completed 78-card Shadow Deck. 4096px archival card masters are maintained separately for CDN/master delivery."
+}
