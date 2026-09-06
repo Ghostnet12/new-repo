@@ -1,0 +1,51 @@
+name: Import 4K Shadow Deck card assets
+
+on:
+  push:
+    branches:
+      - asset-refresh-4k
+    paths:
+      - 'asset-source/ASSET_URL.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  import-assets:
+    if: ${{ !contains(github.event.head_commit.message, '[imported-4k-assets]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Read asset package URL
+        id: url
+        shell: bash
+        run: |
+          URL="$(tr -d '\r\n ' < asset-source/ASSET_URL.txt)"
+          if [ -z "$URL" ] || [[ "$URL" == \#* ]]; then
+            echo 'Asset URL is not configured.'
+            exit 1
+          fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+      - name: Download exact card package
+        run: curl --fail --location --retry 3 --output /tmp/shadow-cards.zip '${{ steps.url.outputs.url }}'
+      - name: Extract cards
+        run: |
+          rm -rf client/public/assets/cards
+          mkdir -p client/public/assets/cards
+          unzip -j /tmp/shadow-cards.zip 'client/public/assets/cards/*.webp' -d client/public/assets/cards
+          COUNT="$(find client/public/assets/cards -maxdepth 1 -name '*.webp' | wc -l | tr -d ' ')"
+          test "$COUNT" = '78' || { echo "Expected 78 cards, got $COUNT"; exit 1; }
+          for I in $(seq -w 0 77); do test -s "client/public/assets/cards/$I.webp" || { echo "Missing $I.webp"; exit 1; }; done
+      - name: Commit individual 4K assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add client/public/assets/cards
+          if git diff --cached --quiet; then
+            echo 'Assets already current.'
+          else
+            git commit -m 'Import 78 individual 4K Shadow Deck card assets [imported-4k-assets]'
+            git push origin HEAD:asset-refresh-4k
+          fi
