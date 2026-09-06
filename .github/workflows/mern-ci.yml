@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build-and-smoke-test:
@@ -18,18 +18,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Install workspaces
-        run: npm install --ignore-scripts --no-audit --no-fund
-      - name: Commit lockfile once
-        if: github.event_name == 'push'
-        run: |
-          if [ -n "$(git status --porcelain package-lock.json)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add package-lock.json
-            git commit -m "Lock MERN dependencies"
-            git push origin HEAD:mern-restructure
-          fi
+          cache: npm
+      - name: Install locked workspaces
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
       - name: Server syntax checks
         run: npm run check
       - name: Unit tests
