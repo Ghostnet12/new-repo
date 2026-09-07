@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import './styles/theme.css';
 import './styles/fold.css';
+import './styles/deck-safari.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode><App /></StrictMode>
