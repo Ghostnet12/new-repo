@@ -32,7 +32,6 @@ export default function DeckGallery({ deck }) {
   const choose = (key) => {
     setFilter(key);
     setVisible(PAGE_SIZE);
-    window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
   return <section className="panel deck-panel">
