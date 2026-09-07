@@ -13,7 +13,7 @@ test('Vercel GET deck returns all 78 cards', async () => {
   assert.equal(response.status, 200);
   const payload = await response.json();
   assert.equal(payload.cards.length, 78);
-  assert.equal(payload.apiVersion, '3.0.0');
+  assert.equal(payload.apiVersion, '3.1.0');
 });
 
 test('Vercel POST reading generation works without MongoDB', async () => {
@@ -30,6 +30,7 @@ test('Vercel POST reading generation works without MongoDB', async () => {
     assert.equal(payload.cards.length, 3);
     assert.ok(payload.analysis.finalMessage);
     assert.equal(payload.persisted, false);
+    assert.equal(payload.apiVersion, '3.1.0');
   } finally {
     if (previous === undefined) delete process.env.MONGODB_URI; else process.env.MONGODB_URI = previous;
   }
@@ -47,6 +48,7 @@ test('Vercel PUT profile reaches application handler instead of platform 405', a
     assert.equal(response.status, 503);
     const payload = await response.json();
     assert.equal(payload.database, 'not-configured');
+    assert.equal(payload.apiVersion, '3.1.0');
   } finally {
     if (previous === undefined) delete process.env.MONGODB_URI; else process.env.MONGODB_URI = previous;
   }
