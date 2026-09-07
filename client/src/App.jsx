@@ -30,8 +30,8 @@ export default function App() {
     setHistory([...remoteTagged, ...local]);
   };
 
-  const refreshHistory = async () => {
-    if (!dbReady) { mergeHistory([]); return; }
+  const refreshHistory = async (forceRemote = false) => {
+    if (!dbReady && !forceRemote) { mergeHistory([]); return; }
     try { const h = await api('/api/readings?limit=12'); mergeHistory(h.readings || []); }
     catch { mergeHistory([]); }
   };
@@ -98,7 +98,7 @@ export default function App() {
         saveLocalReading(result);
         result = { ...result, localSaved:true };
       }
-      if (result.persisted) await refreshHistory(); else mergeHistory([]);
+      if (result.persisted) await refreshHistory(true); else mergeHistory([]);
     }
 
     setReading(result);
@@ -109,7 +109,11 @@ export default function App() {
   };
 
   const toggleFavorite = async item => {
-    if (item._local) { setHistory(toggleLocalFavorite(item.localId)); return; }
+    if (item._local) {
+      const locals = toggleLocalFavorite(item.localId);
+      setHistory(h => [...h.filter(x => !x._local), ...locals]);
+      return;
+    }
     try {
       const r = await api(`/api/readings/item/${item._id}`, { method:'PATCH', body:JSON.stringify({ favorite:!item.favorite }) });
       setHistory(h => h.map(x => x._id === item._id ? { ...x, favorite:r.reading.favorite } : x));
@@ -117,7 +121,11 @@ export default function App() {
   };
 
   const deleteReading = async item => {
-    if (item._local) { setHistory(deleteLocalReading(item.localId)); return; }
+    if (item._local) {
+      const locals = deleteLocalReading(item.localId);
+      setHistory(h => [...h.filter(x => !x._local), ...locals]);
+      return;
+    }
     try { await api(`/api/readings/item/${item._id}`, { method:'DELETE' }); setHistory(h => h.filter(x => x._id !== item._id)); }
     catch (e) { setError(e.message); }
   };
