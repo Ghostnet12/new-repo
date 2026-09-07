@@ -1,19 +1,16 @@
-const PROD_CARD_ASSET_BASE = (import.meta.env.VITE_CARD_ASSET_BASE || 'https://fracture-shadow-deck-mern-v2.vercel.app').replace(/\/$/, '');
-
 function cardAssets(card, compact) {
   const id = Number(card?.id);
   if (!Number.isInteger(id) || id < 0 || id > 77) return null;
 
   const stem = String(id).padStart(2, '0');
-  const base = import.meta.env.PROD ? PROD_CARD_ASSET_BASE : '';
-  const original = `${base}/assets/cards/${stem}.webp`;
+  const original = `/assets/cards/${stem}.webp`;
 
   if (!import.meta.env.PROD) {
     return { src: original, srcSet: undefined, sizes: undefined };
   }
 
-  const thumb = `${base}/assets/cards/thumb/${stem}.webp`;
-  const web = `${base}/assets/cards/web/${stem}.webp`;
+  const thumb = `/assets/cards/thumb/${stem}.webp`;
+  const web = `/assets/cards/web/${stem}.webp`;
 
   if (compact) {
     return { src: thumb, srcSet: undefined, sizes: undefined };
