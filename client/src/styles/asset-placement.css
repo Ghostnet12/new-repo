@@ -1,54 +1,224 @@
-/* Final asset-placement layer. Approved artwork is the visual surface; live HTML remains interactive above it. */
-.fold-hero{
-  width:100vw!important;
-  max-width:none!important;
-  aspect-ratio:3 / 2!important;
-  min-height:0!important;
-  height:auto!important;
-  margin-left:calc(50% - 50vw)!important;
-  margin-right:calc(50% - 50vw)!important;
-  background-size:100% 100%!important;
-  background-position:center center!important;
-  background-repeat:no-repeat!important;
-  padding:0!important;
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
-  overflow:hidden;
-  filter:none!important;
-  transform:none!important;
-}
-.fold-hero::before,.fold-hero::after,.fold-hero .hero-cosmos,.fold-hero .side-whisper{display:none!important}
-.fold-hero .hero-copy{width:100%;max-width:none;margin:0;padding:0 18px 18px;text-align:center;position:relative;z-index:2}
-.fold-hero .hero-copy>p,.fold-hero .hero-copy>h1,.fold-hero .hero-copy>.hero-tagline,.fold-hero .hero-copy>span,.fold-hero .hero-copy>.moon-divider{display:none!important}
-.fold-hero .runtime-badge{margin:0 auto;min-width:240px;background:rgba(5,4,7,.88);border-color:#d4ac68;color:#d9e9cc;box-shadow:0 0 22px rgba(212,172,104,.16),0 10px 28px rgba(0,0,0,.45)}
-
-.mockup-grid{align-items:stretch}
-.panel-shell{background:#060407;border-color:#b98c4d}
-.panel-shell::before{display:none!important}
-.panel-shell .panel{background-size:cover!important;background-position:center top!important;background-repeat:no-repeat!important;min-height:100%;padding:30px 38px 34px}
-.panel-shell .panel::before{display:none!important}
-.form-panel,.ritual-panel{border:0!important;box-shadow:none!important}
-.form-panel>* ,.ritual-panel>*{position:relative;z-index:2}
-.form-panel::after,.ritual-panel::after{content:"";position:absolute;inset:5% 4%;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,rgba(5,3,7,.84) 0%,rgba(5,3,7,.70) 48%,rgba(5,3,7,.20) 74%,transparent 88%)}
-
-.ritual-card-stack{width:190px;height:265px;margin:28px auto 8px;border-radius:14px;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;box-shadow:0 18px 38px rgba(0,0,0,.58),0 0 0 1px rgba(212,172,104,.58);transform:rotate(-4deg);position:relative;z-index:3}
-.ritual-card-stack::before,.ritual-card-stack::after{content:"";position:absolute;inset:0;border-radius:inherit;background:inherit;box-shadow:0 12px 24px rgba(0,0,0,.32);z-index:-1}
-.ritual-card-stack::before{transform:translate(-12px,8px) rotate(-4deg)}
-.ritual-card-stack::after{transform:translate(12px,9px) rotate(5deg)}
-.ritual-awaits{text-align:center;color:#d7b56c;letter-spacing:.28em;text-transform:uppercase;font-size:11px;line-height:1.55;margin:18px auto 0;position:relative;z-index:3}
-
-/* Revealed card art must always render as the image itself, not as a background placeholder. */
-.tarot-card .card-art{background:#070509;overflow:hidden;position:relative}
-.tarot-card .card-art img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;filter:none!important;opacity:1!important;visibility:visible!important}
-
-@media(max-width:760px){
-  .fold-hero{width:100vw!important;aspect-ratio:3 / 2!important;min-height:0!important;background-size:100% 100%!important;background-position:center center!important}
-  .fold-hero .hero-copy{padding-bottom:10px}
-  .fold-hero .runtime-badge{min-width:185px;font-size:8px;padding:8px 12px}
-  .panel-shell .panel{padding:24px 20px 28px;background-position:center top!important}
-  .form-panel::after,.ritual-panel::after{inset:2% 2%;background:linear-gradient(rgba(5,3,7,.65),rgba(5,3,7,.72))}
-  .ritual-card-stack{width:160px;height:224px}
+/* Original approved artwork below live HTML. Keep image bytes out of the CSS bundle. */
+.fold-hero {
+  width: min(100vw, 1536px);
+  max-width: none;
+  margin-inline: calc((100% - min(100vw, 1536px)) / 2);
+  min-height: 0;
+  padding: 0;
+  border-radius: 0;
+  display: block;
+  background: #050407;
+  container-type: inline-size;
 }
 
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+/* Keep the full scene at its original proportions. A dark central layer covers
+   the upload's printed title and copy, with responsive HTML in the same area. */
+.fold-hero::before { display: none; }
+.fold-hero .hero-cosmos {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  background: url('/assets/the-fold/hero-original.jpg') center top / 100% auto no-repeat;
+}
+.fold-hero .hero-cosmos::after {
+  content: '';
+  position: absolute;
+  top: 25.1cqw;
+  left: 15%;
+  width: 70%;
+  height: 26cqw;
+  background: linear-gradient(90deg, transparent, #050407 9% 91%, transparent);
+}
+.fold-hero::after {
+  inset: auto 0 0;
+  z-index: 0;
+  height: 15.625cqw;
+  background: url('/assets/the-fold/hero-original.jpg') center bottom / 100% auto no-repeat;
+  mask-image: linear-gradient(transparent, #000 65%);
+  pointer-events: none;
+}
+.fold-hero .hero-copy {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 25.5cqw 24px 76px;
+  text-align: center;
+}
+.fold-hero .hero-copy > p {
+  margin: 0 0 8px;
+  color: #e6d9bd;
+  font: 500 clamp(.75rem, 1.1vw, 1rem)/1.5 Georgia, serif;
+  letter-spacing: .2em;
+}
+.fold-hero h1 {
+  margin: 0;
+  font-size: clamp(3.25rem, 10vw, 9rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: .025em;
+  color: #efcb87;
+  text-shadow: 0 2px 14px #0008;
+}
+.fold-hero .hero-tagline {
+  margin: 10px 0 18px;
+  color: #efdfbc;
+  font: 500 clamp(.875rem, 1.5vw, 1.25rem)/1.5 Georgia, serif;
+  letter-spacing: .2em;
+}
+.fold-hero .hero-copy > span {
+  display: block;
+  color: #e7ded4;
+  font: clamp(1rem, 1.8vw, 1.375rem)/1.5 Georgia, serif;
+}
+.fold-hero .moon-divider { margin: 22px auto 18px; max-width: 500px; }
+.fold-hero .runtime-badge {
+  min-width: 0;
+  margin: 0 auto;
+  padding: 12px 22px;
+  background: #050407e6;
+  color: #d9e9cc;
+  font-size: .75rem;
+  line-height: 1.3;
+  letter-spacing: .16em;
+  box-shadow: 0 0 20px #d4ac681a;
+}
+.fold-hero .side-whisper { display: none; }
+.mockup-tabs { margin-top: -36px; margin-bottom: 22px; }
+.mockup-tabs button { line-height: 1.4; }
+
+/* The two supplied frames share one image; each panel selects its own half. */
+.mockup-grid { align-items: stretch; }
+.panel-shell { background: #060407; border-color: #876541; }
+.panel-shell::before, .panel-shell .panel::before { display: none; }
+.panel-shell .panel {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  padding: 32px 38px 36px;
+  background-color: #07050a;
+  background-image: linear-gradient(#07050a30, #07050a14), url('/assets/the-fold/panels-original.jpg');
+  background-size: 100% 100%, 200% 100%;
+  background-repeat: no-repeat;
+  background-position: center, left top;
+}
+.panel-shell .ritual-panel { background-position: center, right top; }
+.form-panel > *, .ritual-panel > * { position: relative; z-index: 2; }
+.form-panel::after, .ritual-panel::after {
+  content: '';
+  position: absolute;
+  inset: 24px;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, #07050ac9 8% 92%, transparent);
+}
+.panel-shell .section-kicker { font-size: .75rem; line-height: 1.5; }
+.panel-shell h2 { font-size: clamp(1.875rem, 3.2vw, 2.75rem); line-height: 1.15; }
+.mockup-form-grid label span { font-size: 1rem; line-height: 1.4; }
+.mockup-form-grid input, .mockup-form-grid select, .mockup-form-grid textarea {
+  min-width: 0;
+  font-size: 1rem;
+  background-color: #0b0910ed;
+}
+.mockup-form-grid textarea { padding-bottom: 28px; }
+.oracle-toggle-copy small, .mockup-form-grid label span em { font-size: .875rem; }
+.oracle-toggle-copy b { line-height: 1.4; }
+.char-count { font-size: .75rem; }
+.ritual-steps {
+  display: grid;
+  list-style: none;
+  margin: 20px 0 12px;
+  padding: 0;
+  gap: 18px;
+}
+.ritual-steps li {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  align-items: start;
+  gap: 18px;
+  padding: 0;
+}
+.ritual-steps li > span { display: grid; place-items: center; }
+.ritual-steps small { display: block; margin-top: 4px; font-size: 1rem; line-height: 1.5; }
+.ritual-note { background: #07050ad9; font-style: italic; text-align: center; }
+.ritual-deck-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 100px;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 20px;
+}
+.ritual-card-stack {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  background: url('/assets/the-fold/deck-original.jpg') center / contain no-repeat;
+  border-radius: 8px;
+}
+.ritual-awaits {
+  margin: 0;
+  color: #dfbb7c;
+  text-align: center;
+  font-size: .75rem;
+  letter-spacing: .2em;
+  line-height: 1.8;
+}
+.ritual-awaits span { display: block; margin-top: 12px; font-size: 1.25rem; }
+
+/* All fronts are local images. Contain preserves borders on narrower masters. */
+.tarot-card .card-art { background: #09070a; overflow: hidden; position: relative; }
+.tarot-card .card-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+.fold-card-back .card-back { background: #09070a; }
+/* A CSS window onto the central card keeps the supplied photograph unchanged. */
+.fold-card-back .card-back::before {
+  content: '';
+  position: absolute;
+  inset: auto 0;
+  top: 50%;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 672 / 942;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 8px;
+  background: url('/assets/the-fold/deck-original.jpg') 50% 17.073% / 228.571% auto no-repeat;
+}
+.fold-card-back .back-reveal {
+  top: auto;
+  bottom: 7%;
+  z-index: 1;
+  transform: translateX(-50%);
+  padding: 9px 12px;
+  background: #07050ae8;
+  font-size: .75rem;
+  white-space: nowrap;
+}
+button:focus-visible { outline: 2px solid #f0cf8d; outline-offset: 4px; }
+
+@media (max-width: 900px) {
+  .fold-hero .side-whisper { display: none; }
+  .panel-shell .panel { padding: 30px; }
+}
+@media (max-width: 620px) {
+  .fold-hero .hero-copy { padding: calc(25.5cqw + 8px) 20px 66px; }
+  .fold-hero h1 { font-size: clamp(2.75rem, 13vw, 5rem); }
+  .fold-hero .hero-copy > p { letter-spacing: .12em; }
+  .fold-hero .hero-tagline { letter-spacing: .12em; }
+  .fold-hero .hero-copy > span br { display: none; }
+  .fold-hero .runtime-badge { font-size: .75rem; padding: 10px 16px; }
+  .mockup-tabs { width: 100%; }
+  .mockup-tabs button { font-size: .875rem; letter-spacing: .02em; }
+  .panel-shell .panel { padding: 28px 22px; }
+  .form-panel::after, .ritual-panel::after { inset: 16px; }
+  .ritual-steps li { grid-template-columns: 42px minmax(0, 1fr); gap: 14px; }
+  .ritual-deck-preview { grid-template-columns: minmax(0, 1fr) 90px; gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
