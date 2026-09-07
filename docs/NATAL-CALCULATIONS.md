@@ -2,6 +2,8 @@
 
 The browser and server share `server/src/tarot/natal.js`. The production calculator uses Astronomy Engine 2.1.19 (MIT license) and Temporal polyfill 0.5.1 (ISC license). Birthplace search loads city-timezones 1.3.4 only when requested; it searches the packaged city list locally. Birth details are sent to The Fold when the user requests a reading or saves a profile, not to a geocoding provider.
 
+`astronomy.cjs` selects the package's declared CommonJS entry explicitly. The package's ESM `.js` entry lacks a module-type declaration and cannot be loaded when the serverless runtime disables automatic module-syntax detection. The test command disables both syntax detection and experimental ESM require support, matching that production constraint. Client bundling handles the adapter normally.
+
 ## Inputs and time
 
 Required: Gregorian date from 1900 through today, local birth time to the minute, geographical latitude (north positive), longitude (east positive) and an IANA time zone. The city picker supplies coordinates and a time zone; manual fields permit correction. City coordinates represent a city center. Country/region selection matters where place names repeat.

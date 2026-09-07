@@ -1,4 +1,4 @@
-import { Body, GeoVector, Ecliptic, SiderealTime, Rotation_ECT_EQD } from 'astronomy-engine';
+import { Body, GeoVector, Ecliptic, SiderealTime, Rotation_ECT_EQD } from './astronomy.cjs';
 import { Temporal } from '@js-temporal/polyfill';
 import { signs, houses } from './knowledge.js';
 
