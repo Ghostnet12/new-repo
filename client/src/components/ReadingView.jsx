@@ -7,14 +7,16 @@ export default function ReadingView({ reading }) {
   if (!reading) return null;
   const all = revealed.length && revealed.every(Boolean);
   const revealAll = () => setRevealed(reading.cards.map(() => true));
+  const persistence = reading.persisted ? 'MongoDB' : reading.localSaved ? 'This device' : 'Guest';
+  const engine = reading.localFallback ? 'Secure device fallback' : 'Vercel server';
   return <section className="reading-stack">
     <div className="panel reading-head">
-      <div><div className="section-kicker">The veil opens</div><h2>{reading.profile?.name || 'Seeker'} · {reading.spread.name}</h2><p className="muted">{reading.question ? `“${reading.question}” — ` : ''}This draw is generated server-side from the complete 78-card deck.</p></div>
+      <div><div className="section-kicker">The veil opens</div><h2>{reading.profile?.name || 'Seeker'} · {reading.spread.name}</h2><p className="muted">{reading.question ? `“${reading.question}” — ` : ''}This draw uses the complete 78-card deck. Engine: {engine}.</p></div>
       <div className="stat-grid">
         <div><small>Birth card</small><b>{reading.personalization.birthCard?.name || 'Not provided'}</b></div>
         <div><small>Sun sign</small><b>{reading.personalization.zodiac || 'Not provided'}</b></div>
         <div><small>Life path</small><b>{reading.personalization.lifePath ?? '—'}</b></div>
-        <div><small>Persistence</small><b>{reading.persisted ? 'Saved' : 'Guest'}</b></div>
+        <div><small>Saved</small><b>{persistence}</b></div>
       </div>
     </div>
     <div className="reading-actions"><button onClick={revealAll}>Reveal All</button></div>
