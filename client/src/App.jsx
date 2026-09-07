@@ -7,7 +7,7 @@ import HistoryPanel from './components/HistoryPanel.jsx';
 import HeroDecor from './components/HeroDecor.jsx';
 import MoonDivider from './components/MoonDivider.jsx';
 
-const initialForm = { name:'', gender:'', birthday:'', spread:'three', focus:'general', need:'clarity', reversals:'yes', question:'', persist:false };
+const initialForm = { name:'', gender:'', birthday:'', birthInfluence:true, spread:'three', focus:'general', need:'clarity', reversals:'yes', question:'', persist:false };
 
 export default function App() {
   const formRef = useRef(null);
@@ -49,7 +49,6 @@ export default function App() {
       const health = await api('/api/health').catch(() => null);
       if (!health) {
         setDbState('device-local'); setDbReady(false);
-        setNotice('The cloud path is quiet. The Fold has switched to its protected device oracle, so readings and local saves still work here.');
         return;
       }
       const status = health.database || 'unknown';
@@ -60,8 +59,6 @@ export default function App() {
           mergeHistory(h.readings || []);
           if (p?.profile) setForm(f => ({ ...f, name:p.profile.name || f.name, gender:p.profile.gender || f.gender, birthday:p.profile.birthday || f.birthday, spread:p.profile.preferredSpread || f.spread }));
         } catch { mergeHistory([]); }
-      } else {
-        setNotice('Cloud memory is unavailable right now. The Fold will keep saved readings on this device instead.');
       }
     })();
   }, []);
@@ -86,7 +83,7 @@ export default function App() {
     let result;
     let usedFallback = false;
     try {
-      result = await api('/api/readings/generate', { method:'POST', body:JSON.stringify({ persist:Boolean(form.persist), profile:{ name:form.name, gender:form.gender, birthday:form.birthday, preferredSpread:form.spread }, question:form.question, spread:form.spread, focus:form.focus, need:form.need, reversals:form.reversals === 'yes' }) });
+      result = await api('/api/readings/generate', { method:'POST', body:JSON.stringify({ persist:Boolean(form.persist), profile:{ name:form.name, gender:form.gender, birthday:form.birthInfluence === false ? '' : form.birthday, preferredSpread:form.spread }, question:form.question, spread:form.spread, focus:form.focus, need:form.need, reversals:form.reversals === 'yes' }) });
       const status = result.database || 'unknown';
       setDbState(status); setDbReady(status === 'connected');
     } catch {
@@ -134,32 +131,23 @@ export default function App() {
   };
 
   return <div className="app-shell">
-    <div className="site-topbar">
-      <div className="brand-mark">FRACTURE</div>
-      <div className="topbar-links">
-        <button onClick={enterFold}>Reading</button>
-        <button onClick={()=>setTab('history')}>Past Readings</button>
-        <span className="sun-symbol">☼</span>
-      </div>
-    </div>
-
     <header className="hero fold-hero">
       <HeroDecor />
       <div className="side-whisper side-whisper-left">LOOK<br/>DEEPER.<br/>YOU<br/>ALREADY<br/>KNOW.</div>
       <div className="side-whisper side-whisper-right">SOME<br/>QUESTIONS<br/>FIND<br/>YOU.</div>
       <div className="hero-copy">
         <p>FRACTURE PRESENTS · THE SHADOW DECK</p>
-        <h1>The Fold</h1>
+        <h1><span className="sr-only">The Fold</span><span className="title-wordmark" aria-hidden="true" /></h1>
         <div className="hero-tagline">Truth lives in the shadows.</div>
-        <span>Seventy-eight cards. One honest question.<br/>A reading built around the pattern beneath the surface.</span>
+        <span>Seventy-eight cards. One honest question.<br/> A reading built around the pattern beneath the surface.</span>
         <MoonDivider />
-        <div className={`runtime-badge ${dbReady ? 'ok' : 'warn'}`}>{dbReady ? '● ORACLE ONLINE' : '● DEVICE ORACLE ACTIVE'}</div>
+        <div className={`runtime-badge ${dbState === 'checking' ? 'checking' : 'ok'}`} role="status"><i aria-hidden="true" />{dbState === 'checking' ? 'CONNECTING TO THE ORACLE' : dbState === 'device-local' ? 'DEVICE ORACLE ACTIVE' : 'ORACLE ONLINE'}</div>
       </div>
     </header>
 
-    <nav className="tabs mockup-tabs">
-      <button className={tab==='read'?'active':''} onClick={enterFold}><span className="tab-icon">△</span> Enter The Fold</button>
-      <button className={tab==='history'?'active':''} onClick={()=>setTab('history')}><span className="tab-icon">▱</span> Past Readings</button>
+    <nav className="tabs mockup-tabs" aria-label="Reading navigation">
+      <button className={tab==='read'?'active':''} aria-current={tab==='read' ? 'page' : undefined} onClick={enterFold}><span className="tab-icon fold-sigil" aria-hidden="true" /> Enter The Fold</button>
+      <button className={tab==='history'?'active':''} aria-current={tab==='history' ? 'page' : undefined} onClick={()=>setTab('history')}><svg className="tab-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M20 9C14 5 8 5 3 7v27c6-3 12-2 17 1 5-3 11-4 17-1V7c-5-2-11-2-17 2Zm0 0v26" /></svg> Past Readings</button>
     </nav>
 
     {notice && <div className="notice-banner">{notice}</div>}
@@ -184,7 +172,7 @@ export default function App() {
             <div className="ritual-note">Ask about the pattern —<br/>not the verdict.</div>
             <div className="ritual-deck-preview">
               <div className="ritual-card-stack" role="img" aria-label="The Fold Shadow Deck: gold celestial card backs on violet velvet" />
-              <p className="ritual-awaits">THE SHADOW DECK<br/>AWAITS<br/><span>✦</span></p>
+              <p className="ritual-awaits">THE<br/>SHADOW DECK<br/>AWAITS<br/><span>✧</span></p>
             </div>
           </section>
         </div>

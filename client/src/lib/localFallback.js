@@ -144,7 +144,7 @@ export function generateLocalReading(form) {
   const spread = spreads[form.spread] || spreads.three;
   const draw = shuffleTake(spread.positions.length);
   const reversed = draw.map(() => form.reversals === 'yes' && secureInt(100) < 30);
-  const profile = { name: form.name || '', gender: form.gender || '', birthday: form.birthday || '', preferredSpread: form.spread || 'three' };
+  const profile = { name: form.name || '', gender: form.gender || '', birthday: form.birthInfluence === false ? '' : form.birthday || '', preferredSpread: form.spread || 'three' };
   const personal = personalization(profile.birthday);
   return {
     readingId: crypto.randomUUID(),

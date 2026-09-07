@@ -1,224 +1,194 @@
-/* Original approved artwork below live HTML. Keep image bytes out of the CSS bundle. */
+/* Reference artwork is served at full resolution, behind accessible live controls.
+   Sprite windows select the measured bounds in controls-atlas.png; the original
+   artwork stays intact. Screen blending makes its pure black canvas disappear. */
+:root { color-scheme: dark; --bg: #060509; --text: #eee7e9; --muted: #a99fa8; }
+body { background: #060509; container-type: inline-size; }
+.app-shell { width: min(1320px, 100%); padding: 0 36px 20px; }
+.sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip-path: inset(50%); white-space: nowrap; border: 0 !important; }
+button, summary { cursor: pointer; }
+button:disabled { cursor: wait; }
+button:focus-visible, summary:focus-visible { outline: 2px solid #f0cf8d; outline-offset: 4px; }
+
 .fold-hero {
-  width: min(100vw, 1536px);
-  max-width: none;
-  margin-inline: calc((100% - min(100vw, 1536px)) / 2);
-  min-height: 0;
-  padding: 0;
-  border-radius: 0;
-  display: block;
-  background: #050407;
-  container-type: inline-size;
-}
-
-/* Keep the full scene at its original proportions. A dark central layer covers
-   the upload's printed title and copy, with responsive HTML in the same area. */
-.fold-hero::before { display: none; }
-.fold-hero .hero-cosmos {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  background: url('/assets/the-fold/hero-original.jpg') center top / 100% auto no-repeat;
-}
-.fold-hero .hero-cosmos::after {
-  content: '';
-  position: absolute;
-  top: 25.1cqw;
-  left: 15%;
-  width: 70%;
-  height: 26cqw;
-  background: linear-gradient(90deg, transparent, #050407 9% 91%, transparent);
-}
-.fold-hero::after {
-  inset: auto 0 0;
-  z-index: 0;
-  height: 15.625cqw;
-  background: url('/assets/the-fold/hero-original.jpg') center bottom / 100% auto no-repeat;
-  mask-image: linear-gradient(transparent, #000 65%);
-  pointer-events: none;
-}
-.fold-hero .hero-copy {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 25.5cqw 24px 76px;
-  text-align: center;
-}
-.fold-hero .hero-copy > p {
-  margin: 0 0 8px;
-  color: #e6d9bd;
-  font: 500 clamp(.75rem, 1.1vw, 1rem)/1.5 Georgia, serif;
-  letter-spacing: .2em;
-}
-.fold-hero h1 {
-  margin: 0;
-  font-size: clamp(3.25rem, 10vw, 9rem);
-  font-weight: 500;
-  line-height: 1.05;
-  letter-spacing: .025em;
-  color: #efcb87;
-  text-shadow: 0 2px 14px #0008;
-}
-.fold-hero .hero-tagline {
-  margin: 10px 0 18px;
-  color: #efdfbc;
-  font: 500 clamp(.875rem, 1.5vw, 1.25rem)/1.5 Georgia, serif;
-  letter-spacing: .2em;
-}
-.fold-hero .hero-copy > span {
-  display: block;
-  color: #e7ded4;
-  font: clamp(1rem, 1.8vw, 1.375rem)/1.5 Georgia, serif;
-}
-.fold-hero .moon-divider { margin: 22px auto 18px; max-width: 500px; }
-.fold-hero .runtime-badge {
-  min-width: 0;
-  margin: 0 auto;
-  padding: 12px 22px;
-  background: #050407e6;
-  color: #d9e9cc;
-  font-size: .75rem;
-  line-height: 1.3;
-  letter-spacing: .16em;
-  box-shadow: 0 0 20px #d4ac681a;
-}
-.fold-hero .side-whisper { display: none; }
-.mockup-tabs { margin-top: -36px; margin-bottom: 22px; }
-.mockup-tabs button { line-height: 1.4; }
-
-/* The two supplied frames share one image; each panel selects its own half. */
-.mockup-grid { align-items: stretch; }
-.panel-shell { background: #060407; border-color: #876541; }
-.panel-shell::before, .panel-shell .panel::before { display: none; }
-.panel-shell .panel {
   position: relative;
   isolation: isolate;
-  min-width: 0;
-  padding: 32px 38px 36px;
-  background-color: #07050a;
-  background-image: linear-gradient(#07050a30, #07050a14), url('/assets/the-fold/panels-original.jpg');
-  background-size: 100% 100%, 200% 100%;
-  background-repeat: no-repeat;
-  background-position: center, left top;
-}
-.panel-shell .ritual-panel { background-position: center, right top; }
-.form-panel > *, .ritual-panel > * { position: relative; z-index: 2; }
-.form-panel::after, .ritual-panel::after {
-  content: '';
-  position: absolute;
-  inset: 24px;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, #07050ac9 8% 92%, transparent);
-}
-.panel-shell .section-kicker { font-size: .75rem; line-height: 1.5; }
-.panel-shell h2 { font-size: clamp(1.875rem, 3.2vw, 2.75rem); line-height: 1.15; }
-.mockup-form-grid label span { font-size: 1rem; line-height: 1.4; }
-.mockup-form-grid input, .mockup-form-grid select, .mockup-form-grid textarea {
-  min-width: 0;
-  font-size: 1rem;
-  background-color: #0b0910ed;
-}
-.mockup-form-grid textarea { padding-bottom: 28px; }
-.oracle-toggle-copy small, .mockup-form-grid label span em { font-size: .875rem; }
-.oracle-toggle-copy b { line-height: 1.4; }
-.char-count { font-size: .75rem; }
-.ritual-steps {
-  display: grid;
-  list-style: none;
-  margin: 20px 0 12px;
+  width: min(100cqw, 1536px);
+  max-width: none;
+  margin-inline: calc((100% - min(100cqw, 1536px)) / 2);
+  min-height: 0;
   padding: 0;
-  gap: 18px;
-}
-.ritual-steps li {
-  display: grid;
-  grid-template-columns: 54px minmax(0, 1fr);
-  align-items: start;
-  gap: 18px;
-  padding: 0;
-}
-.ritual-steps li > span { display: grid; place-items: center; }
-.ritual-steps small { display: block; margin-top: 4px; font-size: 1rem; line-height: 1.5; }
-.ritual-note { background: #07050ad9; font-style: italic; text-align: center; }
-.ritual-deck-preview {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 100px;
-  align-items: center;
-  gap: 12px;
-  margin-top: auto;
-  padding-top: 20px;
-}
-.ritual-card-stack {
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  background: url('/assets/the-fold/deck-original.jpg') center / contain no-repeat;
-  border-radius: 8px;
-}
-.ritual-awaits {
-  margin: 0;
-  color: #dfbb7c;
-  text-align: center;
-  font-size: .75rem;
-  letter-spacing: .2em;
-  line-height: 1.8;
-}
-.ritual-awaits span { display: block; margin-top: 12px; font-size: 1.25rem; }
-
-/* All fronts are local images. Contain preserves borders on narrower masters. */
-.tarot-card .card-art { background: #09070a; overflow: hidden; position: relative; }
-.tarot-card .card-art img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-}
-.fold-card-back .card-back { background: #09070a; }
-/* A CSS window onto the central card keeps the supplied photograph unchanged. */
-.fold-card-back .card-back::before {
-  content: '';
-  position: absolute;
-  inset: auto 0;
-  top: 50%;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 672 / 942;
-  transform: translateY(-50%);
   border: 0;
-  border-radius: 8px;
-  background: url('/assets/the-fold/deck-original.jpg') 50% 17.073% / 228.571% auto no-repeat;
+  border-radius: 0;
+  display: block;
+  background: #060509;
+  container-type: inline-size;
+  overflow: visible;
 }
-.fold-card-back .back-reveal {
-  top: auto;
-  bottom: 7%;
-  z-index: 1;
-  transform: translateX(-50%);
-  padding: 9px 12px;
-  background: #07050ae8;
-  font-size: .75rem;
-  white-space: nowrap;
+.fold-hero::before, .fold-hero::after, .hero-cosmos::after { display: none; }
+.fold-hero .hero-cosmos {
+  position: absolute;
+  inset: 0 0 -112px;
+  z-index: -1;
+  width: 100%;
+  background: linear-gradient(180deg, #0605090a, #06050918 35%, #06050988 65%, #060509 98%), url('/assets/the-fold/hero-clean.png') center top / 100% auto no-repeat;
 }
-button:focus-visible { outline: 2px solid #f0cf8d; outline-offset: 4px; }
+.fold-hero .hero-copy { position: relative; z-index: auto; width: 100%; max-width: none; margin: 0 auto; padding: 25.3cqw 20px 32px; text-align: center; }
+.fold-hero .hero-copy > p { margin: 0 0 12px; color: #e1d8d8; font: 600 clamp(12px, 1.38vw, 20px)/1.4 Georgia, serif; letter-spacing: .2em; }
+.fold-hero h1 { width: min(61cqw, 810px); margin: 0 auto; line-height: 0; text-shadow: none; }
+.fold-hero .title-wordmark { display: block; width: 100%; aspect-ratio: 1972 / 332; background: url('/assets/the-fold/title-wordmark.png') 47% 48.2143% / 110.142% 218.0723% no-repeat; mix-blend-mode: screen; }
+.fold-hero .hero-tagline { margin: 6px 0 20px; color: #f0e6cf; font: 500 clamp(13px, 1.65vw, 23px)/1.3 Georgia, serif; letter-spacing: .23em; }
+.fold-hero .hero-copy > span { display: block; color: #e0d7d8; font: clamp(17px, 1.85vw, 26px)/1.25 Georgia, serif; }
+.moon-divider { display: block; width: min(650px, 64%); aspect-ratio: 988 / 76; height: auto; background: url('/assets/the-fold/controls-atlas.png') 20.6204% 91.9721% / 155.4656% 806.2992% no-repeat; mix-blend-mode: screen; }
+.fold-hero .moon-divider { max-width: 650px; margin: 12px auto 14px; }
+.moon-divider.compact { width: min(440px, 75%); margin: 24px auto; }
+.fold-hero .runtime-badge { display: inline-flex; gap: 28px; min-width: 320px; min-height: 47px; margin: 0 auto; padding: 10px 26px; border: 1.5px solid #bca171; background: #09080ac9; color: #d0dccb; font: 600 16px/1.35 Georgia, serif; letter-spacing: .26em; box-shadow: 0 0 20px #d4ac681a; }
+.runtime-badge i { width: 10px; height: 10px; border-radius: 50%; background: #d5ffe6; box-shadow: 0 0 8px #b6ffd9, 0 0 20px #6fffbb; }
+.runtime-badge.checking i { background: #e4c58a; box-shadow: 0 0 12px #e4c58a; }
+.fold-hero .side-whisper { display: block; top: auto; bottom: 2px; color: #a698a3; font: 500 14px/1.95 Georgia, serif; letter-spacing: .28em; }
+.fold-hero .side-whisper-left { left: 3.3%; }
+.fold-hero .side-whisper-right { right: 3.1%; bottom: 15px; }
 
-@media (max-width: 900px) {
-  .fold-hero .side-whisper { display: none; }
-  .panel-shell .panel { padding: 30px; }
+.mockup-tabs { position: relative; z-index: 2; display: flex; gap: 0; width: min(830px, 76%); margin: 0 auto 24px; overflow: visible; border: 1px solid #54414c; border-radius: 999px; background: #100b13b0; box-shadow: 0 1px 0 #ffffff12 inset; }
+.mockup-tabs button { display: flex; align-items: center; justify-content: center; gap: 26px; width: 50%; min-height: 76px; padding: 14px 20px; border: 0; border-radius: 999px; background: transparent; color: #c2b6c1; font: 600 20px/1.2 Georgia, serif; letter-spacing: .13em; text-transform: uppercase; }
+.mockup-tabs button.active { background: url('/assets/the-fold/controls-atlas.png') 49.4867% 33.8691% / 146.4252% 669.281% no-repeat !important; color: #f2e7d5 !important; box-shadow: 0 0 22px #c2984830; }
+.tab-icon { display: block; flex: 0 0 auto; width: 40px; height: 40px; margin: 0; color: #b99a73; }
+.fold-sigil { width: 46px; background: url('/assets/the-fold/controls-atlas.png') 92.5442% 92.7725% / 653.617% 568.8889% no-repeat; mix-blend-mode: screen; }
+
+.mockup-grid { grid-template-columns: 1.1fr 1fr; gap: 20px; align-items: stretch; }
+.panel-shell { min-width: 0; border: 1px solid #5a414c; border-radius: 20px; padding: 0; background: #08070c; box-shadow: 0 1px 2px #c4a07c18 inset; overflow: hidden; }
+.panel-shell::before, .panel-shell .panel::before, .form-panel::after, .ritual-panel::after { display: none; }
+.panel-shell .panel { position: relative; min-width: 0; height: 100%; padding: 30px 48px 32px; border: 0; border-radius: 0; background: linear-gradient(#08070c55, #08070c77), url('/assets/the-fold/panel-background.png') center / calc(100% + 28px) calc(100% + 28px) no-repeat, #08070c; }
+.panel-shell .ritual-panel { padding-inline: 36px; }
+.panel-shell .section-kicker { color: #bd9b85; font: 600 15px/1.4 Georgia, serif; letter-spacing: .3em; }
+.panel-shell h2 { margin: 6px 0 26px; color: #f4eef0; font: 700 42px/1.2 Georgia, serif; letter-spacing: .01em; }
+.mockup-form-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 24px 28px; }
+.mockup-form-grid label { min-width: 0; }
+.mockup-form-grid label > span { display: block; margin-bottom: 7px; color: #e7dfe3; font: 500 22px/1.2 Georgia, serif; }
+.mockup-form-grid label > span em { color: #b9aeb9; font: 16px/1.2 Georgia, serif; white-space: nowrap; }
+.mockup-form-grid input, .mockup-form-grid select, .mockup-form-grid textarea { display: block; width: 100%; min-width: 0; min-height: 50px; border: 1px solid #665a63; border-radius: 12px; padding: 10px 20px; background: #0a090dcc; color: #e4dce4; font: 18px/1.4 Arial, sans-serif; box-shadow: 0 0 0 1px #ffffff0c, inset 0 1px 4px #0006; }
+.mockup-form-grid input::placeholder, .mockup-form-grid textarea::placeholder { color: #938a99; opacity: 1; }
+.mockup-form-grid input[type=date] { padding-inline: 14px; }
+.mockup-form-grid input::-webkit-calendar-picker-indicator { opacity: .65; }
+.mockup-form-grid textarea { min-height: 151px; padding: 14px 20px; resize: vertical; }
+.mockup-form-grid input:focus-visible, .mockup-form-grid select:focus-visible, .mockup-form-grid textarea:focus-visible, .spread-control:focus-within { outline: 2px solid #d3ad75; outline-offset: 3px; }
+.char-count { display: block; position: static; margin-top: 7px; color: #9c909f; text-align: right; font: 16px/1.2 Arial, sans-serif; }
+.spread-control { position: relative; display: flex; align-items: center; gap: 22px; min-height: 74px; padding: 12px 20px; border: 1px solid #716570; border-radius: 12px; background: #0a090dcc; }
+.spread-icon { width: 38px; height: 38px; flex-shrink: 0; color: #c5a178; }
+.spread-copy { display: grid; gap: 2px; min-width: 0; font: 18px/1.25 Arial, sans-serif; }
+.spread-copy b { font-weight: 400; }
+.spread-copy small { color: #a699aa; font-size: 15px; }
+.select-chevron { width: 20px; height: 20px; margin-left: auto; flex-shrink: 0; }
+.mockup-form-grid .spread-control select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.oracle-toggle-row { display: flex; align-items: flex-start; gap: 18px; width: 100%; min-height: 59px; padding: 7px 0 0; border: 0; background: transparent; color: #e7dfe5; text-align: left; }
+.oracle-switch { width: 65px; height: 35px; margin-top: 1px; padding: 3px; border: 1.5px solid #c9ab73; border-radius: 999px; background: #18111a; flex: 0 0 auto; }
+.oracle-switch i { display: block; width: 26px; height: 26px; border-radius: 50%; background: #968374; }
+.oracle-switch.on { background: linear-gradient(90deg, #171213, #786035); box-shadow: 0 0 15px #d6ae6526; }
+.oracle-switch.on i { transform: translateX(29px); background: #ffedc9; box-shadow: 0 0 9px #f9d89688; }
+.oracle-toggle-copy { display: grid; gap: 6px; }
+.oracle-toggle-copy b { font: 500 18px/1.3 Arial, sans-serif; }
+.oracle-toggle-copy small { color: #afa0b0; font: 16px/1.35 Arial, sans-serif; }
+.draw-button { display: flex; align-items: center; justify-content: center; gap: 18px; width: 100%; min-height: 78px; margin-top: 38px; padding: 18px 25px; border: 0 !important; border-radius: 23px !important; background: url('/assets/the-fold/controls-atlas.png') 49.0446% 6.9575% / 111.3851% 581.8182% no-repeat !important; color: #17100b !important; font: 700 24px/1.3 Georgia, serif; letter-spacing: .025em; box-shadow: 0 0 24px #ce9e4130; }
+.draw-button svg { width: 50px; height: 34px; flex-shrink: 0; }
+.draw-button:hover, .mockup-tabs button.active:hover { filter: brightness(1.12); }
+.draw-button:active { transform: translateY(1px); }
+.lift-veil-label { margin-top: 28px; color: #aa9ead; text-align: center; font: 600 15px/1.4 Georgia, serif; letter-spacing: .37em; }
+.reading-options { margin-top: 28px; color: #b1a5b6; font: 14px/1.5 Arial, sans-serif; }
+.reading-options summary { padding-block: 8px; }
+.reading-options .form-grid { margin-top: 20px; gap: 18px; }
+.reading-options .save-toggle input { width: 20px; min-height: 20px; flex: 0 0 20px; accent-color: #d4ac68; }
+.reading-options label span { font-size: 14px; }
+.reading-options .save-toggle { align-items: center; }
+
+.ritual-panel { display: flex; flex-direction: column; }
+.ritual-panel h2 { margin-bottom: 18px; }
+.ritual-intro { margin: 0; color: #d8ced8; font: 22px/1.25 Georgia, serif; }
+.ritual-steps { display: grid; list-style: none; margin: 26px 0 20px; padding: 0; gap: 25px; }
+.ritual-steps li { display: grid; grid-template-columns: 72px minmax(0, 1fr); align-items: start; gap: 30px; padding: 0; border: 0; }
+.ritual-steps li > span { position: relative; display: grid; place-items: center; width: 72px; height: 72px; border: 1.4px solid #c4a376; border-radius: 50%; color: #cbb3ad; font: 400 29px/1 Georgia, serif; letter-spacing: .1em; box-shadow: 0 0 16px #d4ac6820; }
+.ritual-steps li > span::after { content: ''; position: absolute; inset: -9px -6px; background: linear-gradient(#bd9d6b77, #bd9d6b77) center / 1px 100% no-repeat, linear-gradient(90deg, #bd9d6b55, #bd9d6b55) center / 100% 1px no-repeat; z-index: -1; }
+.ritual-steps b { color: #e1d6df; font: 600 22px/1.2 Georgia, serif; }
+.ritual-steps small { display: block; margin-top: 4px; color: #bdb0c0; font: 18px/1.35 Arial, sans-serif; }
+.ritual-note { position: relative; isolation: isolate; margin: 0 -9px 0; min-height: 108px; padding: 22px 40px; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: #e0c396; text-align: center; font: italic 26px/1.25 Georgia, serif; }
+.ritual-note::before { content: ''; position: absolute; inset: 0; z-index: -1; background: url('/assets/the-fold/controls-atlas.png') 49.1667% 63% / 108.4746% 457.1429% no-repeat; mix-blend-mode: screen; opacity: .65; }
+.ritual-deck-preview { position: relative; width: calc(100% + 72px); aspect-ratio: 3 / 2; margin: 10px -36px -32px; background: url('/assets/the-fold/deck-preview.png') center / contain no-repeat; }
+.ritual-card-stack { position: absolute; inset: 0 35% 0 0; }
+.ritual-awaits { position: absolute; top: 35%; right: 4%; width: 30%; margin: 0; color: #dcc0a1; text-align: center; font: 600 16px/1.7 Georgia, serif; letter-spacing: .25em; }
+.ritual-awaits span { display: block; margin-top: 18px; font-size: 36px; }
+.mockup-footer { margin-top: 26px; }
+
+/* All card fronts use local files and preserve the complete printed border. */
+.tarot-card .card-art { background: #09070a; overflow: hidden; position: relative; }
+.tarot-card .card-art img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
+.fold-card-back .card-back { background: #09070a; }
+.fold-card-back .card-back::before { content: ''; position: absolute; inset: auto 0; top: 50%; width: 100%; height: auto; aspect-ratio: 672 / 942; transform: translateY(-50%); border: 0; border-radius: 8px; background: url('/assets/the-fold/deck-original.jpg') 50% 17.073% / 228.571% auto no-repeat; }
+.fold-card-back .back-reveal { top: auto; bottom: 7%; z-index: 1; transform: translateX(-50%); padding: 9px 12px; background: #07050ae8; font-size: .75rem; white-space: nowrap; }
+
+@media (max-width: 1100px) {
+  .app-shell { padding-inline: 24px; }
+  .panel-shell .panel { padding-inline: 28px; }
+  .panel-shell h2 { font-size: 36px; }
+  .mockup-form-grid { gap: 22px 16px; }
+  .mockup-form-grid label > span { font-size: 19px; }
+  .mockup-form-grid label > span em { font-size: 14px; }
+  .ritual-steps li { grid-template-columns: 60px minmax(0, 1fr); gap: 22px; }
+  .ritual-steps li > span { width: 60px; height: 60px; }
+  .ritual-steps b { font-size: 20px; }
+  .ritual-deck-preview { width: calc(100% + 56px); margin-inline: -28px; }
+  .mockup-tabs { width: 82%; }
 }
-@media (max-width: 620px) {
-  .fold-hero .hero-copy { padding: calc(25.5cqw + 8px) 20px 66px; }
-  .fold-hero h1 { font-size: clamp(2.75rem, 13vw, 5rem); }
-  .fold-hero .hero-copy > p { letter-spacing: .12em; }
-  .fold-hero .hero-tagline { letter-spacing: .12em; }
+@media (max-width: 760px) {
+  .app-shell { padding: 0 16px 20px; }
+  .fold-hero .hero-copy { padding: calc(26cqw + 14px) 18px 26px; }
+  .fold-hero h1 { width: 85%; }
+  .fold-hero .hero-copy > p { font-size: clamp(9px, 2vw, 14px); letter-spacing: .17em; margin-bottom: 12px; }
+  .fold-hero .hero-tagline { font-size: clamp(12px, 2.4vw, 18px); letter-spacing: .13em; margin-top: 9px; margin-bottom: 18px; }
+  .fold-hero .hero-copy > span { max-width: 510px; margin: auto; font-size: 17px; line-height: 1.4; }
   .fold-hero .hero-copy > span br { display: none; }
-  .fold-hero .runtime-badge { font-size: .75rem; padding: 10px 16px; }
-  .mockup-tabs { width: 100%; }
-  .mockup-tabs button { font-size: .875rem; letter-spacing: .02em; }
-  .panel-shell .panel { padding: 28px 22px; }
-  .form-panel::after, .ritual-panel::after { inset: 16px; }
-  .ritual-steps li { grid-template-columns: 42px minmax(0, 1fr); gap: 14px; }
-  .ritual-deck-preview { grid-template-columns: minmax(0, 1fr) 90px; gap: 8px; }
+  .fold-hero .moon-divider { width: 82%; margin: 14px auto 18px; }
+  .fold-hero .runtime-badge { min-width: 250px; min-height: 41px; gap: 16px; font-size: 12px; padding: 10px 20px; }
+  .fold-hero .side-whisper { display: none; }
+  .mockup-tabs { width: 100%; margin: 0 auto 20px; }
+  .mockup-tabs button { min-height: 60px; gap: 10px; padding: 10px 8px; font-size: 13px; letter-spacing: .06em; }
+  .tab-icon, .fold-sigil { width: 28px; height: 28px; }
+  .mockup-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .panel-shell { border-radius: 16px; }
+  .panel-shell .panel { padding: 28px 24px; }
+  .panel-shell .section-kicker { font-size: 12px; letter-spacing: .25em; }
+  .panel-shell h2 { font-size: 34px; margin-bottom: 26px; }
+  .mockup-form-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 24px 16px; }
+  .mockup-form-grid .full { grid-column: 1 / -1; }
+  .mockup-form-grid label > span { font-size: 18px; }
+  .mockup-form-grid label > span em { font-size: 12px; }
+  .mockup-form-grid input, .mockup-form-grid select, .mockup-form-grid textarea { font-size: 16px; padding-inline: 13px; }
+  .mockup-form-grid input[type=date] { padding-inline: 8px; }
+  .spread-control { gap: 14px; padding-inline: 14px; }
+  .spread-copy { font-size: 16px; }
+  .spread-copy small { font-size: 13px; }
+  .oracle-toggle-row { gap: 14px; }
+  .oracle-toggle-copy b { font-size: 16px; }
+  .oracle-toggle-copy small { font-size: 14px; }
+  .oracle-switch { width: 58px; height: 32px; }
+  .oracle-switch i { width: 23px; height: 23px; }
+  .oracle-switch.on i { transform: translateX(26px); }
+  .draw-button { margin-top: 30px; min-height: 66px; padding: 15px; gap: 12px; font-size: 20px; }
+  .draw-button svg { width: 37px; }
+  .lift-veil-label { font-size: 12px; }
+  .ritual-intro { font-size: 20px; line-height: 1.4; }
+  .ritual-steps { gap: 26px; }
+  .ritual-steps li { grid-template-columns: 56px minmax(0, 1fr); gap: 22px; }
+  .ritual-steps li > span { width: 56px; height: 56px; font-size: 23px; }
+  .ritual-steps b { font-size: 20px; }
+  .ritual-steps small { font-size: 16px; line-height: 1.45; }
+  .ritual-note { font-size: 22px; padding: 24px; min-height: 102px; }
+  .ritual-deck-preview { width: calc(100% + 48px); margin: 12px -24px -28px; }
+  .ritual-awaits { font-size: 12px; }
+}
+@media (max-width: 380px) {
+  .app-shell { padding-inline: 12px; }
+  .panel-shell .panel { padding-inline: 20px; }
+  .mockup-form-grid { grid-template-columns: minmax(0, 1fr); }
+  .mockup-tabs button { font-size: 12px; gap: 6px; }
+  .ritual-deck-preview { width: calc(100% + 40px); margin-inline: -20px; }
+  .draw-button { font-size: 18px; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

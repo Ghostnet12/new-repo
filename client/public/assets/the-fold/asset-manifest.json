@@ -1,0 +1,173 @@
+{
+  "generator": "Built-in image_gen.imagegen",
+  "notes": [
+    "Final assets are project-bound and saved outside the checkout. No Site or publishing tools were used.",
+    "Transparent requests returned RGB images with baked checkerboards. Final controls atlas and title use verified pure-black RGB backgrounds for screen blending, accepted by parent.",
+    "Pixel bounds below use exclusive right/bottom equivalents expressed as x, y, width, height; measured visible content at max RGB > 10.",
+    "Lunar divider contains four visible phases around central star. Generated source edits preserve recognizable composition and identity but are not pixel-identical extraction."
+  ],
+  "assets": [
+    {
+      "filename": "hero-clean.png",
+      "path": "/workspace/scratch/43702430baa1/fold-reference-assets/hero-clean.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source": "exec-3b50fe6d-c05e-4c25-9ac2-51184cb9769e.png"
+    },
+    {
+      "filename": "panel-background.png",
+      "path": "/workspace/scratch/43702430baa1/fold-reference-assets/panel-background.png",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "mode": "RGB",
+      "source": "exec-bc1ceb9d-df96-423b-b91e-ede76385d832.png"
+    },
+    {
+      "filename": "deck-preview.png",
+      "path": "/workspace/scratch/43702430baa1/fold-reference-assets/deck-preview.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source": "exec-6d285786-7a6c-4251-a86f-6798479bf128.png"
+    },
+    {
+      "filename": "controls-atlas.png",
+      "path": "/workspace/scratch/43702430baa1/fold-reference-assets/controls-atlas.png",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGB",
+      "source": "exec-e7a00090-a774-4a66-aef9-4ba582b818e6.png",
+      "crop_bounds_xywh": {
+        "cta": [
+          77,
+          59,
+          1379,
+          176
+        ],
+        "active-tab": [
+          241,
+          295,
+          1049,
+          153
+        ],
+        "quotation-frame": [
+          59,
+          504,
+          1416,
+          224
+        ],
+        "lunar-divider": [
+          113,
+          825,
+          988,
+          127
+        ],
+        "triangle-eye": [
+          1204,
+          783,
+          235,
+          180
+        ]
+      }
+    },
+    {
+      "filename": "title-wordmark.png",
+      "path": "/workspace/scratch/43702430baa1/fold-reference-assets/title-wordmark.png",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "mode": "RGB",
+      "source": "exec-e06a68d7-29a6-49a5-b65b-dae4ab46c8ed.png",
+      "crop_bounds_xywh": [
+        94,
+        189,
+        1972,
+        332
+      ]
+    }
+  ],
+  "prompt_passes": [
+    {
+      "stage": "Initial asset batch",
+      "prompts": [
+        {
+          "name": "hero-clean.png",
+          "prompt": "Use case: precise-object-edit. Asset type: textless website hero background. Edit target: the supplied original celestial tarot artwork. Make a MINIMAL cleanup edit. Remove ALL lettering everywhere: the small FRACTURE PRESENTS line, large THE FOLD title, TRUTH LIVES line, both descriptive lines, and all left and right side text. Also remove only the small horizontal lunar divider in the lower center (the tiny moon phases, thin horizontal rules and the central star around 71 percent down the image). Fill those removed regions seamlessly with very dark almost black purple celestial atmosphere, so the central former text area is quiet negative space suitable for live website text. Preserve as exactly as possible every other element and its original location, scale, color, and texture: the large celestial eye above center, the upper semicircular arc of realistic gold moon phases, all thin gold orbit lines and rays, the side crescent moons, the purple nebula clouds, black mountain landscape, bottom golden horizon and river reflection. Do not replace or redesign the artwork. The large eye and upper lunar arc are sacred invariants. Landscape 3:2 canvas, 1536x1024 or larger at the same composition. No text, no lettering, no watermark, no added UI.",
+          "refs": [
+            "/workspace/scratch/43702430baa1/upload/E17D3EFA-A73F-41C7-8F27-3EF4DAF08E2C(6).jpeg"
+          ]
+        },
+        {
+          "name": "controls-atlas.png",
+          "prompt": "Use case: ui-mockup. Asset type: high-resolution TRANSPARENT PNG UI sprite atlas for a celestial tarot website. Reference image: use the supplied page ONLY as the material and ornament reference, especially its metallic champagne/antique gold Draw the Cards button, Enter the Fold active tab, lower quotation border and lunar dividers. Create ONE 1536x1024 transparent canvas with separate non-overlapping horizontal rows and generous fully transparent gaps, all objects front-on, no perspective. ROW 1: one blank rounded rectangular full-width gold satin CTA button occupying approximately x96 y48 width1344 height184, corner radius40, thin warm ivory gold outline, subtle brushed metallic champagne surface, luminous warm center and darker antique edges. NO text, NO icon. ROW 2: one blank fully rounded antique gold translucent active-tab pill occupying approximately x96 y290 width1000 height160, very dark amber gold center, delicate gold edge. NO text, NO icon. ROW 3: one ornate thin antique gold double-line bracket-shaped quotation frame occupying approximately x96 y510 width1344 height230, transparent empty center, angular indented bracket-shaped end caps, small corner star ornaments, matching reference quote frame. NO text. ROW 4 LEFT: delicate lunar divider occupying approximately x96 y820 width900 height140, tiny realistic gold moon phases arranged symmetrically about one small central star, with thin gold horizontal line extending on both sides; keep all moons small and subordinate, no text. ROW 4 RIGHT: separate gold outline upright triangle with a small celestial eye inside at approximately x1150 y820 width180 height140. Do not connect it to the divider. Constraints: truly transparent background and all empty gaps transparent alpha, crisp antialiased edges, no opaque background, no checkerboard pattern, no shadows crossing into other rows, no labels, no words, no captions, no additional objects.",
+          "refs": [
+            "/workspace/scratch/43702430baa1/upload/IMG_8743(3).jpeg"
+          ]
+        },
+        {
+          "name": "panel-background.png",
+          "prompt": "Use case: stylized-concept. Asset type: textless dark website form-panel background. The supplied image is a style reference; closely match the near-black aubergine smoky panels in its lower half. Create one portrait 1024x1536 background: broad almost-black purple center and lower center kept very quiet and dark for live form text, subtly mottled textures, wisps of smoky violet cosmic nebula and tiny pinpoint antique-gold stars concentrated in the upper left and upper right corners, a very gentle purple velvet suggestion along the bottom edge. Add one very fine subtle antique gold rounded-rectangle border inset about12 pixels with softly rounded corners. Sophisticated, low-contrast, expensive mystical atmosphere. Reference panel colors: almost black plum, midnight aubergine, muted violet, small restrained champagne gold details. No text, no lettering, no words, no forms, no input boxes, no icons, no large stars, no large moons, no eye, no figures, no tarot cards, no bright center. Keep the entire central 80 percent calm and dark.",
+          "refs": [
+            "/workspace/scratch/43702430baa1/upload/IMG_8743(3).jpeg"
+          ]
+        },
+        {
+          "name": "deck-preview.png",
+          "prompt": "Use case: product-mockup. Asset type: photorealistic tarot deck website panel image. Input image 1 is the deck identity reference: preserve its recognizable black card backs, refined antique gold double borders, celestial eye with rays and orbit rings, realistic moon phases, fine gold stars, and intrinsic THE FOLD / SHADOW DECK branding on the cards. Input image 2 is the page composition reference: recreate the physical-card photograph at the bottom of its right panel, without any UI or surrounding text. Make a sharp realistic landscape 3:2 1536x1024 product photograph of two or three physical tarot cards neatly stacked with a modest clockwise lean, lying on rich dark purple velvet. The physical cards occupy only the LEFT TWO THIRDS of the composition. Main top card clearly visible, with soft second card visible behind and slightly offset. Right third stays empty dark violet velvet negative space suitable for live website text; no large folds or bright objects there. Low-key moody lighting, restrained realistic metallic gold foil gleam on card detail, tactile dark violet velvet folds, natural contact shadows, thin believable card edges. Preserve identity of the original deck graphic as faithfully as possible. No text outside the intrinsic THE FOLD and SHADOW DECK branding printed on the cards; do not add The Shadow Deck Awaits, no captions, no UI, no hands, no extra objects.",
+          "refs": [
+            "/workspace/scratch/43702430baa1/upload/59F054F6-7BB2-45F7-BBC4-9F687BDFA7F9(2).jpeg",
+            "/workspace/scratch/43702430baa1/upload/IMG_8743(3).jpeg"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": "Alpha correction and title extraction",
+      "prompts": [
+        {
+          "name": "controls-atlas-corrected.png",
+          "prompt": "Use case: background-extraction. Edit this exact UI atlas. Remove the entire gray checkerboard and every gray smoky mark in the background, making the background genuinely transparent with alpha=0 in the PNG. Remove the checkerboard inside the quotation frame, in the triangles and icons, around the moons and between all the separated assets. Do not draw a checkerboard: transparency must be actual alpha, not represented by a checkerboard pattern or white or black fill. Preserve all existing gold objects exactly: the two empty button shapes, the ornate gold quotation border, the lunar divider and the triangle-eye icon, same positions, sizes, detail and textures. No text. Same1536x1024 canvas. Output a true transparent PNG with only the gold UI objects and their minimal antialiased edges visible.",
+          "refs": [
+            "/workspace/scratch/43702430baa1/generated_images/exec-a677d333-bb2d-454a-bdce-ed4e9a400760.png"
+          ]
+        },
+        {
+          "name": "title-wordmark.png",
+          "prompt": "Use case: background-extraction. Asset type: exact website title wordmark isolated from this original artwork. Isolate ONLY the existing large central lettering THE FOLD from the supplied source artwork, preserving those exact letter shapes, proportions, spacing and sparkling antique champagne gold texture. It is a refined high-contrast classical serif, luminous metallic gold with subtle finely cracked foil texture and small original starburst glints along the letter strokes. Text must remain exactly: THE FOLD. Keep all seven letters including the full D and T. Remove absolutely everything else: all other words, landscape, eye, moons, gold orbits, stars away from letters, and the dark background. The result must be a genuinely transparent PNG with alpha=0 everywhere outside these exact gold letters and their restrained soft glow. Do not depict transparency with checkerboard and do not put the wordmark on an opaque black rectangle. Wide tight wordmark canvas approximately1536x320 or1400x240, centered, with very small transparent margins around the full lettering, nothing cropped. No added ornaments, no border, no new typography style, no watermark.",
+          "refs": [
+            "/workspace/scratch/43702430baa1/upload/E17D3EFA-A73F-41C7-8F27-3EF4DAF08E2C(6).jpeg"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": "Accepted pure-black background correction",
+      "prompts": [
+        {
+          "name": "controls-atlas-black.png",
+          "prompt": "Use case: precise-object-edit. Change ONLY the background of this exact atlas. Replace EVERY gray checkerboard square and every gray background mark with perfectly uniform solid pure black RGB(0,0,0). The background must be solid black everywhere outside the metallic gold objects: between rows, outside buttons, inside the empty quotation frame, inside the triangle, and around all moons and thin lines. Do not draw any checkerboard or gray texture anywhere. Preserve all gold UI objects exactly at their current positions and scale: top blank gold button, second dark gold pill, quotation frame, lunar divider and triangle-eye icon. Keep the button fill materials unchanged. No text. Same1536x1024 canvas, opaque pure black background suitable for screen blending. This is a background-only correction, not a redesign.",
+          "refs": [
+            "/workspace/scratch/43702430baa1/generated_images/exec-dab7c3bb-c4a4-4545-8330-7f90b11c9eeb.png"
+          ]
+        },
+        {
+          "name": "title-wordmark-black.png",
+          "prompt": "Use case: precise-object-edit. Change ONLY the background of this exact THE FOLD wordmark. Remove every gray checkerboard square and every smoky background mark and replace them with one perfectly flat solid pure black background RGB(0,0,0). Keep only the existing exact THE FOLD gold letters and their fine gold glows, same letter shapes, exact wording, spacing, sparkling metallic texture, size, layout and positions. All counters inside letters like O and D and all empty space between letters must be pure black. Do not depict transparency, do not draw checkerboards, no texture in the background, no extra stars or ornaments. Preserve exact seven-letter title and the full T and D. Same very wide3:1 canvas. Opaque pure black background suitable for screen blending. This is only a background correction, not a type redesign.",
+          "refs": [
+            "/workspace/scratch/43702430baa1/generated_images/exec-2bf68219-be13-4ce1-b6fb-f527745c7d9e.png"
+          ]
+        }
+      ]
+    }
+  ]
+}

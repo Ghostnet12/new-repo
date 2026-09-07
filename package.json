@@ -5,7 +5,7 @@
   "type": "module",
   "workspaces": ["client", "server"],
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace server\" \"npm run dev --workspace client\"",
+    "dev": "node scripts/dev.mjs",
     "prebuild": "node scripts/generate-card-derivatives.mjs",
     "build": "npm run build --workspace client",
     "start": "npm run start --workspace server",
