@@ -1,30 +1,17 @@
-function cardAssets(card, compact) {
+function cardAssets(card) {
   const id = Number(card?.id);
   if (!Number.isInteger(id) || id < 0 || id > 77) return null;
 
   const stem = String(id).padStart(2, '0');
-  const original = `/assets/cards/${stem}.webp`;
-
-  if (!import.meta.env.PROD) {
-    return { src: original, srcSet: undefined, sizes: undefined };
-  }
-
-  const thumb = `/assets/cards/thumb/${stem}.webp`;
-  const web = `/assets/cards/web/${stem}.webp`;
-
-  if (compact) {
-    return { src: thumb, srcSet: undefined, sizes: undefined };
-  }
-
   return {
-    src: web,
-    srcSet: `${thumb} 360w, ${web} 900w`,
-    sizes: '(max-width: 620px) 46vw, (max-width: 900px) 30vw, 20vw'
+    src: `/assets/cards/${stem}.webp`,
+    srcSet: undefined,
+    sizes: undefined
   };
 }
 
 export default function TarotCard({ card, position, reversed, revealed, onReveal, compact = false, revealDelay = 0 }) {
-  const assets = cardAssets(card, compact);
+  const assets = cardAssets(card);
   const revealStyle = { '--reveal-delay': `${Math.max(0, Number(revealDelay) || 0)}ms` };
 
   if (!revealed) {
@@ -49,12 +36,10 @@ export default function TarotCard({ card, position, reversed, revealed, onReveal
     <div className="card-art">
       {assets && <img
         src={assets.src}
-        srcSet={assets.srcSet}
-        sizes={assets.sizes}
         alt={card.name}
         loading={compact ? 'lazy' : 'eager'}
         decoding="async"
-        fetchPriority={compact ? 'low' : 'auto'}
+        fetchPriority={compact ? 'low' : 'high'}
         width="360"
         height="540"
       />}
