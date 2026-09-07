@@ -3,9 +3,15 @@ function cardAssets(card) {
   if (!Number.isInteger(id) || id < 0 || id > 77) return null;
 
   const stem = String(id).padStart(2, '0');
-  const local = `/assets/cards/${stem}.webp`;
-  const raw = `https://raw.githubusercontent.com/Ghostnet12/new-repo/main/client/public/assets/cards/${stem}.webp`;
-  return { src: import.meta.env.PROD ? raw : local };
+  const base = `${import.meta.env.BASE_URL}assets/cards/`;
+  const original = `${base}${stem}.webp`;
+  return {
+    original,
+    src: import.meta.env.PROD ? `${base}web/${stem}.webp` : original,
+    srcSet: import.meta.env.PROD
+      ? `${base}thumb/${stem}.webp 360w, ${base}web/${stem}.webp 900w`
+      : undefined
+  };
 }
 
 export default function TarotCard({ card, position, reversed, revealed, onReveal, compact = false, revealDelay = 0 }) {
@@ -15,16 +21,7 @@ export default function TarotCard({ card, position, reversed, revealed, onReveal
   if (!revealed) {
     return <button type="button" className={`tarot-card hidden-card fold-card-back ${compact ? 'compact' : ''}`} onClick={onReveal} aria-label={`Reveal ${position || 'tarot card'}`}>
       <div className="card-art card-back">
-        <span className="back-frame" aria-hidden="true" />
-        <span className="back-corner back-corner-a" aria-hidden="true">✦</span>
-        <span className="back-corner back-corner-b" aria-hidden="true">✦</span>
-        <span className="back-corner back-corner-c" aria-hidden="true">✦</span>
-        <span className="back-corner back-corner-d" aria-hidden="true">✦</span>
-        <span className="back-moon back-moon-top" aria-hidden="true">☾</span>
-        <span className="back-moon back-moon-bottom" aria-hidden="true">☽</span>
-        <span className="back-eye" aria-hidden="true"><span className="back-eye-iris"><span className="back-eye-pupil" /></span></span>
-        <span className="back-brand" aria-hidden="true">THE FOLD</span>
-        <span className="back-reveal">REVEAL</span>
+        <span className="back-reveal">REVEAL CARD</span>
       </div>
       {position && <div className="card-copy"><small>{position}</small><strong>Hidden Card</strong></div>}
     </button>;
@@ -33,13 +30,22 @@ export default function TarotCard({ card, position, reversed, revealed, onReveal
   return <article className={`tarot-card revealed-card ${reversed ? 'is-reversed' : ''} ${compact ? 'compact' : ''}`} style={revealStyle}>
     <div className="card-art">
       {assets && <img
+        key={card.id}
         src={assets.src}
+        srcSet={assets.srcSet}
+        sizes={compact ? '(max-width: 620px) 33vw, (max-width: 900px) 25vw, 190px' : '(max-width: 620px) 50vw, (max-width: 900px) 33vw, 380px'}
         alt={card.name}
         loading={compact ? 'lazy' : 'eager'}
         decoding="async"
         fetchPriority={compact ? 'low' : 'high'}
         width="360"
         height="540"
+        onError={(event) => {
+          const image = event.currentTarget;
+          if (image.getAttribute('src') === assets.original) return;
+          image.removeAttribute('srcset');
+          image.setAttribute('src', assets.original);
+        }}
       />}
       <span className="revealed-glint" aria-hidden="true" />
     </div>
