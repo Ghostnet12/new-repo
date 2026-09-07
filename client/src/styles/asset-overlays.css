@@ -1,0 +1,19 @@
+/* Asset-overlay layer: approved artwork sits underneath live HTML controls/text. */
+:root{--fold-gold:#d2ad68;--fold-ink:#070508;--fold-panel:#0d0910;}
+
+.fold-hero{min-height:560px;background-image:linear-gradient(to bottom,rgba(0,0,0,.05),rgba(0,0,0,.18)),url('/assets/the-fold/hero-approved.webp');background-size:cover;background-position:center;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border:1px solid rgba(210,173,104,.5);box-shadow:0 24px 60px rgba(0,0,0,.45);}
+.fold-hero .hero-cosmos{display:none!important}.fold-hero h1{color:#f6dc9a;text-shadow:0 0 18px rgba(255,196,91,.55),0 8px 24px #000;font-size:clamp(64px,11vw,132px)}
+.fold-hero p,.fold-hero .hero-tagline,.fold-hero>span{position:relative;z-index:1;text-shadow:0 3px 15px #000}
+
+.two-col{gap:18px;align-items:stretch}.form-panel,.ritual-panel{background-color:var(--fold-panel);background-size:cover;background-position:center;border:1px solid rgba(210,173,104,.72);box-shadow:0 22px 55px rgba(0,0,0,.42);position:relative;isolation:isolate}
+.form-panel{background-image:linear-gradient(rgba(5,3,7,.38),rgba(5,3,7,.44)),url('/assets/the-fold/panel-info.webp')}.ritual-panel{background-image:linear-gradient(rgba(5,3,7,.36),rgba(5,3,7,.42)),url('/assets/the-fold/panel-guide.webp')}
+.form-panel>*,.ritual-panel>*{position:relative;z-index:2}
+.form-panel:after,.ritual-panel:after{content:"";position:absolute;inset:8% 6%;background:radial-gradient(ellipse at center,rgba(7,5,8,.78) 0%,rgba(7,5,8,.62) 50%,rgba(7,5,8,0) 78%);z-index:1;pointer-events:none}
+.form-panel input,.form-panel select{background:rgba(8,6,10,.78);border-color:rgba(210,173,104,.34);color:#f4ece4}.form-panel input:focus,.form-panel select:focus{border-color:rgba(210,173,104,.85);box-shadow:0 0 0 3px rgba(210,173,104,.12)}
+.primary-button{background:linear-gradient(180deg,#e6c37a,#a8782d)!important;color:#120b05!important;border:1px solid #f1d590!important;box-shadow:0 0 22px rgba(218,169,83,.26),0 12px 30px rgba(0,0,0,.42)!important}
+.tabs{margin-top:-8px;position:relative;z-index:5}.tabs button{border-color:rgba(210,173,104,.38)}.tabs button.active{background:linear-gradient(180deg,#b9893b,#6d4b1c);color:#fff7df;border-color:#e1bb70;box-shadow:0 0 22px rgba(210,173,104,.22)}
+.ritual-card-stack{position:relative;width:180px;height:250px;margin:24px auto 0;background:url('/assets/the-fold/card-back-approved.webp') center/cover no-repeat;border-radius:14px;box-shadow:0 20px 42px rgba(0,0,0,.5),0 0 0 1px rgba(210,173,104,.45);transform:rotate(-5deg)}
+.ritual-card-stack:before,.ritual-card-stack:after{content:"";position:absolute;inset:0;background:inherit;border-radius:inherit;box-shadow:inherit;z-index:-1}.ritual-card-stack:before{transform:translate(-10px,9px) rotate(-4deg)}.ritual-card-stack:after{transform:translate(10px,8px) rotate(5deg)}
+.ritual-awaits{text-align:center;color:#d7b56c;letter-spacing:.28em;text-transform:uppercase;font-size:11px;margin-top:16px}
+
+@media(max-width:760px){.fold-hero{min-height:430px;background-position:center top}.fold-hero h1{font-size:clamp(56px,18vw,88px)}.two-col{grid-template-columns:1fr}.form-panel,.ritual-panel{background-position:center top}.ritual-card-stack{width:150px;height:210px}.form-panel:after,.ritual-panel:after{inset:5% 3%;background:linear-gradient(rgba(7,5,8,.58),rgba(7,5,8,.62))}}

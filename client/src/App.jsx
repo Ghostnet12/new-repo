@@ -182,12 +182,8 @@ export default function App() {
               <li><span>04</span><div><b>Draw the cards.</b><small>Reversals, birth-card layers and the full 78-card deck shape the final interpretation.</small></div></li>
             </ol>
             <div className="ritual-note">Ask about the pattern —<br/>not the verdict.</div>
-            <div className="awaits-stack" aria-hidden="true">
-              <div className="mini-card mini-card-back"></div>
-              <div className="mini-card mini-card-middle"></div>
-              <div className="mini-card mini-card-front"><span className="mini-eye">◉</span></div>
-              <div className="awaits-copy">THE<br/>SHADOW DECK<br/>AWAITS<br/><span>✦</span></div>
-            </div>
+            <div className="ritual-card-stack" aria-label="The Fold Shadow Deck card back"></div>
+            <div className="ritual-awaits">THE SHADOW DECK<br/>AWAITS<br/><span>✦</span></div>
           </section>
         </div>
       </div>

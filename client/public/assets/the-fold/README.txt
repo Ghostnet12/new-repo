@@ -1,0 +1,1 @@
+Approved visual asset overlay build. Image assets are hosted from the approved generated source while UI text and controls remain live HTML overlays.
