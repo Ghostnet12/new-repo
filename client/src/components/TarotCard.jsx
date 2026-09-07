@@ -12,12 +12,14 @@ function cardAssets(card, compact) {
   const thumb = `/assets/cards/thumb/${stem}.webp`;
   const web = `/assets/cards/web/${stem}.webp`;
 
+  if (compact) {
+    return { src: thumb, srcSet: undefined, sizes: undefined };
+  }
+
   return {
-    src: compact ? thumb : web,
+    src: web,
     srcSet: `${thumb} 360w, ${web} 900w`,
-    sizes: compact
-      ? '(max-width: 620px) 20vw, (max-width: 900px) 14vw, 9vw'
-      : '(max-width: 620px) 46vw, (max-width: 900px) 30vw, 20vw'
+    sizes: '(max-width: 620px) 46vw, (max-width: 900px) 30vw, 20vw'
   };
 }
 
@@ -40,6 +42,9 @@ export default function TarotCard({ card, position, reversed, revealed, onReveal
         alt={card.name}
         loading={compact ? 'lazy' : 'eager'}
         decoding="async"
+        fetchPriority={compact ? 'low' : 'auto'}
+        width="360"
+        height="540"
       />}
     </div>
     {!compact && <div className="card-copy">
