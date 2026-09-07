@@ -18,7 +18,7 @@ export async function api(path, options = {}) {
     ? await response.json().catch(() => ({}))
     : {};
 
-  if (!response.ok) throw new Error(payload.error || `Request failed (${response.status})`);
+  if (!response.ok) { const error=new Error(payload.issues?.[0]?.message || payload.error || `Request failed (${response.status})`); error.status=response.status; throw error; }
   if (!contentType.includes('application/json')) throw new Error('The API returned the website instead of JSON. Please refresh after the latest deployment finishes.');
   return payload;
 }

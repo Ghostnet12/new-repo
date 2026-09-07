@@ -1,3 +1,4 @@
+import { natalDefaults } from '../../../server/src/tarot/natal.js';
 import { buildReading } from '../../../server/src/tarot/interpretation.js';
 import { cards, spreads } from '../../../server/src/tarot/deck.js';
 
@@ -19,6 +20,7 @@ export function saveLocalProfile(profile) {
     name: String(profile?.name || '').slice(0, 50),
     gender: String(profile?.gender || '').slice(0, 30),
     birthday: String(profile?.birthday || '').slice(0, 10),
+    natal: { ...natalDefaults, ...profile?.natal },
     preferredSpread: profile?.preferredSpread || 'three'
   };
   localStorage.setItem(PROFILE_KEY, JSON.stringify(clean));
@@ -79,7 +81,7 @@ export function generateLocalReading(form) {
   const spread = spreads[form.spread] || spreads.three;
   const draw = shuffleTake(spread.positions.length);
   const reversed = draw.map(() => form.reversals === 'yes' && secureInt(100) < 30);
-  const profile = { name: form.name || '', gender: form.gender || '', birthday: form.birthInfluence === false ? '' : form.birthday || '', preferredSpread: form.spread || 'three' };
+  const profile = { name: form.name || '', gender: form.gender || '', birthday: form.birthday || '', preferredSpread: form.spread || 'three', natal: { ...natalDefaults, ...form.natal } };
   const input = { ...form, profile, focus:form.focus || 'general', need:form.need || 'clarity', personalInfluence:form.birthInfluence !== false };
   return { ...buildReading(input, draw, reversed, crypto.randomUUID()), persisted:false, database:'device-local', localFallback:true, apiVersion:'device-3.1.0' };
 }

@@ -1,5 +1,7 @@
+import { calculateNatal } from './natal.js';
+import { plainMeaning } from './cardStories.js';
 import { cards, spreads, zodiacMajor } from './deck.js';
-import { signs, numbers, elements, modalities, positionPrompts, knowledgeVersion } from './knowledge.js';
+import { signs, numbers, elements, modalities, positionPrompts, knowledgeVersion, planetThemes, aspectLessons } from './knowledge.js';
 
 export const digitSum = value => [...String(value)].reduce((sum, digit) => sum + (/\d/.test(digit) ? Number(digit) : 0), 0);
 export function reduceNumber(value, masters = true) {
@@ -38,18 +40,20 @@ export function personalContext(profile = {}, enabled = true) {
   const indices = [10,11,0,1,2,3,4,5,6,7,8,9];
   let index = 9;
   cutoffs.forEach((cut,i)=>{if(x>=cut) index=indices[i];});
-  const sign = signs[index];
+  const chart = calculateNatal(profile);
+  result.natal = chart;
+  const sign = chart.status === 'ready' ? signs[chart.planets[0].signIndex] : signs[index];
   result.zodiac = sign.name;
   result.zodiacCard = cards[zodiacMajor[sign.name]];
   result.sign = sign;
-  result.zodiacApproximate = true;
+  result.zodiacApproximate = chart.status !== 'ready';
   let birth = digitSum(profile.birthday);
   while (birth > 21) birth = digitSum(birth);
   result.birthCard = cards[birth];
   const path = lifePathFor(profile.birthday);
   result.lifePath = path.value;
   result.layers.push(
-    {title:`${sign.name} · approximate Sun sign`,kind:'zodiac',text:`In the tropical zodiac, ${sign.name} is associated with ${sign.theme}. ${sign.practice}`,note:'Calendar-date estimate. Near a sign boundary, the year, exact time and time zone can change the result. Moon, rising, houses and transits are not calculated.'},
+    {title:`${sign.name} · ${result.zodiacApproximate?'approximate Sun sign':'calculated Sun sign'}`,kind:'zodiac',text:`In the tropical zodiac, ${sign.name} is associated with ${sign.theme}. ${sign.practice}`,note:result.zodiacApproximate?'Calendar-date estimate. Add birth time and birthplace to calculate the natal chart.':`Calculated for ${chart.localTime} in ${chart.timeZone}. ${chart.timeAccuracy==='approximate'?'An approximate birth time can change angles and house placements.':'Birthplace coordinates and the entered birth time set the chart.'}`},
     {title:`${sign.element} · ${sign.modality}`,kind:'element',text:`${elements[sign.element].meaning} ${modalities[sign.modality]} ${elements[sign.element].practice}`},
     {title:`Life path ${path.value} · ${numbers[path.value].title}`,kind:'lifePath',text:numbers[path.value].practice,calculation:path.calculation,note:'Month, day and year are reduced separately, preserving 11, 22 and 33, then combined. Schools differ; this is the convention used here.'},
     {title:`Birth card · ${result.birthCard.name}`,kind:'birthCard',text:`A recurring reflection in this convention is ${result.birthCard.upright}. ${result.birthCard.advice}`,calculation:`Birth-date digit sum ${digitSum(profile.birthday)} → Major Arcana ${birth}`,note:'A symbolic correspondence, not a card secretly added to your draw.'}
@@ -76,8 +80,11 @@ export function interpretReading(input, entries, personal) {
   const reversals = entries.filter(e=>e.reversed).length;
   const cardNotes = entries.map(({card,position,reversed})=>({
     title:`${position} · ${card.name}${reversed?' (reversed)':''}`,
-    text:`${positionPrompts[position] || 'Consider this part of your question.'} ${card.name}${reversed?', reversed,': ''} brings up ${reversed?card.reversed:card.upright}. ${selected.question}`,
-    practice:card.advice
+    text:plainMeaning(card,reversed),
+    positionMeaning:`In “${position}”: ${positionPrompts[position] || 'Consider how this card’s lesson fits this part of your situation.'}`,
+    relevance:`For ${selected.label}, ${selected.question.charAt(0).toLowerCase()+selected.question.slice(1)}`,
+    practice:card.advice,
+    orientation:reversed?'This is the card’s reversed meaning. It can describe a difficulty, an inward process or a recovery; it does not automatically mean the opposite of the upright card.':null
   }));
   const connections = [];
   if (personal.sign) {
@@ -92,8 +99,41 @@ export function interpretReading(input, entries, personal) {
   }
   if (personal.lifePath) connections.push({title:'Your life path in practice',text:`Life path ${personal.lifePath} uses the theme of ${numbers[personal.lifePath].title.toLowerCase()}. ${numbers[personal.lifePath].practice} Alongside ${last.card.name} in “${last.position}”, use that as a way to explore ${last.reversed?last.card.reversed:last.card.upright}.`});
   if (personal.nameNumber) connections.push({title:'The name you brought to the reading',text:`Your entered name reduces to ${personal.nameNumber}, associated with ${numbers[personal.nameNumber].title.toLowerCase()}. ${numbers[personal.nameNumber].practice} Try that approach when considering ${first.card.name} and ${selected.label}.`});
-  const core = `${input.profile?.name ? `${input.profile.name}, let’s take this one piece at a time. ` : 'Let’s take this one piece at a time. '}${input.question?`You asked, “${input.question}” `:`We’re looking at ${selected.label}. `}You’re looking to ${needs[input.need] || needs.clarity}. Start with ${first.card.name} in “${first.position}”: its theme is ${first.reversed?first.card.reversed:first.card.upright}. The closing card is ${last.card.name} in “${last.position}”. It asks you to consider ${last.reversed?last.card.reversed:last.card.upright}. These are different parts of your question, so you do not need to force them into one answer.`;
-  return {knowledgeVersion,pattern:leading&&!tied?leading[0]:'A mixed perspective',core,cardNotes,connections,
+  const presentIndex = input.spread==='three'?1:0;
+  const present = entries[presentIndex];
+  const contrasting = entries[input.spread==='three'?0:1] || first;
+  const takeaway = `${input.profile?.name?`${input.profile.name}, the most useful message here is this: `:'The most useful message here is this: '}${last.card.advice} ${plainMeaning(present.card,present.reversed)}`;
+  const story = [
+    {title:'What is asking for attention',text:`${present.card.name} appears in “${present.position}”. ${plainMeaning(present.card,present.reversed)} ${positionPrompts[present.position]}`},
+    {title:'What adds context',text:`${contrasting.card.name} appears in “${contrasting.position}”. ${plainMeaning(contrasting.card,contrasting.reversed)} Read it alongside ${present.card.name}: one position describes ${contrasting.position.toLowerCase()}, while the other describes ${present.position.toLowerCase()}. Together, they ask you to consider both parts before deciding what to do.`},
+    {title:'How to use the closing card',text:`${last.card.name} closes the spread in “${last.position}”. ${plainMeaning(last.card,last.reversed)} A useful response is: ${last.card.advice} This is a direction to explore; the card does not establish what will happen.`}
+  ];
+  const examples = {
+    general:'In everyday life, this might involve one conversation, responsibility or decision that keeps returning to your attention.',
+    love:'In a relationship, this might look like asking what each of you needs, rather than trying to interpret silence or mixed messages.',
+    career:'At work, this might look like clarifying an expectation, reviewing your workload or testing a small idea before committing more time.',
+    decision:'For a decision, this might look like comparing the practical effects of two options and checking one assumption before choosing.',
+    healing:'During a period of recovery, this might look like reducing one demand and making room for a person or routine that supports you.',
+    growth:'For personal growth, this might look like choosing one behavior you can repeat, rather than trying to change your whole life at once.'
+  };
+  const application = `${examples[input.focus]||examples.general} In this draw, ${present.card.name} adds: ${present.card.advice} Then ${last.card.name} brings the next step back to this: ${last.card.advice} These are examples to adapt, not claims that these events have happened to you.`;
+  const actionPlan = [
+    {title:'Name the real situation',text:`Write one sentence about ${selected.label}. Add one fact you can verify and one thing you still do not know.`},
+    {title:`Try the lesson of ${last.card.name}`,text:last.card.advice},
+    {title:'Check what changed',text:`After trying that step, notice what became clearer. Did it help you ${needs[input.need]||needs.clarity}? Keep the useful part and adjust anything that does not fit.`}
+  ];
+  if(personal.natal?.status==='ready') {
+    const chart=personal.natal,moon=chart.planets.find(p=>p.name==='Moon'),asc=chart.angles.ascendant;
+    const moonSign=signs[moon.signIndex],risingSign=signs[asc.signIndex];
+    connections.push({title:'Your Moon and rising sign',text:`Your Moon is ${moon.label}, in house ${moon.house}; your rising sign is ${asc.label}. In astrological language, the Moon concerns emotional needs and rising describes your approach to new situations. ${moonSign.practice} ${risingSign.practice} Set these prompts beside ${present.card.name}: ${present.card.advice}`});
+    const planetName={love:'Venus',career:'Saturn',decision:'Mercury',healing:'Moon',growth:'Mars',general:'Sun'}[input.focus]||'Sun';
+    const planet=chart.planets.find(p=>p.name===planetName);
+    const aspect=chart.aspects.find(a=>a.a===planetName||a.b===planetName) || chart.aspects.find(a=>['Sun','Moon','Mercury','Venus','Mars'].some(name=>name===a.a||name===a.b));
+    if(aspect) connections.push({title:`A natal connection to consider · ${aspect.a} ${aspect.name.toLowerCase()} ${aspect.b}`,text:`${aspect.a} describes ${planetThemes[aspect.a]}. ${aspect.b} describes ${planetThemes[aspect.b]}. ${aspectLessons[aspect.name]} With ${present.card.name} in “${present.position}”, ask how those two needs fit the situation you brought to the reading. The closing card offers a way to respond: ${last.card.advice}`});
+    connections.push({title:`${planetName} and your chosen focus`,text:`For ${selected.label}, we are highlighting ${planetName} at ${planet.label} in house ${planet.house}, the area of ${chart.houses[planet.house-1].meaning.toLowerCase()}. Its sign invites reflection on ${signs[planet.signIndex].theme}. ${signs[planet.signIndex].practice} Compare that with ${last.card.name} and its practical guidance. The complete chart below shows the other placements too.`});
+  }
+  const core = `${input.question?`You asked, “${input.question}” `:`This reading looks at ${selected.label}. `}You want to ${needs[input.need]||needs.clarity}. The explanation below connects the position of each card to its meaning, then brings those ideas back to a step you can use.`;
+  return {knowledgeVersion,pattern:leading&&!tied?leading[0]:'A mixed perspective',core,takeaway,story,application,actionPlan,cardNotes,connections,
     dominant:leading&&!tied?`${leading[0]} cards appear ${leading[1]} time${leading[1]===1?'':'s'}. Give that part of everyday life some attention as you read the individual positions.`:'No single suit leads this draw. Make room for more than one part of the situation.',
     repetition:ranks.length ? `${ranks.map(([rank,n])=>`${rank} appears ${n} times`).join('; ')}. Compare what those cards ask in their different positions rather than assuming they mean exactly the same thing.` : 'No numbered rank or court role repeats in this draw. Look at the differences between the cards as well as their shared themes.',
     weight:`This draw includes ${majors} Major Arcana card${majors===1?'':'s'} and ${reversals} reversal${reversals===1?'':'s'}. Majors invite a broader view; reversals invite a closer look at how a theme is being expressed.`,

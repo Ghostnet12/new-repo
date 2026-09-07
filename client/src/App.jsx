@@ -1,3 +1,6 @@
+import { calculateNatal, natalDefaults } from '../../server/src/tarot/natal.js';
+import NatalForm from './components/NatalForm.jsx';
+import NatalChart from './components/NatalChart.jsx';
 import { validBirthDate } from '../../server/src/tarot/interpretation.js';
 import DeckGallery from './components/DeckGallery.jsx';
 import KnowledgeGuide from './components/KnowledgeGuide.jsx';
@@ -11,7 +14,7 @@ import HistoryPanel from './components/HistoryPanel.jsx';
 import HeroDecor from './components/HeroDecor.jsx';
 import MoonDivider from './components/MoonDivider.jsx';
 
-const initialForm = { name:'', gender:'', birthday:'', birthInfluence:true, spread:'three', focus:'general', need:'clarity', reversals:'yes', question:'', persist:false };
+const initialForm = { name:'', gender:'', birthday:'', natal:{...natalDefaults}, birthInfluence:true, spread:'three', focus:'general', need:'clarity', reversals:'yes', question:'', persist:false };
 
 export default function App() {
   const formRef = useRef(null);
@@ -47,7 +50,7 @@ export default function App() {
 
   useEffect(() => {
     const saved = loadLocalProfile();
-    if (saved) setForm(f => ({ ...f, name:saved.name || '', gender:saved.gender || '', birthday:saved.birthday || '', spread:saved.preferredSpread || f.spread }));
+    if (saved) setForm(f => ({ ...f, name:saved.name || '', gender:saved.gender || '', birthday:saved.birthday || '', natal:{...natalDefaults,...saved.natal}, spread:saved.preferredSpread || f.spread }));
     mergeHistory([]);
     (async () => {
       const health = await api('/api/health').catch(() => null);
@@ -61,7 +64,7 @@ export default function App() {
         try {
           const [h, p] = await Promise.all([api('/api/readings?limit=12'), api('/api/profile').catch(() => null)]);
           mergeHistory(h.readings || []);
-          if (p?.profile) setForm(f => ({ ...f, name:p.profile.name || f.name, gender:p.profile.gender || f.gender, birthday:p.profile.birthday || f.birthday, spread:p.profile.preferredSpread || f.spread }));
+          if (p?.profile) setForm(f => ({ ...f, name:p.profile.name || f.name, gender:p.profile.gender || f.gender, birthday:p.profile.birthday || f.birthday, natal:p.profile.natal ? {...natalDefaults,...p.profile.natal} : f.natal, spread:p.profile.preferredSpread || f.spread }));
         } catch { mergeHistory([]); }
       }
     })();
@@ -69,7 +72,7 @@ export default function App() {
 
   const saveProfile = async () => {
     setProfileSaving(true); setProfileStatus(''); setError('');
-    const profile = saveLocalProfile({ name:form.name, gender:form.gender, birthday:form.birthday, preferredSpread:form.spread });
+    const profile = saveLocalProfile({ name:form.name, gender:form.gender, birthday:form.birthday, natal:form.natal, preferredSpread:form.spread });
     setProfileStatus('Remembered on this device.');
     try {
       const result = await api('/api/profile', { method:'PUT', body:JSON.stringify(profile) });
@@ -84,15 +87,17 @@ export default function App() {
 
   const generate = async () => {
     if (form.birthday && !validBirthDate(form.birthday)) { setError('Please enter a valid birth date between 1900 and today.'); return; }
+    if (form.birthInfluence !== false && form.natal?.enabled) { const chart=calculateNatal(form); if(chart.status!=='ready') {setError(chart.message); return;} }
     setLoading(true); setProfileStatus(''); setError(''); setNotice('');
     let result;
     let usedFallback = false;
     try {
-      result = await api('/api/readings/generate', { method:'POST', body:JSON.stringify({ persist:Boolean(form.persist), personalInfluence:form.birthInfluence !== false, profile:{ name:form.name, gender:form.gender, birthday:form.birthInfluence === false ? '' : form.birthday, preferredSpread:form.spread }, question:form.question, spread:form.spread, focus:form.focus, need:form.need, reversals:form.reversals === 'yes' }) });
+      result = await api('/api/readings/generate', { method:'POST', body:JSON.stringify({ persist:Boolean(form.persist), personalInfluence:form.birthInfluence !== false, profile:{ name:form.name, gender:form.gender, birthday:form.birthday, natal:form.natal, preferredSpread:form.spread }, question:form.question, spread:form.spread, focus:form.focus, need:form.need, reversals:form.reversals === 'yes' }) });
       const status = result.database || 'unknown';
       setDbState(status); setDbReady(status === 'connected');
-    } catch {
-      result = generateLocalReading(form);
+    } catch (err) {
+      if (err.status && err.status < 500 && err.status !== 429) {setError(err.message);setLoading(false);return;}
+      try {result = generateLocalReading(form);} catch {setError('The reading could not be completed. Please check the birth details and try again.');setLoading(false);return;}
       usedFallback = true;
       setDbState('device-local'); setDbReady(false);
       setNotice('The Fold switched to its protected device oracle for this reading. Nothing was interrupted.');
@@ -157,8 +162,10 @@ export default function App() {
 
     <nav className="explore-nav" aria-label="Explore The Fold">
       <button aria-current={tab==='deck'?'page':undefined} onClick={()=>setTab('deck')}>Full Deck · 78 Cards</button>
+      <button aria-current={tab==='natal'?'page':undefined} onClick={()=>setTab('natal')}>Birth Chart</button>
       <button aria-current={tab==='learn'?'page':undefined} onClick={()=>setTab('learn')}>Tarot, Astrology & Numerology</button>
     </nav>
+    {tab==='natal' && <section className="panel knowledge-panel"><div className="section-kicker">Your birth sky</div><h2>Calculate Your Birth Chart</h2><NatalForm value={form} onChange={setForm} includeBirthday/><NatalChart chart={calculateNatal(form)}/><button className="secondary-button" onClick={()=>{setForm(f=>({...f,birthInfluence:true}));enterFold();}}>Use these details in a reading</button></section>}
     {tab==='deck' && <DeckGallery deck={localDeck}/>}
     {tab==='learn' && <KnowledgeGuide profile={form}/>}
     {notice && <div className="notice-banner">{notice}</div>}

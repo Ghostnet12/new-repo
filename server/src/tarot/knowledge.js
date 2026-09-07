@@ -1,6 +1,6 @@
 // Shared, versioned symbolic reference. Original editorial explanations;
 // practitioner references describe traditions, not scientifically verified predictions.
-export const knowledgeVersion = '2026-09-07.1';
+export const knowledgeVersion = '2026-09-07.2';
 export const sources = [
   ['Tarot structure · Joan Bunning', 'https://www.learntarot.com/less12.htm'],
   ['Reading reversals · Joan Bunning', 'https://www.learntarot.com/less17.htm'],
@@ -181,3 +181,6 @@ export const minorPractices = {
   'Use your resources to create stability without making every decision about control.'
  ]
 };
+
+export const planetThemes={Sun:'your sense of identity and direction',Moon:'emotional needs and familiar ways of finding comfort',Mercury:'thinking, learning and communication',Venus:'values, affection and relating',Mars:'initiative and how you assert yourself',Jupiter:'growth, confidence and the search for meaning',Saturn:'responsibility, boundaries and sustained effort',Uranus:'independence and changes to established patterns',Neptune:'imagination, ideals and sensitivity',Pluto:'power, release and deep change'};
+export const aspectLessons={Conjunction:'These two themes are read together. Notice when one brings the other into focus.',Sextile:'These themes may support each other when you deliberately give them a way to cooperate.',Square:'These themes may ask for different things at the same time. A practical adjustment can make room for both.',Trine:'These themes may work together with relative ease. Something that feels natural can still benefit from practice.',Opposition:'These themes describe a polarity. Try balancing both needs instead of deciding that only one is legitimate.'};

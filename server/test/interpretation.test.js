@@ -4,6 +4,7 @@ import { personalContext, lifePathFor, nameNumberFor, validBirthDate, buildReadi
 import { cards, spreads } from '../src/tarot/deck.js';
 import { generateSchema } from '../src/validation/schemas.js';
 import { generateLocalReading } from '../../client/src/lib/localFallback.js';
+import { plainMeaning } from '../src/tarot/cardStories.js';
 
 test('component reduction preserves masters and matches published worked example',()=>{
  assert.equal(lifePathFor('1980-10-22').value,5);
@@ -42,11 +43,21 @@ test('every spread has position-specific notes, reversed meanings and contextual
  const input={profile:{name:'Alice',birthday:'1990-05-12'},spread:key,focus:'career',need:'clarity',question:'How can I improve my work?'};
  const r=buildReading(input,draw,draw.map(()=>true),'test');
  assert.equal(r.analysis.cardNotes.length,draw.length);
- assert.match(r.analysis.cardNotes[0].text,new RegExp(draw[0].reversed));
- assert.match(r.analysis.cardNotes[0].text,/work/);
+ assert.equal(r.analysis.cardNotes[0].text,plainMeaning(draw[0],true));
+ assert.match(r.analysis.cardNotes[0].relevance,/work/);
+ assert.ok(r.analysis.cardNotes.every(n=>n.positionMeaning.length>30&&n.practice.length>15));
+ assert.equal(r.analysis.story.length,3);
+ assert.equal(r.analysis.actionPlan.length,3);
+ assert.ok(r.analysis.takeaway.includes(draw.at(-1).advice));
+ assert.ok(r.analysis.application.includes(draw.at(-1).name));
  assert.ok(r.analysis.connections.length>=3);
  assert.ok(r.analysis.cardNotes.every(n=>!n.text.includes('undefined')));
  }
+});
+test('all 78 cards have distinct, authored meanings in both orientations',()=>{
+ const meanings=cards.flatMap(card=>[plainMeaning(card),plainMeaning(card,true)]);
+ assert.equal(new Set(meanings).size,156);
+ assert.ok(meanings.every(text=>text&&!text.includes('undefined')&&!text.includes('invites reflection on')));
 });
 test('personalization changes connections, not cards; gender does not stereotype',()=>{
  const input={profile:{name:'Alice',birthday:'1990-05-12',gender:'Woman'},spread:'three',focus:'love',need:'direction',question:''};
