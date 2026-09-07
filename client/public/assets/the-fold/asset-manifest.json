@@ -1,7 +1,7 @@
 {
   "generator": "Built-in image_gen.imagegen",
   "notes": [
-    "Final assets are project-bound and saved outside the checkout. No Site or publishing tools were used.",
+    "Final assets are stored in client/public/assets/the-fold in the Git-backed project. Original generation paths below record provenance.",
     "Transparent requests returned RGB images with baked checkerboards. Final controls atlas and title use verified pure-black RGB backgrounds for screen blending, accepted by parent.",
     "Pixel bounds below use exclusive right/bottom equivalents expressed as x, y, width, height; measured visible content at max RGB > 10.",
     "Lunar divider contains four visible phases around central star. Generated source edits preserve recognizable composition and identity but are not pixel-identical extraction."
@@ -94,6 +94,19 @@
         1972,
         332
       ]
+    },
+    {
+      "filename": "cosmic-backdrop.webp",
+      "path": "client/public/assets/the-fold/cosmic-backdrop.webp",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGB",
+      "source": "exec-829128f0-919c-4dc6-920f-6a5f2e97e72c.png",
+      "bytes": 393858,
+      "encoding": "WebP quality 90; no resize or visual edits",
+      "purpose": "Native-size repeating atmosphere across the whole document and behind the hero; vertical and wide-screen edge masks blend the existing hero into this backdrop."
     }
   ],
   "prompt_passes": [
@@ -165,6 +178,18 @@
           "prompt": "Use case: precise-object-edit. Change ONLY the background of this exact THE FOLD wordmark. Remove every gray checkerboard square and every smoky background mark and replace them with one perfectly flat solid pure black background RGB(0,0,0). Keep only the existing exact THE FOLD gold letters and their fine gold glows, same letter shapes, exact wording, spacing, sparkling metallic texture, size, layout and positions. All counters inside letters like O and D and all empty space between letters must be pure black. Do not depict transparency, do not draw checkerboards, no texture in the background, no extra stars or ornaments. Preserve exact seven-letter title and the full T and D. Same very wide3:1 canvas. Opaque pure black background suitable for screen blending. This is only a background correction, not a type redesign.",
           "refs": [
             "/workspace/scratch/43702430baa1/generated_images/exec-2bf68219-be13-4ce1-b6fb-f527745c7d9e.png"
+          ]
+        }
+      ]
+    },
+    {
+      "stage": "Full-page seamless atmosphere",
+      "prompts": [
+        {
+          "name": "cosmic-backdrop.webp",
+          "prompt": "Use case: background-extraction / style-transfer.\nAsset type: seamless repeating ambient background texture for The Fold gothic tarot website.\nInput image: the existing approved hero-clean.png is the exact palette, cloud, grain, and star reference. Create a new companion backdrop derived from its atmosphere; do not redesign the existing hero.\nPrimary request: transform the reference into an understated, all-over deep aubergine/violet cosmic nebula texture with tiny warm gold pinprick stars. This will sit behind the entire webpage and fill every gap around the other artwork. The atmosphere must continue naturally in both horizontal and vertical directions.\nComposition: 2048 x 2048 square seamless tile; organic fine smoky wisps and diffuse cloud filaments across the entire canvas, including the center; soft non-directional mottling at every edge. Top and bottom edges match, left and right edges match. Uniform overall luminosity, no obvious central subject, no vignette, no empty solid-black patches, no bright center or stripe. Subtle medium-small texture detail that stays crisp when scaled.\nPalette: near-black plum #0b0712, deep muted violet #211326 and #34213d, restrained dusty mauve glows #55364f; very sparse antique-gold and warm ivory tiny stars. Dark elegant atmosphere with enough visible cloud detail to replace flat black page margins. No neon, no blue-dominant space, no pure white highlights.\nRemove all moons, large star flares, eyes, rings, ornaments, mountain silhouettes, horizon, water, borders, cards, panels and text from the reference; keep only its matching violet celestial atmosphere. No lettering, logos, UI, watermark, frame, symmetry, hard bands, or repetitive geometric motifs. This is a finished texture asset, not a website mockup.",
+          "refs": [
+            "client/public/assets/the-fold/hero-clean.png"
           ]
         }
       ]
