@@ -1,10 +1,10 @@
 export default function ReadingForm({ value, onChange, onSubmit, onSaveProfile, loading, profileSaving, profileStatus, dbReady, dbState, error }) {
   const set = (key) => (e) => onChange({ ...value, [key]: e.target.value });
   const setChecked = (key) => (e) => onChange({ ...value, [key]: e.target.checked });
-  const dbLabel = dbReady ? 'connected' : dbState === 'not-configured' ? 'not configured on this deployment' : dbState === 'disconnected' ? 'connection failed — retry available' : dbState === 'checking' ? 'checking connection…' : 'currently unavailable';
+  const dbLabel = dbReady ? 'connected' : dbState === 'device-local' ? 'using device fallback' : dbState === 'not-configured' ? 'not configured on this deployment' : dbState === 'disconnected' ? 'connection failed — device fallback active' : dbState === 'checking' ? 'checking connection…' : 'unavailable — device fallback active';
   return <section className="panel form-panel">
     <div className="section-kicker">Personalized reading</div><h2>Enter the Querent</h2>
-    <p className="muted">Name and birthday are optional. MongoDB is <b>{dbLabel}</b>. Tarot readings still work even when saving is unavailable.</p>
+    <p className="muted">Name and birthday are optional. MongoDB is <b>{dbLabel}</b>. Reading and saving continue on this device even when cloud sync is unavailable.</p>
     <div className="form-grid">
       <label className="full"><span>Name</span><input value={value.name} onChange={set('name')} placeholder="Name (optional)" maxLength={50}/></label>
       <label><span>Gender</span><select value={value.gender} onChange={set('gender')}><option value="">Prefer not to say</option><option>Woman</option><option>Man</option><option>Non-binary</option><option>Other</option></select></label>
@@ -16,12 +16,12 @@ export default function ReadingForm({ value, onChange, onSubmit, onSaveProfile, 
       <label className="full"><span>Question / intention</span><input value={value.question} onChange={set('question')} maxLength={180} placeholder="What do I most need to understand right now?" /></label>
       <div className="full profile-save-row">
         <button className="secondary-button" type="button" disabled={loading || profileSaving} onClick={onSaveProfile}>{profileSaving ? 'Saving profile…' : 'Save Profile'}</button>
-        <small className="muted" role="status" aria-live="polite">{profileStatus || 'Saves your name, gender, birthday and preferred spread to MongoDB immediately.'}</small>
+        <small className="muted" role="status" aria-live="polite">{profileStatus || 'Saves immediately on this device and syncs to MongoDB when available.'}</small>
       </div>
-      <label className="full save-toggle"><input type="checkbox" checked={Boolean(value.persist)} disabled={loading} onChange={setChecked('persist')}/><span><b>Also save this reading</b><small>{dbReady ? 'Stores this reading in MongoDB. Your browser keeps the anonymous access token.' : 'You can select this now. The app will retry MongoDB when you generate the reading; if saving fails, the reading still appears normally.'}</small></span></label>
+      <label className="full save-toggle"><input type="checkbox" checked={Boolean(value.persist)} disabled={loading} onChange={setChecked('persist')}/><span><b>Also save this reading</b><small>{dbReady ? 'Stores the reading in MongoDB; device fallback remains available.' : 'Stores the reading on this device now and retries cloud persistence when available.'}</small></span></label>
     </div>
     <button className="primary-button" type="button" disabled={loading || profileSaving} onClick={onSubmit}>{loading ? 'Shuffling…' : '☾ Shuffle the Full 78-Card Deck'}</button>
-    <p className="muted" role="status" aria-live="polite">{loading ? 'Drawing and interpreting your cards…' : 'After you tap Shuffle, the page will jump directly to your reading.'}</p>
+    <p className="muted" role="status" aria-live="polite">{loading ? 'Drawing and interpreting your cards…' : 'Shuffle always produces a reading; if the server is unavailable the secure device engine takes over.'}</p>
     {error && <div className="error-banner">{error}</div>}
   </section>;
 }
