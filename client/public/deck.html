@@ -2,105 +2,56 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#09070b" />
-  <title>The Fold — Shadow Deck</title>
+  <title>The Fold — Shadow Deck Safe Viewer</title>
   <style>
-    :root{--bg:#09070b;--panel:#151016;--line:#4d3f49;--gold:#b49a70;--text:#efe7da;--muted:#a99fa8}
-    *{box-sizing:border-box}
-    html,body{margin:0;background:#09070b;color:var(--text);font-family:Georgia,Cambria,"Times New Roman",serif}
-    body{min-width:320px;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}
-    main{width:min(720px,100%);margin:0 auto;padding:18px 0 30px}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-    .back{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border:1px solid #5a4b55;border-radius:999px;color:var(--text);text-decoration:none;font:700 13px ui-sans-serif,system-ui,sans-serif;background:#120e13}
-    .mark{color:var(--gold);font:700 11px ui-sans-serif,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
-    .hero,.panel{border:1px solid var(--line);border-radius:20px;background:#151016}
-    .hero{padding:24px 18px;text-align:center}
-    .hero h1{font-size:clamp(38px,10vw,62px);font-weight:500;margin:4px 0 6px}
-    .hero p{margin:0;color:var(--muted);font:14px/1.6 ui-sans-serif,system-ui,sans-serif}
-    .panel{margin-top:14px;padding:16px}
-    .kicker{color:var(--gold);font:800 10px/1.4 ui-sans-serif,system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}
-    .sections{display:grid;grid-template-columns:1fr;gap:9px;margin-top:12px}
-    .section-btn,.nav-btn{min-height:48px;border:1px solid #5a4a55;border-radius:12px;background:#120e13;color:var(--text);font-weight:800}
-    .section-btn.active{border-color:#cdb98f;background:#2a211b;color:#f1dfbe}
-    .viewer{display:none}
-    .viewer.open{display:block}
-    .viewer-head{display:grid;gap:8px;margin-bottom:12px}
-    label{font:700 12px ui-sans-serif,system-ui,sans-serif;color:#cfc5cc}
-    select{width:100%;min-height:48px;border:1px solid #5a4a55;border-radius:12px;background:#120e13;color:var(--text);padding:0 12px;font-size:16px}
-    .image-wrap{width:min(360px,88vw);margin:0 auto;border:1px solid #4b3d47;border-radius:16px;background:#0b090d;overflow:hidden}
-    img{display:block;width:100%;height:auto;aspect-ratio:2/3;object-fit:contain;background:#09070b}
-    .card-name{text-align:center;margin:12px 0 4px;font-size:22px}
-    .count{text-align:center;color:var(--muted);font:12px ui-sans-serif,system-ui,sans-serif}
-    .nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-    .note{margin-top:12px;color:var(--muted);font:12px/1.6 ui-sans-serif,system-ui,sans-serif;text-align:center}
-    @media(min-width:560px){.sections{grid-template-columns:repeat(2,1fr)}}
+    *{box-sizing:border-box}html,body{margin:0;background:#09070b;color:#efe7da;font-family:Georgia,Cambria,"Times New Roman",serif}body{min-width:320px;padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}main{width:min(680px,100%);margin:auto;padding:18px 0 30px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px}.back{color:#efe7da;text-decoration:none;border:1px solid #51434c;border-radius:999px;padding:12px 15px;font:700 13px system-ui,sans-serif}.mark{color:#b49a70;font:800 10px system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase}.box{margin-top:14px;border:1px solid #4d3f49;border-radius:18px;background:#151016;padding:17px}.hero{text-align:center}.hero h1{font-size:clamp(36px,10vw,58px);font-weight:500;margin:6px 0}.hero p,.note{color:#aaa0a8;font:13px/1.6 system-ui,sans-serif}.sections{display:grid;gap:9px;margin-top:12px}.section-btn,.action,.nav-btn{width:100%;min-height:48px;border:1px solid #574750;border-radius:12px;background:#110d12;color:#efe7da;font-weight:800}.section-btn.active,.action{border-color:#b49a70}.controls{display:none}.controls.open{display:block}label{display:block;margin:12px 0 6px;font:700 12px system-ui,sans-serif}select{width:100%;min-height:48px;border:1px solid #574750;border-radius:12px;background:#110d12;color:#efe7da;padding:0 10px;font-size:16px}.action{margin-top:10px}.art{display:none;margin:16px auto 0;width:min(240px,78vw);border:1px solid #4b3d47;border-radius:14px;overflow:hidden;background:#09070b}.art.open{display:block}.art img{display:block;width:100%;height:auto}.card-name{text-align:center;font-size:21px;margin:11px 0 3px}.count{text-align:center;color:#aaa0a8;font:12px system-ui,sans-serif}.nav{display:none;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.nav.open{display:grid}.note{text-align:center;margin-top:12px}@media(min-width:560px){.sections{grid-template-columns:repeat(2,1fr)}}
   </style>
 </head>
 <body>
-  <main>
-    <div class="top"><a class="back" href="/">← The Fold</a><div class="mark">FRACTURE · COMPLETE 78</div></div>
-    <section class="hero"><div class="mark">The Shadow Deck</div><h1>Choose a Veil</h1><p>This viewer is isolated from the reading app and keeps only one lightweight card image in memory at a time.</p></section>
-    <section class="panel">
-      <div class="kicker">Deck sections</div>
-      <div class="sections" id="sections"></div>
-    </section>
-    <section class="panel viewer" id="viewer" aria-live="polite">
-      <div class="viewer-head"><div class="kicker" id="sectionName">Section</div><label for="cardSelect">Card</label><select id="cardSelect"></select></div>
-      <div class="image-wrap"><img id="cardImage" alt="" width="360" height="540" decoding="async" fetchpriority="low" /></div>
-      <div class="card-name" id="cardName"></div><div class="count" id="count"></div>
-      <div class="nav"><button class="nav-btn" id="prev" type="button">← Previous</button><button class="nav-btn" id="next" type="button">Next →</button></div>
-      <div class="note">Only the 360×540 gallery derivative is used here. The original 4K master stays untouched.</div>
-    </section>
-  </main>
-  <script>
-    (() => {
-      const majors=['The Fool','The Magician','The High Priestess','The Empress','The Emperor','The Hierophant','The Lovers','The Chariot','Strength','The Hermit','Wheel of Fortune','Justice','The Hanged Man','Death','Temperance','The Devil','The Tower','The Star','The Moon','The Sun','Judgement','The World'];
-      const ranks=['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Page','Knight','Queen','King'];
-      const defs=[
-        {key:'major',label:'Major Arcana',start:0,names:majors},
-        {key:'wands',label:'Wands',start:22,names:ranks.map(x=>x+' of Wands')},
-        {key:'cups',label:'Cups',start:36,names:ranks.map(x=>x+' of Cups')},
-        {key:'swords',label:'Swords',start:50,names:ranks.map(x=>x+' of Swords')},
-        {key:'pentacles',label:'Pentacles',start:64,names:ranks.map(x=>x+' of Pentacles')}
-      ];
-      const sections=document.getElementById('sections');
-      const viewer=document.getElementById('viewer');
-      const select=document.getElementById('cardSelect');
-      const image=document.getElementById('cardImage');
-      const name=document.getElementById('cardName');
-      const count=document.getElementById('count');
-      const sectionName=document.getElementById('sectionName');
-      const prev=document.getElementById('prev');
-      const next=document.getElementById('next');
-      let active=null,index=0;
-
-      function imagePath(id){return '/assets/cards/thumb/'+String(id).padStart(2,'0')+'.webp';}
-      function draw(){
-        if(!active)return;
-        const id=active.start+index;
-        name.textContent=active.names[index];
-        count.textContent=(index+1)+' / '+active.names.length;
-        sectionName.textContent=active.label;
-        select.value=String(index);
-        image.alt=active.names[index];
-        image.removeAttribute('src');
-        requestAnimationFrame(()=>{image.src=imagePath(id);});
-      }
-      function openSection(def){
-        active=def;index=0;
-        Array.from(sections.children).forEach((b,i)=>b.classList.toggle('active',defs[i]===def));
-        select.innerHTML='';
-        def.names.forEach((n,i)=>{const o=document.createElement('option');o.value=String(i);o.textContent=n;select.appendChild(o);});
-        viewer.classList.add('open');
-        draw();
-        viewer.scrollIntoView({behavior:'smooth',block:'start'});
-      }
-      defs.forEach(def=>{const b=document.createElement('button');b.type='button';b.className='section-btn';b.textContent=def.label+' · '+def.names.length;b.addEventListener('click',()=>openSection(def));sections.appendChild(b);});
-      select.addEventListener('change',()=>{index=Number(select.value)||0;draw();});
-      prev.addEventListener('click',()=>{if(!active)return;index=(index-1+active.names.length)%active.names.length;draw();});
-      next.addEventListener('click',()=>{if(!active)return;index=(index+1)%active.names.length;draw();});
-    })();
-  </script>
+<main>
+  <div class="top"><a class="back" href="/">← The Fold</a><div class="mark">FRACTURE · COMPLETE 78</div></div>
+  <section class="box hero"><div class="mark">iPhone-safe viewer</div><h1>Shadow Deck</h1><p>No card artwork loads until you explicitly open a card. This viewer uses small baseline JPEGs instead of WebP.</p></section>
+  <section class="box"><div class="mark">1 · Choose a section</div><div id="sections" class="sections"></div></section>
+  <section id="controls" class="box controls">
+    <div class="mark" id="sectionName">2 · Choose a card</div>
+    <label for="cardSelect">Card</label><select id="cardSelect"></select>
+    <button id="openCard" class="action" type="button">Open This Card</button>
+    <div id="art" class="art"><img id="cardImage" width="240" height="360" alt="" decoding="sync" /></div>
+    <div id="cardName" class="card-name"></div><div id="count" class="count"></div>
+    <div id="nav" class="nav"><button id="prev" class="nav-btn" type="button">← Previous</button><button id="next" class="nav-btn" type="button">Next →</button></div>
+    <div class="note">Only one 240×360 baseline JPEG is mounted at a time. The original 4K masters remain untouched.</div>
+  </section>
+</main>
+<script>
+(function(){
+  const majors=['The Fool','The Magician','The High Priestess','The Empress','The Emperor','The Hierophant','The Lovers','The Chariot','Strength','The Hermit','Wheel of Fortune','Justice','The Hanged Man','Death','Temperance','The Devil','The Tower','The Star','The Moon','The Sun','Judgement','The World'];
+  const ranks=['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Page','Knight','Queen','King'];
+  const defs=[
+    {label:'Major Arcana',start:0,names:majors},
+    {label:'Wands',start:22,names:ranks.map(x=>x+' of Wands')},
+    {label:'Cups',start:36,names:ranks.map(x=>x+' of Cups')},
+    {label:'Swords',start:50,names:ranks.map(x=>x+' of Swords')},
+    {label:'Pentacles',start:64,names:ranks.map(x=>x+' of Pentacles')}
+  ];
+  const sections=document.getElementById('sections'),controls=document.getElementById('controls'),select=document.getElementById('cardSelect'),openCard=document.getElementById('openCard'),art=document.getElementById('art'),image=document.getElementById('cardImage'),name=document.getElementById('cardName'),count=document.getElementById('count'),sectionName=document.getElementById('sectionName'),nav=document.getElementById('nav'),prev=document.getElementById('prev'),next=document.getElementById('next');
+  let active=null,index=0;
+  const path=id=>'/assets/cards/safe/'+String(id).padStart(2,'0')+'.jpg';
+  function selectSection(def,button){
+    active=def;index=0;image.removeAttribute('src');art.classList.remove('open');nav.classList.remove('open');name.textContent='';count.textContent='';
+    Array.from(sections.children).forEach(b=>b.classList.remove('active'));button.classList.add('active');
+    select.innerHTML='';def.names.forEach((n,i)=>{const o=document.createElement('option');o.value=i;o.textContent=n;select.appendChild(o)});
+    sectionName.textContent='2 · '+def.label;controls.classList.add('open');
+  }
+  function draw(){
+    if(!active)return;index=Number(select.value)||0;const id=active.start+index;image.alt=active.names[index];image.src=path(id);name.textContent=active.names[index];count.textContent=(index+1)+' / '+active.names.length;art.classList.add('open');nav.classList.add('open');
+  }
+  defs.forEach(def=>{const b=document.createElement('button');b.type='button';b.className='section-btn';b.textContent=def.label+' · '+def.names.length;b.onclick=()=>selectSection(def,b);sections.appendChild(b)});
+  openCard.onclick=draw;select.onchange=()=>{image.removeAttribute('src');art.classList.remove('open');nav.classList.remove('open');name.textContent='';count.textContent=''};
+  prev.onclick=()=>{if(!active)return;index=(Number(select.value)-1+active.names.length)%active.names.length;select.value=index;draw()};
+  next.onclick=()=>{if(!active)return;index=(Number(select.value)+1)%active.names.length;select.value=index;draw()};
+})();
+</script>
 </body>
 </html>
