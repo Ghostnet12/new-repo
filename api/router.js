@@ -8,7 +8,7 @@ import { connectMongo, dbStatus } from '../server/src/config/db.js';
 import { Profile } from '../server/src/models/Profile.js';
 import { Reading } from '../server/src/models/Reading.js';
 
-const API_VERSION = '3.0.0';
+const API_VERSION = '3.1.0';
 const jsonHeaders = {
   'cache-control': 'no-store',
   'x-content-type-options': 'nosniff',
@@ -92,17 +92,17 @@ export async function GET(request) {
   if (auth.response) return auth.response;
 
   if (route === 'profile') {
-    if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus() }, 503);
+    if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus(), apiVersion: API_VERSION }, 503);
     const profile = await Profile.findOne({ clientHash: auth.hash }).lean();
-    return json({ profile, database: dbStatus() });
+    return json({ profile, database: dbStatus(), apiVersion: API_VERSION });
   }
 
   if (route === 'readings') {
-    if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus() }, 503);
+    if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus(), apiVersion: API_VERSION }, 503);
     const url = new URL(request.url);
     const limit = Math.min(Math.max(Number(url.searchParams.get('limit')) || 12, 1), 50);
     const readings = await Reading.find({ clientHash: auth.hash }).sort({ createdAt: -1 }).limit(limit).select('spreadName question focus favorite createdAt').lean();
-    return json({ readings, database: dbStatus() });
+    return json({ readings, database: dbStatus(), apiVersion: API_VERSION });
   }
 
   if (route === 'selftest') {
@@ -110,12 +110,12 @@ export async function GET(request) {
     return json({ ok: reading.cards.length === 3, cards: reading.cards.length, database: dbStatus(), apiVersion: API_VERSION });
   }
 
-  return json({ error: 'API route not found', route }, 404);
+  return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
 }
 
 export async function POST(request) {
   const route = routeOf(request);
-  if (route !== 'readings/generate') return json({ error: 'API route not found', route }, 404);
+  if (route !== 'readings/generate') return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
   const auth = await requireClient(request);
   if (auth.response) return auth.response;
   const body = await readJson(request);
@@ -131,34 +131,34 @@ export async function POST(request) {
 
 export async function PUT(request) {
   const route = routeOf(request);
-  if (route !== 'profile') return json({ error: 'API route not found', route }, 404);
+  if (route !== 'profile') return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
   const auth = await requireClient(request);
   if (auth.response) return auth.response;
   const body = await readJson(request);
   if (!body) return json({ error: 'Invalid JSON body' }, 400);
   const parsed = profileUpsertSchema.safeParse(body);
   if (!parsed.success) return json({ error: 'Invalid profile', issues: parsed.error.issues }, 400);
-  if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus() }, 503);
+  if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus(), apiVersion: API_VERSION }, 503);
   try {
     const profile = await Profile.findOneAndUpdate(
       { clientHash: auth.hash },
       { $set: { ...parsed.data, clientHash: auth.hash } },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     ).lean();
-    return json({ profile, database: dbStatus() });
+    return json({ profile, database: dbStatus(), apiVersion: API_VERSION });
   } catch (error) {
     console.error('Profile save failed:', error.message);
-    return json({ error: 'Profile save failed', database: dbStatus() }, 500);
+    return json({ error: 'Profile save failed', database: dbStatus(), apiVersion: API_VERSION }, 500);
   }
 }
 
 export async function PATCH(request) {
   const route = routeOf(request);
   const match = route.match(/^readings\/item\/([a-f0-9]{24})$/i);
-  if (!match) return json({ error: 'API route not found', route }, 404);
+  if (!match) return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
   const auth = await requireClient(request);
   if (auth.response) return auth.response;
-  if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus() }, 503);
+  if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus(), apiVersion: API_VERSION }, 503);
   const id = match[1];
   if (!mongoose.isValidObjectId(id)) return json({ error: 'Invalid reading id' }, 400);
   const body = await readJson(request) || {};
@@ -167,21 +167,21 @@ export async function PATCH(request) {
   if (typeof body.notes === 'string') update.notes = body.notes.slice(0, 2000);
   const reading = await Reading.findOneAndUpdate({ _id: id, clientHash: auth.hash }, { $set: update }, { new: true }).select('spreadName question focus favorite notes createdAt').lean();
   if (!reading) return json({ error: 'Reading not found' }, 404);
-  return json({ reading, database: dbStatus() });
+  return json({ reading, database: dbStatus(), apiVersion: API_VERSION });
 }
 
 export async function DELETE(request) {
   const route = routeOf(request);
   const match = route.match(/^readings\/item\/([a-f0-9]{24})$/i);
-  if (!match) return json({ error: 'API route not found', route }, 404);
+  if (!match) return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
   const auth = await requireClient(request);
   if (auth.response) return auth.response;
-  if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus() }, 503);
+  if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus(), apiVersion: API_VERSION }, 503);
   const id = match[1];
   if (!mongoose.isValidObjectId(id)) return json({ error: 'Invalid reading id' }, 400);
   const result = await Reading.deleteOne({ _id: id, clientHash: auth.hash });
   if (!result.deletedCount) return json({ error: 'Reading not found' }, 404);
-  return json({ deleted: true, database: dbStatus() });
+  return json({ deleted: true, database: dbStatus(), apiVersion: API_VERSION });
 }
 
 export function OPTIONS() {
