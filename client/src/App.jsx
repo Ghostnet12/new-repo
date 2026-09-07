@@ -3,7 +3,7 @@ import { api } from './lib/api.js';
 import { deleteLocalReading, generateLocalReading, loadLocalHistory, loadLocalProfile, saveLocalProfile, saveLocalReading, toggleLocalFavorite } from './lib/localFallback.js';
 import ReadingForm from './components/ReadingForm.jsx';
 import ReadingView from './components/ReadingView.jsx';
-import DeckIndex from './components/DeckIndex.jsx';
+import FullDeckV2 from './components/FullDeckV2.jsx';
 import HistoryPanel from './components/HistoryPanel.jsx';
 
 const initialForm = { name:'', gender:'', birthday:'', spread:'three', focus:'general', need:'clarity', reversals:'yes', question:'', persist:false };
@@ -137,13 +137,13 @@ export default function App() {
     </header>
     <nav className="tabs">
       <button className={tab==='read'?'active':''} onClick={()=>setTab('read')}>Enter The Fold</button>
-      <button className={tab==='deck'?'active':''} onClick={()=>setTab('deck')}>Shadow Deck</button>
+      <button className={tab==='deck'?'active':''} onClick={()=>setTab('deck')}>Full Deck</button>
       <button className={tab==='history'?'active':''} onClick={()=>setTab('history')}>Past Readings</button>
     </nav>
     {notice && <div className="notice-banner">{notice}</div>}
     {error && <div className="error-banner">{error}</div>}
     {tab==='read' && <><div className="two-col"><ReadingForm value={form} onChange={setForm} onSubmit={generate} onSaveProfile={saveProfile} loading={loading} profileSaving={profileSaving} profileStatus={profileStatus} dbReady={dbReady} dbState={dbState} error={error}/><section className="panel ritual-panel"><div className="section-kicker">Before the draw</div><h2>Open the Fold</h2><p className="ritual-intro">The strongest readings begin with a question that has some weight to it. You do not need perfect wording. You only need to know what keeps pulling at you.</p><ol className="ritual-steps"><li><span>01</span><div><b>Name the tension.</b><small>Love, money, a choice, closure, a fear, or something you cannot quite shake.</small></div></li><li><span>02</span><div><b>Choose the lens.</b><small>Your spread decides how deeply the deck cuts into the question.</small></div></li><li><span>03</span><div><b>Ask for direction, not permission.</b><small>The deck reads patterns and pressure points. It does not hand your choices away.</small></div></li><li><span>04</span><div><b>Draw the cards.</b><small>Reversals, birth-card layers and the full 78-card deck shape the final interpretation.</small></div></li></ol><div className="ritual-note">Ask about the pattern — not the verdict.</div></section></div><div ref={readingRef} className="reading-anchor"><ReadingView reading={reading}/></div></>}
-    {tab==='deck' && <DeckIndex />}
+    {tab==='deck' && <FullDeckV2 />}
     {tab==='history' && <HistoryPanel history={history} dbReady={dbReady} onToggleFavorite={toggleFavorite} onDelete={deleteReading}/>}<footer>THE FOLD · Shadow Deck by FRACTURE · Complete 78</footer>
   </div>;
 }
