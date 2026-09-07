@@ -23,17 +23,29 @@ function cardAssets(card, compact) {
   };
 }
 
-export default function TarotCard({ card, position, reversed, revealed, onReveal, compact = false }) {
+export default function TarotCard({ card, position, reversed, revealed, onReveal, compact = false, revealDelay = 0 }) {
   const assets = cardAssets(card, compact);
+  const revealStyle = { '--reveal-delay': `${Math.max(0, Number(revealDelay) || 0)}ms` };
 
   if (!revealed) {
-    return <button type="button" className={`tarot-card hidden-card ${compact ? 'compact' : ''}`} onClick={onReveal}>
-      <div className="card-art card-back"><span>REVEAL</span></div>
+    return <button type="button" className={`tarot-card hidden-card fold-card-back ${compact ? 'compact' : ''}`} onClick={onReveal} aria-label={`Reveal ${position || 'tarot card'}`}>
+      <div className="card-art card-back">
+        <span className="back-frame" aria-hidden="true" />
+        <span className="back-corner back-corner-a" aria-hidden="true">✦</span>
+        <span className="back-corner back-corner-b" aria-hidden="true">✦</span>
+        <span className="back-corner back-corner-c" aria-hidden="true">✦</span>
+        <span className="back-corner back-corner-d" aria-hidden="true">✦</span>
+        <span className="back-moon back-moon-top" aria-hidden="true">☾</span>
+        <span className="back-moon back-moon-bottom" aria-hidden="true">☽</span>
+        <span className="back-eye" aria-hidden="true"><span className="back-eye-iris"><span className="back-eye-pupil" /></span></span>
+        <span className="back-brand" aria-hidden="true">THE FOLD</span>
+        <span className="back-reveal">REVEAL</span>
+      </div>
       {position && <div className="card-copy"><small>{position}</small><strong>Hidden Card</strong></div>}
     </button>;
   }
 
-  return <article className={`tarot-card ${reversed ? 'is-reversed' : ''} ${compact ? 'compact' : ''}`}>
+  return <article className={`tarot-card revealed-card ${reversed ? 'is-reversed' : ''} ${compact ? 'compact' : ''}`} style={revealStyle}>
     <div className="card-art">
       {assets && <img
         src={assets.src}
@@ -46,6 +58,7 @@ export default function TarotCard({ card, position, reversed, revealed, onReveal
         width="360"
         height="540"
       />}
+      <span className="revealed-glint" aria-hidden="true" />
     </div>
     {!compact && <div className="card-copy">
       {position && <small>{position}</small>}
