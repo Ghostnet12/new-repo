@@ -36,13 +36,13 @@ button:focus-visible, summary:focus-visible { outline: 2px solid #f0cf8d; outlin
 .fold-hero::before, .fold-hero::after, .hero-cosmos::after { display: none; }
 .fold-hero .hero-cosmos {
   position: absolute;
-  inset: 0 0 auto;
+  inset: 0;
   z-index: -1;
   width: 100%;
-  aspect-ratio: 3 / 2;
-  background: linear-gradient(180deg, #0605090a, #06050918 35%, #06050977 70%, #06050999), url('/assets/the-fold/hero-clean.png') center top / 100% auto no-repeat;
-  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 42%, #000e 60%, transparent 100%);
-  mask-image: linear-gradient(180deg, #000 0%, #000 42%, #000e 60%, transparent 100%);
+  height: 100%;
+  background: linear-gradient(180deg, #0605090a, #06050918 35%, #06050977 70%, #06050999), url('/assets/the-fold/hero-clean.png') center top / cover no-repeat;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 70%, #000e 84%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 70%, #000e 84%, transparent 100%);
 }
 .fold-hero .hero-copy { position: relative; z-index: auto; width: 100%; max-width: none; margin: 0 auto; padding: 25.3cqw 20px 32px; text-align: center; }
 .fold-hero .hero-copy > p { margin: 0 0 12px; color: #e1d8d8; font: 600 clamp(12px, 1.38vw, 20px)/1.4 Georgia, serif; letter-spacing: .2em; }
@@ -131,8 +131,8 @@ button:focus-visible, summary:focus-visible { outline: 2px solid #f0cf8d; outlin
 /* Feather the hero's outer edges into the same atmosphere on wide displays. */
 @media (min-width: 1537px) {
   .fold-hero .hero-cosmos {
-    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 42%, #000e 60%, transparent 100%), linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-    mask-image: linear-gradient(180deg, #000 0%, #000 42%, #000e 60%, transparent 100%), linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 70%, #000e 84%, transparent 100%), linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(180deg, #000 0%, #000 70%, #000e 84%, transparent 100%), linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
     -webkit-mask-composite: source-in;
     mask-composite: intersect;
   }
@@ -160,7 +160,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid #f0cf8d; outlin
 }
 @media (max-width: 760px) {
   .app-shell { padding: 0 16px 20px; }
-  .fold-hero .hero-copy { padding: calc(26cqw + 14px) 18px 26px; }
+  .fold-hero .hero-copy { padding: max(26cqw, 180px) 18px 26px; }
   .fold-hero h1 { width: 85%; }
   .fold-hero .hero-copy > p { font-size: clamp(9px, 2vw, 14px); letter-spacing: .17em; margin-bottom: 12px; }
   .fold-hero .hero-tagline { font-size: clamp(12px, 2.4vw, 18px); letter-spacing: .13em; margin-top: 9px; margin-bottom: 18px; }
