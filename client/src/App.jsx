@@ -46,7 +46,7 @@ export default function App() {
       const health = await api('/api/health').catch(() => null);
       if (!health) {
         setDbState('device-local'); setDbReady(false); setApiVersion('device-fallback');
-        setNotice('Server connection is unavailable, so the deck is running in protected device mode. Shuffle and saves still work on this device.');
+        setNotice('The cloud path is quiet. The Fold has switched to its protected device oracle, so readings and local saves still work here.');
         return;
       }
       const status = health.database || 'unknown';
@@ -58,7 +58,7 @@ export default function App() {
           if (p?.profile) setForm(f => ({ ...f, name:p.profile.name || f.name, gender:p.profile.gender || f.gender, birthday:p.profile.birthday || f.birthday, spread:p.profile.preferredSpread || f.spread }));
         } catch { mergeHistory([]); }
       } else {
-        setNotice('Cloud persistence is unavailable right now. Device-local saving is active automatically.');
+        setNotice('Cloud memory is unavailable right now. The Fold will keep saved readings on this device instead.');
       }
     })();
   }, []);
@@ -66,15 +66,15 @@ export default function App() {
   const saveProfile = async () => {
     setProfileSaving(true); setProfileStatus(''); setError('');
     const profile = saveLocalProfile({ name:form.name, gender:form.gender, birthday:form.birthday, preferredSpread:form.spread });
-    setProfileStatus('Profile saved on this device.');
+    setProfileStatus('Remembered on this device.');
     try {
       const result = await api('/api/profile', { method:'PUT', body:JSON.stringify(profile) });
       const status = result.database || 'connected';
       setDbState(status); setDbReady(status === 'connected');
-      setProfileStatus(status === 'connected' ? 'Profile saved on this device and synced to MongoDB.' : 'Profile saved on this device. Cloud sync is unavailable.');
-    } catch (e) {
+      setProfileStatus(status === 'connected' ? 'Remembered on this device and synced to cloud memory.' : 'Remembered on this device. Cloud memory is unavailable.');
+    } catch {
       setDbReady(false);
-      setProfileStatus(`Profile saved on this device. Cloud sync is unavailable (${e.message}).`);
+      setProfileStatus('Remembered on this device. Cloud memory is unavailable.');
     } finally { setProfileSaving(false); }
   };
 
@@ -86,11 +86,11 @@ export default function App() {
       result = await api('/api/readings/generate', { method:'POST', body:JSON.stringify({ persist:Boolean(form.persist), profile:{ name:form.name, gender:form.gender, birthday:form.birthday, preferredSpread:form.spread }, question:form.question, spread:form.spread, focus:form.focus, need:form.need, reversals:form.reversals === 'yes' }) });
       const status = result.database || 'unknown';
       setDbState(status); setDbReady(status === 'connected'); setApiVersion(result.apiVersion || apiVersion);
-    } catch (e) {
+    } catch {
       result = generateLocalReading(form);
       usedFallback = true;
       setDbState('device-local'); setDbReady(false); setApiVersion(result.apiVersion);
-      setNotice(`Server request failed (${e.message}), so this reading was generated securely on your device instead.`);
+      setNotice('The Fold switched to its protected device oracle for this reading. Nothing was interrupted.');
     }
 
     if (form.persist) {
@@ -102,7 +102,7 @@ export default function App() {
     }
 
     setReading(result);
-    if (!usedFallback && form.persist && !result.persisted) setNotice('The reading was generated normally and saved on this device. MongoDB cloud saving was unavailable.');
+    if (!usedFallback && form.persist && !result.persisted) setNotice('Your reading was completed and remembered on this device. Cloud memory was unavailable.');
     setTab('read');
     requestAnimationFrame(() => setTimeout(() => readingRef.current?.scrollIntoView({ behavior:'smooth', block:'start' }), 50));
     setLoading(false);
@@ -131,15 +131,18 @@ export default function App() {
   };
 
   return <div className="app-shell">
-    <header className="hero">
-      <div className="ornament">✦ ☾ ✧ ♱ ✧ ☽ ✦</div><p>FRACTURE · THE SHADOW DECK</p><h1>The Complete 78</h1>
-      <span>Vercel reading engine · MongoDB Atlas · resilient device fallback · 78 individual 4K card assets</span>
-      <div className={`runtime-badge ${dbReady ? 'ok' : 'warn'}`}>AUTONOMOUS FIX 3.1 · API {apiVersion} · {dbReady ? 'MongoDB connected' : 'device fallback ready'}</div>
+    <header className="hero fold-hero">
+      <div className="ornament">✦ ☾ ✧ ♱ ✧ ☽ ✦</div>
+      <p>FRACTURE PRESENTS · THE SHADOW DECK</p>
+      <h1>The Fold</h1>
+      <div className="hero-tagline">Truth lives in the shadows.</div>
+      <span>Seventy-eight cards. One honest question. A reading built around the pattern beneath the surface.</span>
+      <div className={`runtime-badge ${dbReady ? 'ok' : 'warn'}`}>{dbReady ? 'ORACLE ONLINE' : 'DEVICE ORACLE ACTIVE'}</div>
     </header>
-    <nav className="tabs"><button className={tab==='read'?'active':''} onClick={()=>setTab('read')}>Reading</button><button className={tab==='deck'?'active':''} onClick={()=>setTab('deck')}>Full Deck</button><button className={tab==='history'?'active':''} onClick={()=>setTab('history')}>History</button></nav>
+    <nav className="tabs"><button className={tab==='read'?'active':''} onClick={()=>setTab('read')}>Enter The Fold</button><button className={tab==='deck'?'active':''} onClick={()=>setTab('deck')}>Shadow Deck</button><button className={tab==='history'?'active':''} onClick={()=>setTab('history')}>Past Readings</button></nav>
     {notice && <div className="notice-banner">{notice}</div>}
     {error && <div className="error-banner">{error}</div>}
-    {tab==='read' && <><div className="two-col"><ReadingForm value={form} onChange={setForm} onSubmit={generate} onSaveProfile={saveProfile} loading={loading} profileSaving={profileSaving} profileStatus={profileStatus} dbReady={dbReady} dbState={dbState} error={error}/><section className="panel architecture-card"><div className="section-kicker">Resilient runtime</div><h2>Built to Keep Working</h2><p>The server is preferred for readings and MongoDB sync, but the experience no longer stops when either is unavailable.</p><ul><li>Canonical 78-card reading logic</li><li>Server-first cryptographic shuffle</li><li>Secure browser cryptographic fallback</li><li>Profile and reading device-local fallback</li><li>MongoDB synchronization whenever available</li><li>Individual first-party 4K card assets</li></ul></section></div><div ref={readingRef} className="reading-anchor"><ReadingView reading={reading}/></div></>}
-    {tab==='deck' && <DeckGallery deck={deck}/>} {tab==='history' && <HistoryPanel history={history} dbReady={dbReady} onToggleFavorite={toggleFavorite} onDelete={deleteReading}/>}<footer>FRACTURE Shadow Deck · Autonomous Runtime 3.1</footer>
+    {tab==='read' && <><div className="two-col"><ReadingForm value={form} onChange={setForm} onSubmit={generate} onSaveProfile={saveProfile} loading={loading} profileSaving={profileSaving} profileStatus={profileStatus} dbReady={dbReady} dbState={dbState} error={error}/><section className="panel ritual-panel"><div className="section-kicker">Before the draw</div><h2>Open the Fold</h2><p className="ritual-intro">The strongest readings begin with a question that has some weight to it. You do not need perfect wording. You only need to know what keeps pulling at you.</p><ol className="ritual-steps"><li><span>01</span><div><b>Name the tension.</b><small>Love, money, a choice, closure, a fear, or something you cannot quite shake.</small></div></li><li><span>02</span><div><b>Choose the lens.</b><small>Your spread decides how deeply the deck cuts into the question.</small></div></li><li><span>03</span><div><b>Ask for direction, not permission.</b><small>The deck reads patterns and pressure points. It does not hand your choices away.</small></div></li><li><span>04</span><div><b>Draw the cards.</b><small>Reversals, birth-card layers and the full 78-card deck shape the final interpretation.</small></div></li></ol><div className="ritual-note">Ask about the pattern — not the verdict.</div></section></div><div ref={readingRef} className="reading-anchor"><ReadingView reading={reading}/></div></>}
+    {tab==='deck' && <DeckGallery deck={deck}/>} {tab==='history' && <HistoryPanel history={history} dbReady={dbReady} onToggleFavorite={toggleFavorite} onDelete={deleteReading}/>}<footer>THE FOLD · Shadow Deck by FRACTURE · Complete 78</footer>
   </div>;
 }
