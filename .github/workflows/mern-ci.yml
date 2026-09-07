@@ -27,6 +27,8 @@ jobs:
         run: npm run check
       - name: Unit tests
         run: npm test
+      - name: Vercel function method smoke tests
+        run: node scripts/test-vercel-router.mjs
       - name: Build React client and responsive card derivatives
         run: npm run build
       - name: Verify generated card delivery assets
