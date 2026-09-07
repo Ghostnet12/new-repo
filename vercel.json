@@ -7,6 +7,7 @@
     "api/router.js": { "maxDuration": 15 }
   },
   "routes": [
+    { "src": "/api/(?<path>.*)", "dest": "/api/router?route=$path" },
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }
   ]
