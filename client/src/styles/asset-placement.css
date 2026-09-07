@@ -1,0 +1,41 @@
+/* Final asset-placement layer. The approved generated artwork is the visual surface; live HTML remains interactive above it. */
+.fold-hero{
+  min-height:590px;
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  padding:0!important;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+.fold-hero::before,.fold-hero::after,.fold-hero .hero-cosmos,.fold-hero .side-whisper{display:none!important}
+.fold-hero .hero-copy{width:100%;max-width:none;margin:0;padding:0 18px 26px;text-align:center;position:relative;z-index:2}
+.fold-hero .hero-copy>p,.fold-hero .hero-copy>h1,.fold-hero .hero-copy>.hero-tagline,.fold-hero .hero-copy>span,.fold-hero .hero-copy>.moon-divider{display:none!important}
+.fold-hero .runtime-badge{margin:0 auto;min-width:240px;background:rgba(5,4,7,.88);border-color:#d4ac68;color:#d9e9cc;box-shadow:0 0 22px rgba(212,172,104,.16),0 10px 28px rgba(0,0,0,.45)}
+
+.mockup-grid{align-items:stretch}
+.panel-shell{background:#060407;border-color:#b98c4d}
+.panel-shell::before{display:none!important}
+.panel-shell .panel{background-size:cover!important;background-position:center top!important;background-repeat:no-repeat!important;min-height:100%;padding:30px 38px 34px}
+.panel-shell .panel::before{display:none!important}
+.form-panel,.ritual-panel{border:0!important;box-shadow:none!important}
+.form-panel>* ,.ritual-panel>*{position:relative;z-index:2}
+.form-panel::after,.ritual-panel::after{content:"";position:absolute;inset:5% 4%;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,rgba(5,3,7,.84) 0%,rgba(5,3,7,.70) 48%,rgba(5,3,7,.20) 74%,transparent 88%)}
+
+.ritual-card-stack{width:190px;height:265px;margin:28px auto 8px;border-radius:14px;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;box-shadow:0 18px 38px rgba(0,0,0,.58),0 0 0 1px rgba(212,172,104,.58);transform:rotate(-4deg);position:relative;z-index:3}
+.ritual-card-stack::before,.ritual-card-stack::after{content:"";position:absolute;inset:0;border-radius:inherit;background:inherit;box-shadow:0 12px 24px rgba(0,0,0,.32);z-index:-1}
+.ritual-card-stack::before{transform:translate(-12px,8px) rotate(-4deg)}
+.ritual-card-stack::after{transform:translate(12px,9px) rotate(5deg)}
+.ritual-awaits{text-align:center;color:#d7b56c;letter-spacing:.28em;text-transform:uppercase;font-size:11px;line-height:1.55;margin:18px auto 0;position:relative;z-index:3}
+
+@media(max-width:760px){
+  .fold-hero{min-height:430px;background-position:center center!important}
+  .fold-hero .hero-copy{padding-bottom:18px}
+  .fold-hero .runtime-badge{min-width:205px;font-size:9px;padding:9px 14px}
+  .panel-shell .panel{padding:24px 20px 28px;background-position:center top!important}
+  .form-panel::after,.ritual-panel::after{inset:2% 2%;background:linear-gradient(rgba(5,3,7,.65),rgba(5,3,7,.72))}
+  .ritual-card-stack{width:160px;height:224px}
+}
+
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
