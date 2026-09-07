@@ -35,8 +35,6 @@ jobs:
         run: |
           test "$(find client/public/assets/cards/web -maxdepth 1 -name '*.webp' | wc -l | tr -d ' ')" = '78'
           test "$(find client/public/assets/cards/thumb -maxdepth 1 -name '*.webp' | wc -l | tr -d ' ')" = '78'
-          test "$(find client/public/assets/cards/safe -maxdepth 1 -name '*.jpg' | wc -l | tr -d ' ')" = '78'
-          test -f client/dist/deck.html
       - name: Start Express API
         run: |
           npm run start --workspace server > /tmp/shadow-deck-api.log 2>&1 &

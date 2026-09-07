@@ -23,7 +23,7 @@ function cardAssets(card, compact) {
   };
 }
 
-export default function TarotCard({ card, position, reversed, revealed, onReveal, compact = false, imageOnly = false }) {
+export default function TarotCard({ card, position, reversed, revealed, onReveal, compact = false }) {
   const assets = cardAssets(card, compact);
 
   if (!revealed) {
@@ -33,7 +33,7 @@ export default function TarotCard({ card, position, reversed, revealed, onReveal
     </button>;
   }
 
-  return <article className={`tarot-card ${reversed ? 'is-reversed' : ''} ${compact ? 'compact' : ''} ${imageOnly ? 'image-only' : ''}`}>
+  return <article className={`tarot-card ${reversed ? 'is-reversed' : ''} ${compact ? 'compact' : ''}`}>
     <div className="card-art">
       {assets && <img
         src={assets.src}
@@ -47,7 +47,7 @@ export default function TarotCard({ card, position, reversed, revealed, onReveal
         height="540"
       />}
     </div>
-    {!compact && !imageOnly && <div className="card-copy">
+    {!compact && <div className="card-copy">
       {position && <small>{position}</small>}
       <strong>{card.name}</strong>
       <div className="tags"><span>{reversed ? 'Reversed' : 'Upright'}</span><span>{card.type === 'major' ? 'Major' : card.suitName}</span><span>{card.element}</span></div>
