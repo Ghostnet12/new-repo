@@ -3,11 +3,9 @@ function cardAssets(card) {
   if (!Number.isInteger(id) || id < 0 || id > 77) return null;
 
   const stem = String(id).padStart(2, '0');
-  return {
-    src: `/assets/cards/${stem}.webp`,
-    srcSet: undefined,
-    sizes: undefined
-  };
+  const local = `/assets/cards/${stem}.webp`;
+  const raw = `https://raw.githubusercontent.com/Ghostnet12/new-repo/main/client/public/assets/cards/${stem}.webp`;
+  return { src: import.meta.env.PROD ? raw : local };
 }
 
 export default function TarotCard({ card, position, reversed, revealed, onReveal, compact = false, revealDelay = 0 }) {
