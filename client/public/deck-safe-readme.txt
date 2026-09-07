@@ -1,0 +1,1 @@
+Shadow Deck safe viewer assets are generated at build time under /assets/cards/safe/*.jpg.
