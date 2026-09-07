@@ -134,23 +134,68 @@ export default function App() {
   };
 
   return <div className="app-shell">
+    <div className="site-topbar">
+      <div className="brand-mark">FRACTURE</div>
+      <div className="topbar-links">
+        <button onClick={enterFold}>Reading</button>
+        <button onClick={()=>setTab('history')}>Past Readings</button>
+        <span className="sun-symbol">☼</span>
+      </div>
+    </div>
+
     <header className="hero fold-hero">
       <HeroDecor />
-      <div className="ornament">✦ ☾ ✧ ♱ ✧ ☽ ✦</div>
-      <p>FRACTURE PRESENTS · THE SHADOW DECK</p>
-      <h1>The Fold</h1>
-      <div className="hero-tagline">Truth lives in the shadows.</div>
-      <span>Seventy-eight cards. One honest question. A reading built around the pattern beneath the surface.</span>
-      <div className={`runtime-badge ${dbReady ? 'ok' : 'warn'}`}>{dbReady ? 'ORACLE ONLINE' : 'DEVICE ORACLE ACTIVE'}</div>
+      <div className="side-whisper side-whisper-left">LOOK<br/>DEEPER.<br/>YOU<br/>ALREADY<br/>KNOW.</div>
+      <div className="side-whisper side-whisper-right">SOME<br/>QUESTIONS<br/>FIND<br/>YOU.</div>
+      <div className="hero-copy">
+        <p>FRACTURE PRESENTS · THE SHADOW DECK</p>
+        <h1>The Fold</h1>
+        <div className="hero-tagline">Truth lives in the shadows.</div>
+        <span>Seventy-eight cards. One honest question.<br/>A reading built around the pattern beneath the surface.</span>
+        <MoonDivider />
+        <div className={`runtime-badge ${dbReady ? 'ok' : 'warn'}`}>{dbReady ? '● ORACLE ONLINE' : '● DEVICE ORACLE ACTIVE'}</div>
+      </div>
     </header>
-    <nav className="tabs">
-      <button className={tab==='read'?'active':''} onClick={enterFold}>Enter The Fold</button>
-      <button className={tab==='history'?'active':''} onClick={()=>setTab('history')}>Past Readings</button>
+
+    <nav className="tabs mockup-tabs">
+      <button className={tab==='read'?'active':''} onClick={enterFold}><span className="tab-icon">△</span> Enter The Fold</button>
+      <button className={tab==='history'?'active':''} onClick={()=>setTab('history')}><span className="tab-icon">▱</span> Past Readings</button>
     </nav>
-    <MoonDivider />
+
     {notice && <div className="notice-banner">{notice}</div>}
     {error && <div className="error-banner">{error}</div>}
-    {tab==='read' && <><div ref={formRef} className="two-col reading-form-anchor"><ReadingForm value={form} onChange={setForm} onSubmit={generate} onSaveProfile={saveProfile} loading={loading} profileSaving={profileSaving} profileStatus={profileStatus} dbReady={dbReady} dbState={dbState} error={error}/><section className="panel ritual-panel"><div className="section-kicker">Before the draw</div><h2>Open the Fold</h2><p className="ritual-intro">The strongest readings begin with a question that has some weight to it. You do not need perfect wording. You only need to know what keeps pulling at you.</p><ol className="ritual-steps"><li><span>01</span><div><b>Name the tension.</b><small>Love, money, a choice, closure, a fear, or something you cannot quite shake.</small></div></li><li><span>02</span><div><b>Choose the lens.</b><small>Your spread decides how deeply the deck cuts into the question.</small></div></li><li><span>03</span><div><b>Ask for direction, not permission.</b><small>The deck reads patterns and pressure points. It does not hand your choices away.</small></div></li><li><span>04</span><div><b>Draw the cards.</b><small>Reversals, birth-card layers and the full 78-card deck shape the final interpretation.</small></div></li></ol><div className="ritual-note">Ask about the pattern — not the verdict.</div></section></div><div ref={readingRef} className="reading-anchor"><ReadingView reading={reading}/></div></>}
-    {tab==='history' && <HistoryPanel history={history} dbReady={dbReady} onToggleFavorite={toggleFavorite} onDelete={deleteReading}/>}<footer>THE FOLD · Shadow Deck by FRACTURE · Complete 78</footer>
+
+    {tab==='read' && <>
+      <div ref={formRef} className="two-col reading-form-anchor mockup-grid">
+        <div className="panel-shell panel-shell-left">
+          <ReadingForm value={form} onChange={setForm} onSubmit={generate} onSaveProfile={saveProfile} loading={loading} profileSaving={profileSaving} profileStatus={profileStatus} dbReady={dbReady} dbState={dbState} error={error}/>
+        </div>
+        <div className="panel-shell panel-shell-right">
+          <section className="panel ritual-panel">
+            <div className="section-kicker">Before the draw</div>
+            <h2>Open the Fold</h2>
+            <p className="ritual-intro">The strongest readings begin with a question that has some weight to it. You do not need perfect wording. You only need to know what keeps pulling at you.</p>
+            <ol className="ritual-steps">
+              <li><span>01</span><div><b>Name the tension.</b><small>Love, money, a choice, closure, a fear, or something you cannot quite shake.</small></div></li>
+              <li><span>02</span><div><b>Choose the lens.</b><small>Your spread decides how deeply the deck cuts into the question.</small></div></li>
+              <li><span>03</span><div><b>Ask for direction, not permission.</b><small>The deck reads patterns and pressure points. It does not hand your choices away.</small></div></li>
+              <li><span>04</span><div><b>Draw the cards.</b><small>Reversals, birth-card layers and the full 78-card deck shape the final interpretation.</small></div></li>
+            </ol>
+            <div className="ritual-note">Ask about the pattern —<br/>not the verdict.</div>
+            <div className="awaits-stack" aria-hidden="true">
+              <div className="mini-card mini-card-back"></div>
+              <div className="mini-card mini-card-middle"></div>
+              <div className="mini-card mini-card-front"><span className="mini-eye">◉</span></div>
+              <div className="awaits-copy">THE<br/>SHADOW DECK<br/>AWAITS<br/><span>✦</span></div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <div ref={readingRef} className="reading-anchor"><ReadingView reading={reading}/></div>
+    </>}
+
+    {tab==='history' && <HistoryPanel history={history} dbReady={dbReady} onToggleFavorite={toggleFavorite} onDelete={deleteReading}/>} 
+
+    <footer className="mockup-footer"><span>FRACTURE</span><span>A DEEPER YOU AWAITS</span><span>TRUTH LIVES HERE</span></footer>
   </div>;
 }
