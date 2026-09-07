@@ -1,3 +1,7 @@
+import { validBirthDate } from '../../server/src/tarot/interpretation.js';
+import DeckGallery from './components/DeckGallery.jsx';
+import KnowledgeGuide from './components/KnowledgeGuide.jsx';
+import { localDeck } from './lib/localFallback.js';
 import { useEffect, useRef, useState } from 'react';
 import { api } from './lib/api.js';
 import { deleteLocalReading, generateLocalReading, loadLocalHistory, loadLocalProfile, saveLocalProfile, saveLocalReading, toggleLocalFavorite } from './lib/localFallback.js';
@@ -79,11 +83,12 @@ export default function App() {
   };
 
   const generate = async () => {
+    if (form.birthday && !validBirthDate(form.birthday)) { setError('Please enter a valid birth date between 1900 and today.'); return; }
     setLoading(true); setProfileStatus(''); setError(''); setNotice('');
     let result;
     let usedFallback = false;
     try {
-      result = await api('/api/readings/generate', { method:'POST', body:JSON.stringify({ persist:Boolean(form.persist), profile:{ name:form.name, gender:form.gender, birthday:form.birthInfluence === false ? '' : form.birthday, preferredSpread:form.spread }, question:form.question, spread:form.spread, focus:form.focus, need:form.need, reversals:form.reversals === 'yes' }) });
+      result = await api('/api/readings/generate', { method:'POST', body:JSON.stringify({ persist:Boolean(form.persist), personalInfluence:form.birthInfluence !== false, profile:{ name:form.name, gender:form.gender, birthday:form.birthInfluence === false ? '' : form.birthday, preferredSpread:form.spread }, question:form.question, spread:form.spread, focus:form.focus, need:form.need, reversals:form.reversals === 'yes' }) });
       const status = result.database || 'unknown';
       setDbState(status); setDbReady(status === 'connected');
     } catch {
@@ -150,6 +155,12 @@ export default function App() {
       <button className={tab==='history'?'active':''} aria-current={tab==='history' ? 'page' : undefined} onClick={()=>setTab('history')}><svg className="tab-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M20 9C14 5 8 5 3 7v27c6-3 12-2 17 1 5-3 11-4 17-1V7c-5-2-11-2-17 2Zm0 0v26" /></svg> Past Readings</button>
     </nav>
 
+    <nav className="explore-nav" aria-label="Explore The Fold">
+      <button aria-current={tab==='deck'?'page':undefined} onClick={()=>setTab('deck')}>Full Deck · 78 Cards</button>
+      <button aria-current={tab==='learn'?'page':undefined} onClick={()=>setTab('learn')}>Tarot, Astrology & Numerology</button>
+    </nav>
+    {tab==='deck' && <DeckGallery deck={localDeck}/>}
+    {tab==='learn' && <KnowledgeGuide profile={form}/>}
     {notice && <div className="notice-banner">{notice}</div>}
     {error && <div className="error-banner">{error}</div>}
 
@@ -182,6 +193,6 @@ export default function App() {
 
     {tab==='history' && <HistoryPanel history={history} dbReady={dbReady} onToggleFavorite={toggleFavorite} onDelete={deleteReading}/>} 
 
-    <footer className="mockup-footer"><span>FRACTURE</span><span>A DEEPER YOU AWAITS</span><span>TRUTH LIVES HERE</span></footer>
+    <footer className="mockup-footer"><span>FRACTURE</span><span>A DEEPER YOU AWAITS</span><span>TRUTH LIVES HERE</span><small className="developer-credit">David Northrop · Developer of FRACTURE<br/>© 2026 · All rights reserved</small></footer>
   </div>;
 }

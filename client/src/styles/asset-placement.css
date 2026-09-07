@@ -214,3 +214,37 @@ button:focus-visible, summary:focus-visible { outline: 2px solid #f0cf8d; outlin
   .draw-button { font-size: 18px; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* The learning library and complete deck share the approved celestial palette. */
+.explore-nav,.guide-tabs { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin:0 auto 24px; }
+.explore-nav button,.guide-tabs button { border:1px solid #8d7351; border-radius:999px; padding:12px 20px; background:#100b19dc; color:#e5d3b1; font:16px/1.35 Georgia,serif; }
+.explore-nav button[aria-current],.guide-tabs .active { background:#685031; color:#fff1d1; box-shadow:0 0 16px #ca9f4330; }
+.knowledge-panel { padding:clamp(20px,4vw,48px); background:linear-gradient(#110b18e8,#110b18ef),url('/assets/the-fold/panel-background.png') center top/cover; border:1px solid #66505e; border-radius:20px; }
+.knowledge-panel h2 { font:600 clamp(30px,4vw,44px)/1.15 Georgia,serif; color:#f4e9d7; }
+.knowledge-panel>h3,.summary-panel>h3 { margin-top:32px; font:25px/1.3 Georgia,serif; color:#e6c992; }
+.knowledge-panel p,.knowledge-card p,.info-box p { line-height:1.65; }
+.knowledge-panel>p { max-width:850px; color:#d3c8d7; }
+.knowledge-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:20px 0 28px; }
+.knowledge-card { min-width:0; padding:22px; border:1px solid #5c455f; border-radius:14px; background:#0b0813c9; }
+.knowledge-card h3 { margin:0 0 12px; font:22px/1.3 Georgia,serif; color:#e7d1a5; }
+.knowledge-card p { margin:10px 0; color:#d8cedb; }
+.knowledge-card small { display:block; color:#bcaec4; line-height:1.55; }
+.knowledge-card .calculation { padding:12px; background:#281d30; border-radius:8px; overflow-wrap:anywhere; }
+.personal-match { border-color:#d7b16c; }
+.personal-guide,.guide-sources { margin:24px 0; border-top:1px solid #5c455f; border-bottom:1px solid #5c455f; padding:18px 0; }
+.personal-guide>summary,.guide-sources>summary { color:#e8cc95; font:20px/1.4 Georgia,serif; }
+.guide-sources a { color:#e4c590; text-underline-offset:4px; }
+.guide-sources li { margin:12px 0; }
+.symbolism-note { margin:0; color:#bcaec4; font:14px/1.5 Arial,sans-serif; }
+.position-readings { display:grid; gap:16px; margin:28px 0; }
+.deck-search { display:grid; gap:10px; margin:24px 0; color:#e8cc95; }
+.deck-search input { width:100%; padding:14px; background:#090710; border:1px solid #735e73; border-radius:10px; color:#eee; font-size:16px; }
+.full-deck-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:24px 18px; }
+.deck-entry { min-width:0; }
+.deck-entry .tarot-card { width:100%; }
+.deck-entry h3 { font:20px/1.3 Georgia,serif; color:#e4c590; }
+.deck-entry summary { color:#d3becf; padding:8px 0; }
+.deck-entry p { font-size:15px; }
+.mockup-footer { flex-wrap:wrap; }
+.developer-credit { flex:0 0 100%; text-align:center; line-height:1.8; letter-spacing:.07em; color:#c4b1c8; }
+@media(max-width:760px) { .knowledge-grid {grid-template-columns:minmax(0,1fr);} .full-deck-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 12px;} .knowledge-card {padding:18px;} .explore-nav button {font-size:14px;} .guide-tabs {gap:8px;} .guide-tabs button {padding:10px 14px;font-size:14px;} }

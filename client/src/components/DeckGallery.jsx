@@ -1,82 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import TarotCard from './TarotCard.jsx';
-
-const FILTERS = [
-  { key:'major', label:'Major Arcana' },
-  { key:'wands', label:'Wands' },
-  { key:'cups', label:'Cups' },
-  { key:'swords', label:'Swords' },
-  { key:'pentacles', label:'Pentacles' }
-];
-
-function initialPageSize() {
-  if (typeof window === 'undefined') return 8;
-  return window.matchMedia('(max-width: 620px)').matches ? 4 : 8;
-}
-
-export default function DeckGallery({ deck }) {
-  const pageSize = initialPageSize();
-  const [filter, setFilter] = useState(null);
-  const [visible, setVisible] = useState(pageSize);
-
-  const groups = useMemo(() => ({
-    major: deck.filter(c => c.type === 'major'),
-    wands: deck.filter(c => c.suit === 'wands'),
-    cups: deck.filter(c => c.suit === 'cups'),
-    swords: deck.filter(c => c.suit === 'swords'),
-    pentacles: deck.filter(c => c.suit === 'pentacles')
-  }), [deck]);
-
-  if (!deck.length) return <section className="panel"><p>Loading deck…</p></section>;
-
-  const choose = (key) => {
-    setFilter(key);
-    setVisible(pageSize);
-  };
-
-  if (!filter) {
-    return <section className="panel deck-panel deck-threshold">
-      <div className="section-kicker">The complete 78</div>
-      <h2>Shadow Deck</h2>
-      <p className="muted">Choose a section to browse. Cards are opened in small batches so iPhone Safari never has to decode the full deck at once.</p>
-      <div className="deck-section-grid" aria-label="Tarot deck sections">
-        {FILTERS.map(item => <button key={item.key} type="button" className="deck-section-card" onClick={() => choose(item.key)}>
-          <span>{item.label}</span>
-          <small>{groups[item.key].length} cards</small>
-        </button>)}
-      </div>
-    </section>;
-  }
-
-  const selected = groups[filter] || [];
-  const shown = selected.slice(0, visible);
-  const current = FILTERS.find(item => item.key === filter);
-
-  return <section className="panel deck-panel">
-    <div className="section-kicker">Progressive deck gallery</div>
-    <h2>{current?.label}</h2>
-    <p className="muted">Only a small thumbnail batch is mounted at a time. The 4K masters remain untouched.</p>
-
-    <div className="deck-filter-bar" role="tablist" aria-label="Tarot deck section">
-      <button type="button" onClick={() => setFilter(null)}>Sections</button>
-      {FILTERS.map(item => <button
-        key={item.key}
-        type="button"
-        role="tab"
-        aria-selected={filter === item.key}
-        className={filter === item.key ? 'active' : ''}
-        onClick={() => choose(item.key)}
-      >{item.label}<small>{groups[item.key].length}</small></button>)}
-    </div>
-
-    <div className="deck-group">
-      <div className="deck-title"><span>{current?.label}</span><span>{Math.min(visible, selected.length)} / {selected.length}</span></div>
-      <div className="deck-grid progressive-deck-grid">
-        {shown.map(c => <TarotCard key={c.id} card={c} compact revealed />)}
-      </div>
-      {visible < selected.length && <button className="deck-load-more" type="button" onClick={() => setVisible(v => Math.min(v + pageSize, selected.length))}>
-        Load {Math.min(pageSize, selected.length - visible)} more cards
-      </button>}
-    </div>
-  </section>;
+const filters=[['all','All 78 cards'],['major','Major Arcana'],['wands','Wands'],['cups','Cups'],['swords','Swords'],['pentacles','Pentacles']];
+export default function DeckGallery({deck}) {
+ const [filter,setFilter]=useState('all'),[query,setQuery]=useState('');
+ const shown=deck.filter(card=>(filter==='all'||card.type===filter||card.suit===filter)&&`${card.name} ${card.upright} ${card.reversed}`.toLowerCase().includes(query.toLowerCase().trim()));
+ return <section className="panel knowledge-panel deck-panel"><div className="section-kicker">The complete 78</div><h2>The Shadow Deck</h2><p>Explore every card. Open its meanings to read the upright message, reversed message and a practical reflection.</p>
+ <label className="deck-search">Find a card<input type="search" placeholder="Search names or meanings…" value={query} onChange={e=>setQuery(e.target.value)}/></label>
+ <div className="guide-tabs" aria-label="Deck filters">{filters.map(([key,label])=><button key={key} aria-pressed={filter===key} className={filter===key?'active':''} onClick={()=>setFilter(key)}>{label}</button>)}</div>
+ <p role="status">{shown.length} of 78 cards</p><div className="full-deck-grid">{shown.map(card=><div className="deck-entry" key={card.id}><TarotCard card={card} compact revealed/><h3>{card.name}</h3><details><summary>Explore meanings</summary><p><b>Upright:</b> {card.upright}.</p><p><b>Reversed:</b> {card.reversed}.</p><p><b>Try this:</b> {card.advice}</p><small>{card.element} · {card.suitName||'Major Arcana'}</small></details></div>)}</div>{!shown.length&&<p>No cards match that search. Try a card name or a word such as “hope”.</p>}</section>;
 }

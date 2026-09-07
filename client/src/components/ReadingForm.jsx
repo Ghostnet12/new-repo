@@ -16,7 +16,7 @@ export default function ReadingForm({ value, onChange, onSubmit, onSaveProfile, 
     <h2>Your Information</h2>
     <form onSubmit={event => { event.preventDefault(); onSubmit(); }}>
       <div className="form-grid mockup-form-grid">
-        <label className="full"><span>Name</span><input autoComplete="given-name" value={value.name} onChange={set('name')} placeholder="Enter your name" maxLength={50} /></label>
+        <label className="full"><span>Name</span><input autoComplete="name" value={value.name} onChange={set('name')} placeholder="Enter your name" maxLength={50} /></label>
         <label><span>Gender <em>(optional)</em></span><select value={value.gender} onChange={set('gender')}><option value="">Select</option><option>Woman</option><option>Man</option><option>Non-binary</option><option>Other</option></select></label>
         <label><span>Birth Date <em>(optional)</em></span><input type="date" min="1900-01-01" max={new Date().toISOString().slice(0, 10)} autoComplete="bday" value={value.birthday} onChange={set('birthday')} /></label>
 
@@ -37,8 +37,9 @@ export default function ReadingForm({ value, onChange, onSubmit, onSaveProfile, 
         </button>
         <button type="button" className="full oracle-toggle-row" aria-pressed={value.birthInfluence !== false} onClick={() => onChange({ ...value, birthInfluence: value.birthInfluence === false })}>
           <span className={`oracle-switch ${value.birthInfluence !== false ? 'on' : ''}`} aria-hidden="true"><i /></span>
-          <span className="oracle-toggle-copy"><b>Include Birth Card Influence</b><small>Adds your personal archetype to the reading</small></span>
+          <span className="oracle-toggle-copy"><b>Include Personal Symbolism</b><small>Connects your birth card, approximate Sun sign and numerology</small></span>
         </button>
+        <p className="full symbolism-note">Name and birth date are optional. Name numerology uses the name entered; a full birth name gives the traditional Expression basis. Gender never assigns personality traits. Birth-date astrology is an approximate Sun-sign reading.</p>
       </div>
 
       <button className="primary-button draw-button" type="submit" disabled={loading || profileSaving}>

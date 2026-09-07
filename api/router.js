@@ -63,12 +63,7 @@ async function saveReading(hash, input, reading) {
       focus: input.focus,
       need: input.need,
       profile: { name: input.profile.name, gender: input.profile.gender },
-      personalization: {
-        birthCard: reading.personalization.birthCard ? { id: reading.personalization.birthCard.id, name: reading.personalization.birthCard.name } : null,
-        zodiac: reading.personalization.zodiac,
-        zodiacCard: reading.personalization.zodiacCard ? { id: reading.personalization.zodiacCard.id, name: reading.personalization.zodiacCard.name } : null,
-        lifePath: reading.personalization.lifePath
-      },
+      personalization: reading.personalization,
       cards: reading.cards.map(x => ({ cardId: x.card.id, name: x.card.name, position: x.position, reversed: x.reversed })),
       analysis: reading.analysis,
       expiresAt: expiryDate()
