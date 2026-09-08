@@ -1,0 +1,34 @@
+.daily-panel{padding:clamp(22px,4vw,52px);overflow:hidden;scroll-margin-top:20px}
+.daily-heading{display:flex;justify-content:space-between;gap:24px;align-items:center;border-bottom:1px solid #b8935445;padding-bottom:26px;margin-bottom:30px}
+.daily-heading h2{margin:8px 0;font-size:clamp(30px,4vw,50px)}
+.daily-intro{color:#cbc0bc;margin:10px 0 0}
+.daily-date{display:grid;gap:7px;text-align:right;color:#ead4a9;flex-shrink:0}
+.daily-date>span{font-size:35px;line-height:1;color:#d9b575}.daily-date time{font-size:16px}.daily-date small{color:#b7acb8;font-size:12px}
+.daily-layout{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:clamp(24px,4vw,52px);align-items:start}
+.daily-settings{padding:24px 20px;border:1px solid #b8935445;border-radius:16px;background:linear-gradient(150deg,#30203875,#09090fd9)}
+.daily-settings h3{font-size:23px;margin:0 0 10px;color:#f6ead4}.daily-settings>p{font-size:14px;color:#c7bac5;line-height:1.6}
+.daily-settings label{display:grid;gap:9px;margin:20px 0;font-size:16px}.daily-settings label small{font-size:12px;color:#b6a9b4}
+.daily-settings :is(input,select){width:100%;min-width:0;box-sizing:border-box;font-size:16px}
+.daily-settings input[type=date]{appearance:none;min-height:48px}
+.daily-settings .secondary-button{width:100%;padding:13px 10px;margin:8px 0;font-size:13px}
+.daily-small{font-size:13px;line-height:1.65;color:#bfb3c0}.daily-settings-note{text-align:center;margin-top:28px;padding-top:20px;border-top:1px solid #c9a56c30}
+.daily-settings-note>span{color:#e7c68c;font-size:28px}.daily-settings-note p{color:#d5c2ab;font-size:15px;line-height:1.7;font-style:italic}
+.daily-content{min-width:0;overflow-wrap:anywhere}.daily-source-state{display:flex;gap:9px;align-items:center;font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:#dfc59a}
+.daily-source-state i{width:7px;height:7px;background:#c5a870;border-radius:50%;flex-shrink:0}.daily-source-state i.connected{background:#a7d6b2;box-shadow:0 0 9px #a7d6b250}
+.daily-source-message{font-size:13px;line-height:1.6;color:#bdb0c0;margin:10px 0 24px}
+.daily-lead{position:relative;padding:30px clamp(20px,3vw,38px) 10px;border:1px solid #c5a46755;border-radius:18px;background:radial-gradient(ellipse at top right,#72527e40,transparent 70%),linear-gradient(135deg,#1c151dde,#0b0911ed);text-align:center}
+.daily-sign-mark{font-size:48px;color:#efd6a5;line-height:1.2;margin-bottom:20px;text-shadow:0 0 22px #d9b97840}
+.daily-lead .section-kicker{font-size:10px;line-height:1.7;letter-spacing:.17em}.daily-lead h3{font-size:clamp(26px,3vw,39px);line-height:1.18;color:#fbefd9;margin:15px 0 20px}.daily-lead>p:not(.section-kicker){font-size:18px;line-height:1.75;color:#e3d5ce}
+.daily-lead .moon-divider{max-width:300px;margin:22px auto 10px}
+.daily-attribution{font-size:12px;line-height:1.7;margin-top:15px;color:#b8acbb}.daily-panel a{color:#ecd2a4;text-underline-offset:3px}.daily-source-story{margin:15px 0}.daily-source-story p{white-space:pre-wrap;line-height:1.7}
+.daily-sky-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:26px 0;border-block:1px solid #c5a46730;padding:20px 0;gap:10px}.daily-sky-strip>div{display:grid;gap:7px;padding-left:14px;border-left:1px solid #c5a46730}.daily-sky-strip>div:first-child{border:0;padding-left:0}.daily-sky-strip small{color:#b9a7b8;text-transform:uppercase;font-size:10px;letter-spacing:.13em}.daily-sky-strip b{font-size:16px;color:#edd8b8}.daily-sky-strip span{font-size:11px;color:#b9aab7}
+.daily-explanation h3,.daily-personal h3{font-size:27px;margin:12px 0 16px}.daily-explanation>p:not(.section-kicker){font-size:17px;line-height:1.8;color:#d7ccd5}
+.daily-action{display:flex;gap:18px;padding:22px;background:#b9935214;border:1px solid #c2a16955;border-radius:12px;margin:25px 0 35px}.daily-action>span{font-size:26px;color:#eccb8d}.daily-action h4{margin:0 0 10px;color:#f1ddb8;font-size:18px}.daily-action p{margin:0;color:#e0d2c6;line-height:1.7}
+.daily-layer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.daily-layer-grid article{padding:20px;background:#17111de3;border:1px solid #79607955;border-radius:12px}.daily-layer-grid h4{color:#e9d2b0;font-size:17px;line-height:1.5;margin:0 0 12px}.daily-layer-grid p{color:#cfc2cf;font-size:15px;line-height:1.75;margin:0}.daily-layer-grid small{display:block;color:#aa9db0;line-height:1.6;font-size:12px;margin-top:12px}
+.daily-question{margin:32px 0;text-align:center;border-block:1px solid #bd975748;padding:28px 14px}.daily-question span{font-size:10px;letter-spacing:.17em;color:#bca885;text-transform:uppercase}.daily-question p{font-size:clamp(21px,2.6vw,29px);font-style:italic;line-height:1.5;color:#ecd5ae;margin:16px 0 0}
+.daily-method summary{color:#d4bc95;font-size:14px;cursor:pointer;padding:12px 0}.daily-method p{color:#b8aebd;font-size:13px;line-height:1.8}.daily-planet-table{overflow-x:auto}.daily-planet-table table{border-collapse:collapse;width:100%;font-size:13px;color:#d8c7d6}.daily-planet-table caption{text-align:left;font-size:12px;padding:12px 0}.daily-planet-table :is(th,td){padding:10px 8px;text-align:left;border-bottom:1px solid #a1865a35}
+.daily-loading{min-height:300px;display:grid;place-content:center;text-align:center;color:#cbb393;gap:15px}.daily-loading>span{font-size:42px}
+@media(max-width:800px){.daily-layout{grid-template-columns:1fr}.daily-settings{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.daily-settings :is(h3,p,.secondary-button,.daily-settings-note){grid-column:1/-1}.daily-settings-note{display:none}.daily-settings label{margin:12px 0}.daily-heading{align-items:flex-start}.daily-date{max-width:165px}.daily-date time{font-size:13px;line-height:1.5}}
+@media(max-width:480px){.daily-heading{flex-direction:column;gap:20px}.daily-date{text-align:left;max-width:none;grid-template-columns:auto 1fr;column-gap:12px}.daily-date>span{grid-row:1/3}.daily-date time{font-size:14px}.daily-date small{grid-column:2}.daily-layer-grid{grid-template-columns:1fr}.daily-settings{padding:18px 14px;gap:0 12px}.daily-settings label{font-size:14px}.daily-settings label:first-of-type{grid-column:1/-1}.daily-sky-strip b{font-size:14px}.daily-sky-strip span{font-size:10px}.daily-panel{padding:24px 17px}.daily-lead>p:not(.section-kicker){font-size:17px}}
+
+.reading-anchor,.knowledge-panel,.selected-place,.history-list{overflow-wrap:anywhere;min-width:0}

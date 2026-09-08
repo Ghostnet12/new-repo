@@ -13,13 +13,15 @@ import ReadingView from './components/ReadingView.jsx';
 import HistoryPanel from './components/HistoryPanel.jsx';
 import HeroDecor from './components/HeroDecor.jsx';
 import MoonDivider from './components/MoonDivider.jsx';
+import DailyHoroscopes from './components/DailyHoroscopes.jsx';
+import { checkTextLimits } from '../../server/src/validation/limits.js';
 
 const initialForm = { name:'', gender:'', birthday:'', natal:{...natalDefaults}, birthInfluence:true, spread:'three', focus:'general', need:'clarity', reversals:'yes', question:'', persist:false };
 
 export default function App() {
   const formRef = useRef(null);
   const readingRef = useRef(null);
-  const [tab, setTab] = useState('read');
+  const [tab, setTab] = useState(()=>location.hash==='#daily-horoscopes'?'daily':'read');
   const [form, setForm] = useState(initialForm);
   const [reading, setReading] = useState(null);
   const [history, setHistory] = useState([]);
@@ -30,6 +32,11 @@ export default function App() {
   const [profileStatus, setProfileStatus] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+
+  useEffect(()=>{
+    const hash=tab==='daily'?'#daily-horoscopes':'';
+    if(location.hash!==hash) window.history.replaceState(null,'',`${location.pathname}${location.search}${hash}`);
+  },[tab]);
 
   const mergeHistory = (remote = []) => {
     const local = loadLocalHistory();
@@ -71,8 +78,11 @@ export default function App() {
   }, []);
 
   const saveProfile = async () => {
+    try {checkTextLimits(form);} catch(err){setError(err.message);return;}
     setProfileSaving(true); setProfileStatus(''); setError('');
-    const profile = saveLocalProfile({ name:form.name, gender:form.gender, birthday:form.birthday, natal:form.natal, preferredSpread:form.spread });
+    let profile;
+    try {profile = saveLocalProfile({ name:form.name, gender:form.gender, birthday:form.birthday, natal:form.natal, preferredSpread:form.spread });}
+    catch {setError('Your device could not save this profile. Free some browser storage and try again.');setProfileSaving(false);return;}
     setProfileStatus('Remembered on this device.');
     try {
       const result = await api('/api/profile', { method:'PUT', body:JSON.stringify(profile) });
@@ -86,6 +96,7 @@ export default function App() {
   };
 
   const generate = async () => {
+    try {checkTextLimits(form);} catch(err){setError(err.message);return;}
     if (form.birthday && !validBirthDate(form.birthday)) { setError('Please enter a valid birth date between 1900 and today.'); return; }
     if (form.birthInfluence !== false && form.natal?.enabled) { const chart=calculateNatal(form); if(chart.status!=='ready') {setError(chart.message); return;} }
     setLoading(true); setProfileStatus(''); setError(''); setNotice('');
@@ -105,14 +116,14 @@ export default function App() {
 
     if (form.persist) {
       if (!result.persisted) {
-        saveLocalReading(result);
-        result = { ...result, localSaved:true };
+        try {saveLocalReading(result);result = { ...result, localSaved:true };}
+        catch {setNotice('Your reading is ready, but device storage is full and it could not be saved.');}
       }
       if (result.persisted) await refreshHistory(true); else mergeHistory([]);
     }
 
     setReading(result);
-    if (!usedFallback && form.persist && !result.persisted) setNotice('Your reading was completed and remembered on this device. Cloud memory was unavailable.');
+    if (!usedFallback && result.localSaved) setNotice('Your reading was completed and remembered on this device. Cloud memory was unavailable.');
     setTab('read');
     requestAnimationFrame(() => setTimeout(() => readingRef.current?.scrollIntoView({ behavior:'smooth', block:'start' }), 50));
     setLoading(false);
@@ -161,10 +172,12 @@ export default function App() {
     </nav>
 
     <nav className="explore-nav" aria-label="Explore The Fold">
+      <button aria-current={tab==='daily'?'page':undefined} onClick={()=>setTab('daily')}>Daily Horoscopes</button>
       <button aria-current={tab==='deck'?'page':undefined} onClick={()=>setTab('deck')}>Full Deck · 78 Cards</button>
       <button aria-current={tab==='natal'?'page':undefined} onClick={()=>setTab('natal')}>Birth Chart</button>
       <button aria-current={tab==='learn'?'page':undefined} onClick={()=>setTab('learn')}>Tarot, Astrology & Numerology</button>
     </nav>
+    {tab==='daily' && <DailyHoroscopes value={form} onChange={setForm} onBirthChart={()=>setTab('natal')}/>}
     {tab==='natal' && <section className="panel knowledge-panel"><div className="section-kicker">Your birth sky</div><h2>Calculate Your Birth Chart</h2><NatalForm value={form} onChange={setForm} includeBirthday/><NatalChart chart={calculateNatal(form)}/><button className="secondary-button" onClick={()=>{setForm(f=>({...f,birthInfluence:true}));enterFold();}}>Use these details in a reading</button></section>}
     {tab==='deck' && <DeckGallery deck={localDeck}/>}
     {tab==='learn' && <KnowledgeGuide profile={form}/>}

@@ -1,3 +1,4 @@
+import { checkTextLimits } from '../../../server/src/validation/limits.js';
 import { natalDefaults } from '../../../server/src/tarot/natal.js';
 import { buildReading } from '../../../server/src/tarot/interpretation.js';
 import { cards, spreads } from '../../../server/src/tarot/deck.js';
@@ -16,9 +17,10 @@ export function loadLocalProfile() {
 }
 
 export function saveLocalProfile(profile) {
+  checkTextLimits(profile);
   const clean = {
-    name: String(profile?.name || '').slice(0, 50),
-    gender: String(profile?.gender || '').slice(0, 30),
+    name: String(profile?.name || ''),
+    gender: String(profile?.gender || ''),
     birthday: String(profile?.birthday || '').slice(0, 10),
     natal: { ...natalDefaults, ...profile?.natal },
     preferredSpread: profile?.preferredSpread || 'three'
@@ -78,6 +80,7 @@ function shuffleTake(n) {
 }
 
 export function generateLocalReading(form) {
+  checkTextLimits(form);
   const spread = spreads[form.spread] || spreads.three;
   const draw = shuffleTake(spread.positions.length);
   const reversed = draw.map(() => form.reversals === 'yes' && secureInt(100) < 30);

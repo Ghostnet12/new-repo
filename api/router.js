@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 import { cards, spreads } from '../server/src/tarot/deck.js';
 import { DECK_VERSION } from '../server/src/tarot/version.js';
 import { generateReading } from '../server/src/services/readingService.js';
-import { generateSchema, profileUpsertSchema } from '../server/src/validation/schemas.js';
+import { generateSchema, profileUpsertSchema, readingUpdateSchema, horoscopeSchema } from '../server/src/validation/schemas.js';
+import { generateHoroscope } from '../server/src/services/horoscopeService.js';
 import { connectMongo, dbStatus } from '../server/src/config/db.js';
 import { Profile } from '../server/src/models/Profile.js';
 import { Reading } from '../server/src/models/Reading.js';
@@ -32,7 +33,21 @@ function clientHash(request) {
 }
 
 async function readJson(request) {
-  try { return await request.json(); }
+  try {
+    const reader=request.body?.getReader();
+    if(!reader) return null;
+    let size=0;const chunks=[];
+    try {
+      while(true) {
+        const {done,value}=await reader.read();if(done) break;
+        size+=value.byteLength;if(size>1_048_576) return null;
+        chunks.push(value);
+      }
+    } finally {await reader.cancel().catch(()=>{});}
+    const bytes=new Uint8Array(size);let offset=0;
+    for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
+    return JSON.parse(new TextDecoder().decode(bytes));
+  }
   catch { return null; }
 }
 
@@ -52,7 +67,7 @@ async function saveReading(hash, input, reading) {
     await Profile.findOneAndUpdate(
       { clientHash: hash },
       { $set: { clientHash: hash, ...input.profile, preferredSpread: input.spread } },
-      { upsert: true, setDefaultsOnInsert: true }
+      { upsert: true, setDefaultsOnInsert: true, runValidators:true }
     );
     await Reading.create({
       clientHash: hash,
@@ -110,11 +125,16 @@ export async function GET(request) {
 
 export async function POST(request) {
   const route = routeOf(request);
-  if (route !== 'readings/generate') return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
+  if (!['readings/generate','horoscopes/daily'].includes(route)) return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
   const auth = await requireClient(request);
   if (auth.response) return auth.response;
   const body = await readJson(request);
   if (!body) return json({ error: 'Invalid JSON body' }, 400);
+  if(route==='horoscopes/daily') {
+    const parsed=horoscopeSchema.safeParse(body);
+    if(!parsed.success) return json({error:'Invalid horoscope request',issues:parsed.error.issues},400);
+    return json(await generateHoroscope(parsed.data));
+  }
   const parsed = generateSchema.safeParse(body);
   if (!parsed.success) return json({ error: 'Invalid reading request', issues: parsed.error.issues }, 400);
   const input = parsed.data;
@@ -138,7 +158,7 @@ export async function PUT(request) {
     const profile = await Profile.findOneAndUpdate(
       { clientHash: auth.hash },
       { $set: { ...parsed.data, clientHash: auth.hash } },
-      { new: true, upsert: true, setDefaultsOnInsert: true }
+      { new: true, upsert: true, setDefaultsOnInsert: true, runValidators:true }
     ).lean();
     return json({ profile, database: dbStatus(), apiVersion: API_VERSION });
   } catch (error) {
@@ -153,14 +173,13 @@ export async function PATCH(request) {
   if (!match) return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
   const auth = await requireClient(request);
   if (auth.response) return auth.response;
+  const body=await readJson(request);
+  const parsed=readingUpdateSchema.safeParse(body);
+  if(!parsed.success) return json({error:'Invalid reading update',issues:parsed.error.issues},400);
   if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus(), apiVersion: API_VERSION }, 503);
   const id = match[1];
   if (!mongoose.isValidObjectId(id)) return json({ error: 'Invalid reading id' }, 400);
-  const body = await readJson(request) || {};
-  const update = {};
-  if (typeof body.favorite === 'boolean') update.favorite = body.favorite;
-  if (typeof body.notes === 'string') update.notes = body.notes.slice(0, 2000);
-  const reading = await Reading.findOneAndUpdate({ _id: id, clientHash: auth.hash }, { $set: update }, { new: true }).select('spreadName question focus favorite notes createdAt').lean();
+  const reading = await Reading.findOneAndUpdate({ _id: id, clientHash: auth.hash }, { $set: parsed.data }, { new: true, runValidators:true }).select('spreadName question focus favorite notes createdAt').lean();
   if (!reading) return json({ error: 'Reading not found' }, 404);
   return json({ reading, database: dbStatus(), apiVersion: API_VERSION });
 }

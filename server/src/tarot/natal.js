@@ -45,7 +45,7 @@ export function calculateAngles(date,latitude,longitude) {
   const mc=Math.atan2(Math.sin(theta),Math.cos(theta)*Math.cos(eps));
   return {ascendant:zodiacPosition(asc*deg),midheaven:zodiacPosition(mc*deg),descendant:zodiacPosition(asc*deg+180),imumCoeli:zodiacPosition(mc*deg+180)};
 }
-function longitudeAt(name,date) { return Ecliptic(GeoVector(Body[name],date,true)).elon; }
+export function longitudeAt(name,date) { return Ecliptic(GeoVector(Body[name],date,true)).elon; }
 export function calculateAspects(planets) {
   const found=[];
   for(let i=0;i<planets.length;i++) for(let j=i+1;j<planets.length;j++) {

@@ -1,3 +1,4 @@
+import { TEXT_LIMIT, TEXT_LIMIT_LABEL } from '../../../server/src/validation/limits.js';
 import NatalForm from './NatalForm.jsx';
 const spreads = {
   three: ['3 Card Reading', 'Past · Present · Future'],
@@ -17,12 +18,12 @@ export default function ReadingForm({ value, onChange, onSubmit, onSaveProfile, 
     <h2>Your Information</h2>
     <form onSubmit={event => { event.preventDefault(); onSubmit(); }}>
       <div className="form-grid mockup-form-grid">
-        <label className="full"><span>Name</span><input autoComplete="name" value={value.name} onChange={set('name')} placeholder="Enter your name" maxLength={50} /></label>
+        <label className="full"><span>Name</span><input autoComplete="name" value={value.name} onChange={set('name')} placeholder="Enter your name" maxLength={TEXT_LIMIT} /></label>
         <label><span>Gender <em>(optional)</em></span><select value={value.gender} onChange={set('gender')}><option value="">Select</option><option>Woman</option><option>Man</option><option>Non-binary</option><option>Other</option></select></label>
         <label><span>Birth Date <em>(optional)</em></span><input type="date" min="1900-01-01" max={new Date().toISOString().slice(0, 10)} autoComplete="bday" value={value.birthday} onChange={set('birthday')} /></label>
 
         <div className="full"><details className="birth-details"><summary>Add a full natal chart</summary><NatalForm value={value} onChange={onChange}/></details></div>
-        <label className="full question-field"><span>Your Question</span><textarea value={value.question} onChange={set('question')} maxLength={500} placeholder="What would you like to know?" aria-label="Your Question" aria-describedby="question-count" /><small className="char-count" id="question-count">{value.question.length}/500</small></label>
+        <label className="full question-field"><span>Your Question</span><textarea value={value.question} onChange={set('question')} maxLength={TEXT_LIMIT} placeholder="What would you like to know?" aria-label="Your Question" aria-describedby="question-count" /><small className="char-count" id="question-count">{value.question.length.toLocaleString()}/{TEXT_LIMIT_LABEL}</small></label>
 
         <label className="full spread-field"><span>Choose a Spread</span>
           <div className="spread-control">
