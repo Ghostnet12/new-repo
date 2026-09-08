@@ -8,6 +8,7 @@ Preserve The Fold's celestial eye, Shadow Deck, violet atmosphere, black surface
 
 - [Labyrinthos](https://labyrinthos.co/) groups learning resources, card meanings, and spreads into explicit destinations. Applied here as visible spread choices with card counts and descriptions, plus direct access to the full deck.
 - [CHANI](https://www.chani.com/) gives daily horoscopes and introductory astrology clear entry points. Applied here as distinct navigation destinations, concise guidance, and shorter headers when using a tool or visiting another section.
+- [The Pattern](https://www.thepattern.com/) presents personal themes in everyday language. Applied in the second pass as clearer reading guidance, a prominent question, and less technical language around saved readings.
 
 These are interaction and organization references. The Fold retains its own artwork and original interface copy.
 
@@ -21,7 +22,7 @@ These are interaction and organization references. The Fold retains its own artw
 - Removed autofocus on arrival, respected reduced-motion preferences, and added a skip-to-content link.
 - Kept the profile button and Compatibility's birth-date prompt connected to the newly collapsible personal-details section.
 
-## Verification
+## Initial refinement verification
 
 - Production client build and whitespace validation passed; the build still emits all six public pages and SEO files.
 - Browser review at desktop size and 320, 390, 768, and 1024-pixel iframe widths. No horizontal document overflow observed at the measured 320, 768, and 1024 widths. The navigation scrolls within its own row on narrow screens.
@@ -32,9 +33,22 @@ These are interaction and organization references. The Fold retains its own artw
 
 No production deployment is part of this review update.
 
+## Second pass: carry the design through the reading
+
+- Made the main reading action more prominent in warm gold; increased question-prompt targets and used full-width spread choices on phones.
+- Gave the drawn reading a question-led header, a clear saved status, and personal symbolism only when those details are available.
+- Added a live card-reveal count and a descriptive reveal-all control that shows when the whole spread is open.
+- Enlarged card meanings and interpretation text, with three reading columns on desktop, two on tablets, and one on phones.
+- Refined the existing Past Readings collection, empty state, dates, favorite state, and action targets.
+- Aligned the deck gallery's headings, search, filters, card meanings, and result count with the reading interface. Card-specific accessible labels identify each meanings disclosure.
+
+The second pass passed the production client build and `git diff --check`. Review confirmed that the existing draw, favorite, delete, and filtering handlers are retained. This pass has not had a new browser review; the browser checks above apply to the initial refinement.
+
 ## Review images
 
-Desktop overview:
+These images show the initial refinement, before the second pass to controls, reading results, journal, and deck gallery.
+
+Initial desktop overview:
 
 ![The Fold redesigned desktop page](design/the-fold-refined-desktop.jpg)
 
