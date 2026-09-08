@@ -91,42 +91,59 @@ export default function App() {
       const result = await api('/api/profile', { method:'PUT', body:JSON.stringify(profile) });
       const status = result.database || 'connected';
       setDbState(status); setDbReady(status === 'connected');
-      setProfileStatus(status === 'connected' ? 'Remembered on this device and synced to cloud memory.' : 'Remembered on this device. Cloud memory is unavailable.');
+      setProfileStatus(status === 'connected' ? 'Profile remembered on this device and synced.' : 'Profile remembered on this device.');
     } catch {
       setDbReady(false);
-      setProfileStatus('Remembered on this device. Cloud memory is unavailable.');
+      setProfileStatus('Profile remembered on this device.');
     } finally { setProfileSaving(false); }
   };
 
   const generate = async () => {
     try {checkTextLimits(form);} catch(err){setError(err.message);return;}
     if (form.birthday && !validBirthDate(form.birthday)) { setError('Please enter a valid birth date between 1900 and today.'); return; }
-    if (form.birthInfluence !== false && form.natal?.enabled) { const chart=calculateNatal(form); if(chart.status!=='ready') {setError(chart.message); return;} }
+
+    let workingForm = form;
+    const messages = [];
+    if (form.birthInfluence !== false && form.natal?.enabled) {
+      const chart = calculateNatal(form);
+      if (chart.status !== 'ready') {
+        workingForm = { ...form, natal:{ ...form.natal, enabled:false } };
+        messages.push('Full birth-chart details are incomplete, so this reading will use the personal symbolism you already provided.');
+      }
+    }
+
     setLoading(true); setProfileStatus(''); setError(''); setNotice('');
     let result;
     let usedFallback = false;
     try {
-      result = await api('/api/readings/generate', { method:'POST', body:JSON.stringify({ persist:Boolean(form.persist), personalInfluence:form.birthInfluence !== false, profile:{ name:form.name, gender:form.gender, birthday:form.birthday, natal:form.natal, preferredSpread:form.spread }, question:form.question, spread:form.spread, focus:form.focus, need:form.need, reversals:form.reversals === 'yes' }) });
+      result = await api('/api/readings/generate', { method:'POST', body:JSON.stringify({ persist:Boolean(workingForm.persist), personalInfluence:workingForm.birthInfluence !== false, profile:{ name:workingForm.name, gender:workingForm.gender, birthday:workingForm.birthday, natal:workingForm.natal, preferredSpread:workingForm.spread }, question:workingForm.question, spread:workingForm.spread, focus:workingForm.focus, need:workingForm.need, reversals:workingForm.reversals === 'yes' }) });
       const status = result.database || 'unknown';
       setDbState(status); setDbReady(status === 'connected');
     } catch (err) {
       if (err.status && err.status < 500 && err.status !== 429) {setError(err.message);setLoading(false);return;}
-      try {result = generateLocalReading(form);} catch {setError('The reading could not be completed. Please check the birth details and try again.');setLoading(false);return;}
+      try {result = generateLocalReading(workingForm);} catch {setError('The reading could not be completed. Please try again.');setLoading(false);return;}
       usedFallback = true;
       setDbState('device-local'); setDbReady(false);
-      setNotice('The Fold switched to its protected device oracle for this reading. Nothing was interrupted.');
+      messages.push('The Fold used the protected device oracle for this reading.');
     }
 
-    if (form.persist) {
+    if (workingForm.persist) {
       if (!result.persisted) {
         try {saveLocalReading(result);result = { ...result, localSaved:true };}
-        catch {setNotice('Your reading is ready, but device storage is full and it could not be saved.');}
+        catch {messages.push('The reading is ready, but this device could not save it because browser storage is full.');}
       }
-      if (result.persisted) await refreshHistory(true); else mergeHistory([]);
+      if (result.persisted) {
+        await refreshHistory(true);
+        messages.push('Reading saved to Past Readings.');
+      } else if (result.localSaved) {
+        mergeHistory([]);
+        messages.push('Reading saved to Past Readings on this device.');
+      }
     }
 
     setReading(result);
-    if (!usedFallback && result.localSaved) setNotice('Your reading was completed and remembered on this device. Cloud memory was unavailable.');
+    if (!usedFallback && result.localSaved && !messages.some(message => message.startsWith('Reading saved'))) messages.push('Reading saved on this device.');
+    setNotice(messages.join(' '));
     setTab('read');
     requestAnimationFrame(() => setTimeout(() => readingRef.current?.scrollIntoView({ behavior:'smooth', block:'start' }), 50));
     setLoading(false);
@@ -182,8 +199,7 @@ export default function App() {
     {tab==='natal' && <section className="panel knowledge-panel"><div className="section-kicker">Your birth sky</div><h2>Calculate Your Birth Chart</h2><NatalForm value={form} onChange={setForm} includeBirthday/><NatalChart chart={calculateNatal(form)}/><button className="secondary-button" onClick={()=>{setForm(f=>({...f,birthInfluence:true}));enterFold();}}>Use these details in a reading</button></section>}
     {tab==='deck' && <DeckGallery deck={localDeck}/>}
     {tab==='learn' && <KnowledgeGuide profile={form}/>}
-    {notice && <div className="notice-banner">{notice}</div>}
-    {error && <div className="error-banner">{error}</div>}
+    {notice && <div className="notice-banner" role="status">{notice}</div>}
 
     {tab==='read' && <>
       <div ref={formRef} className="two-col reading-form-anchor mockup-grid">
@@ -194,12 +210,12 @@ export default function App() {
           <section className="panel ritual-panel">
             <div className="section-kicker">Before the draw</div>
             <h2>Open the Fold</h2>
-            <p className="ritual-intro">The strongest readings begin with a question that has some weight to it. You do not need perfect wording. You only need to know what keeps pulling at you.</p>
+            <p className="ritual-intro">Start with the question that has some weight to it. You do not need perfect wording—just the thing that keeps pulling at you.</p>
             <ol className="ritual-steps">
               <li><span>01</span><div><b>Name the tension.</b><small>Love, money, a choice, closure, a fear, or something you cannot quite shake.</small></div></li>
               <li><span>02</span><div><b>Choose the lens.</b><small>Your spread decides how deeply the deck cuts into the question.</small></div></li>
               <li><span>03</span><div><b>Ask for direction, not permission.</b><small>The deck reads patterns and pressure points. It does not hand your choices away.</small></div></li>
-              <li><span>04</span><div><b>Draw the cards.</b><small>Reversals, birth-card layers and the full 78-card deck shape the final interpretation.</small></div></li>
+              <li><span>04</span><div><b>Draw the cards.</b><small>Reversals and any personal symbolism you provide shape the interpretation.</small></div></li>
             </ol>
             <div className="ritual-note">Ask about the pattern —<br/>not the verdict.</div>
             <div className="ritual-deck-preview">
