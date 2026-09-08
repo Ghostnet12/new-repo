@@ -96,7 +96,8 @@ export async function rewritePublisher(source,sign,{env=process.env,fetchImpl=fe
 // The database lock is also a quota guard across server instances. A failed source
 // gets a short backoff, and expired material is never returned while refreshing.
 export async function dailyPublisher(sign,date,{now=new Date(),env=process.env,fetchImpl=fetch,connect=connectMongo,cache=DailyHoroscopeCache}={}) {
-  if(!sign||!env.PROKERALA_CLIENT_ID||!env.PROKERALA_CLIENT_SECRET) return unavailable('not_connected');
+  if(!env.PROKERALA_CLIENT_ID||!env.PROKERALA_CLIENT_SECRET) return unavailable('not_connected');
+  if(!sign) return {mode:'calculated',status:'choose_sign',message:'Choose your zodiac sign or add your birth date to include today’s publisher horoscope. Your general Fold reflection is below.'};
   const key=`${VERSION}:${date}:${sign}:${env.GROQ_HOROSCOPE_MODEL||'publisher'}`;
   if(pending.has(key)) return pending.get(key);
   const job=(async()=>{
