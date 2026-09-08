@@ -1,3 +1,4 @@
+import { reviews, reviewResult } from '../server/src/services/reviewService.js';
 import { createHash } from 'node:crypto';
 import mongoose from 'mongoose';
 import { cards, spreads } from '../server/src/tarot/deck.js';
@@ -98,8 +99,10 @@ export async function GET(request) {
   }
   if (route === 'deck') return json({ version: DECK_VERSION, cards, spreads, apiVersion: API_VERSION });
 
+  if(route==='reviews'){const result=await reviewResult(()=>reviews.list(new URL(request.url).searchParams.get('page')));return json(result.body,result.status);}
   const auth = await requireClient(request);
   if (auth.response) return auth.response;
+  if(route==='reviews/mine'){const result=await reviewResult(()=>reviews.mine(auth.hash));return json(result.body,result.status);}
 
   if (route === 'profile') {
     if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus(), apiVersion: API_VERSION }, 503);
@@ -125,11 +128,12 @@ export async function GET(request) {
 
 export async function POST(request) {
   const route = routeOf(request);
-  if (!['readings/generate','horoscopes/daily'].includes(route)) return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
+  if (!['readings/generate','horoscopes/daily','reviews'].includes(route)) return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
   const auth = await requireClient(request);
   if (auth.response) return auth.response;
   const body = await readJson(request);
   if (!body) return json({ error: 'Invalid JSON body' }, 400);
+  if(route==='reviews'){const result=await reviewResult(()=>reviews.save(auth.hash,body));return json(result.body,result.status);}
   if(route==='horoscopes/daily') {
     const parsed=horoscopeSchema.safeParse(body);
     if(!parsed.success) return json({error:'Invalid horoscope request',issues:parsed.error.issues},400);
@@ -186,6 +190,7 @@ export async function PATCH(request) {
 
 export async function DELETE(request) {
   const route = routeOf(request);
+  if(route==='reviews/mine'){const auth=await requireClient(request);if(auth.response)return auth.response;const result=await reviewResult(()=>reviews.remove(auth.hash));return json(result.body,result.status);}
   const match = route.match(/^readings\/item\/([a-f0-9]{24})$/i);
   if (!match) return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
   const auth = await requireClient(request);

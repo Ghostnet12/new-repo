@@ -1,0 +1,10 @@
+import {Router} from 'express';
+import {reviews,reviewResult} from '../services/reviewService.js';
+import {requireAnonymousIdentity} from '../middleware/anonymousIdentity.js';
+const router=Router();router.use((_req,res,next)=>{res.set('Cache-Control','no-store');next();});
+const send=action=>async(req,res)=>{const result=await reviewResult(()=>action(req));res.status(result.status).json(result.body);};
+router.get('/',send(req=>reviews.list(req.query.page)));
+router.get('/mine',requireAnonymousIdentity,send(req=>reviews.mine(req.clientHash)));
+router.post('/',requireAnonymousIdentity,send(req=>reviews.save(req.clientHash,req.body)));
+router.delete('/mine',requireAnonymousIdentity,send(req=>reviews.remove(req.clientHash)));
+export default router;

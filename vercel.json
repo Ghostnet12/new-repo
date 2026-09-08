@@ -4,11 +4,46 @@
   "buildCommand": "npm run build",
   "outputDirectory": "client/dist",
   "functions": {
-    "api/router.js": { "maxDuration": 30 }
+    "api/router.js": {
+      "maxDuration": 30
+    }
   },
   "routes": [
-    { "src": "/api/(?<path>.*)", "dest": "/api/router?route=$path" },
-    { "handle": "filesystem" },
-    { "src": "/.*", "dest": "/index.html" }
+    {
+      "src": "/api/(?<path>.*)",
+      "dest": "/api/router?route=$path"
+    },
+    {
+      "src": "/daily-horoscopes/?",
+      "dest": "/daily-horoscopes/index.html"
+    },
+    {
+      "src": "/tarot-deck/?",
+      "dest": "/tarot-deck/index.html"
+    },
+    {
+      "src": "/birth-chart/?",
+      "dest": "/birth-chart/index.html"
+    },
+    {
+      "src": "/tarot-astrology-numerology/?",
+      "dest": "/tarot-astrology-numerology/index.html"
+    },
+    {
+      "src": "/reviews/?",
+      "dest": "/reviews/index.html"
+    },
+    {
+      "src": "/history/?",
+      "dest": "/history/index.html"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/.*",
+      "dest": "/404.html",
+      "status": 404
+    }
   ]
 }

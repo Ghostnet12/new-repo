@@ -1,3 +1,6 @@
+import { pages, tabFromLocation, applyPageMetadata } from '../../shared/pages.js';
+import Reviews from './components/Reviews.jsx';
+import './styles/reviews.css';
 import { calculateNatal, natalDefaults } from '../../server/src/tarot/natal.js';
 import NatalForm from './components/NatalForm.jsx';
 import NatalChart from './components/NatalChart.jsx';
@@ -21,7 +24,9 @@ const initialForm = { name:'', gender:'', birthday:'', natal:{...natalDefaults},
 export default function App() {
   const formRef = useRef(null);
   const readingRef = useRef(null);
-  const [tab, setTab] = useState(()=>location.hash==='#daily-horoscopes'?'daily':'read');
+  const [tab, updateTab] = useState(()=>tabFromLocation(location));
+  const setTab = next => { window.history.pushState(null,'',pages[next]?.path||'/history'); updateTab(next); };
+  const navigate = (event,next) => {if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;event.preventDefault();setTab(next);};
   const [form, setForm] = useState(initialForm);
   const [reading, setReading] = useState(null);
   const [history, setHistory] = useState([]);
@@ -33,10 +38,8 @@ export default function App() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
-  useEffect(()=>{
-    const hash=tab==='daily'?'#daily-horoscopes':'';
-    if(location.hash!==hash) window.history.replaceState(null,'',`${location.pathname}${location.search}${hash}`);
-  },[tab]);
+  useEffect(()=>{applyPageMetadata(tab);if(location.hash==='#daily-horoscopes'||location.hash==='#reviews')window.history.replaceState(null,'',pages[tab]?.path||'/');},[tab]);
+  useEffect(()=>{const changed=()=>updateTab(tabFromLocation(location));window.addEventListener('popstate',changed);window.addEventListener('hashchange',changed);return()=>{window.removeEventListener('popstate',changed);window.removeEventListener('hashchange',changed);};},[]);
 
   const mergeHistory = (remote = []) => {
     const local = loadLocalHistory();
@@ -172,11 +175,9 @@ export default function App() {
     </nav>
 
     <nav className="explore-nav" aria-label="Explore The Fold">
-      <button aria-current={tab==='daily'?'page':undefined} onClick={()=>setTab('daily')}>Daily Horoscopes</button>
-      <button aria-current={tab==='deck'?'page':undefined} onClick={()=>setTab('deck')}>Full Deck · 78 Cards</button>
-      <button aria-current={tab==='natal'?'page':undefined} onClick={()=>setTab('natal')}>Birth Chart</button>
-      <button aria-current={tab==='learn'?'page':undefined} onClick={()=>setTab('learn')}>Tarot, Astrology & Numerology</button>
+      {Object.entries(pages).map(([key,page])=><a key={key} href={page.path} aria-current={tab===key?'page':undefined} onClick={event=>navigate(event,key)}>{page.label}</a>)}
     </nav>
+    {tab==='reviews' && <Reviews/>}
     {tab==='daily' && <DailyHoroscopes value={form} onChange={setForm} onBirthChart={()=>setTab('natal')}/>}
     {tab==='natal' && <section className="panel knowledge-panel"><div className="section-kicker">Your birth sky</div><h2>Calculate Your Birth Chart</h2><NatalForm value={form} onChange={setForm} includeBirthday/><NatalChart chart={calculateNatal(form)}/><button className="secondary-button" onClick={()=>{setForm(f=>({...f,birthInfluence:true}));enterFold();}}>Use these details in a reading</button></section>}
     {tab==='deck' && <DeckGallery deck={localDeck}/>}
@@ -213,6 +214,7 @@ export default function App() {
 
     {tab==='history' && <HistoryPanel history={history} dbReady={dbReady} onToggleFavorite={toggleFavorite} onDelete={deleteReading}/>} 
 
+    {pages[tab]&&<section className="seo-intro"><h2>{pages[tab].heading}</h2><p>{pages[tab].text}</p></section>}
     <footer className="mockup-footer"><span>FRACTURE</span><span>A DEEPER YOU AWAITS</span><span>TRUTH LIVES HERE</span><small className="developer-credit">David Northrop · Developer of FRACTURE<br/>© 2026 · All rights reserved</small></footer>
   </div>;
 }
