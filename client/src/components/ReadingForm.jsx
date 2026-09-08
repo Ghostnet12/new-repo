@@ -1,73 +1,89 @@
+import { useRef } from 'react';
 import { TEXT_LIMIT, TEXT_LIMIT_LABEL } from '../../../server/src/validation/limits.js';
 import NatalForm from './NatalForm.jsx';
+import NavIcon from './NavIcon.jsx';
 
-const spreads = {
-  three: ['3 Card Reading', 'Past · Present · Future'],
-  shadow: ['Shadow Compass', '5 cards · Find the hidden pattern'],
-  love: ['Black Rose', '5 cards · Love & connection'],
-  career: ['Iron Key', '5 cards · Work & direction'],
-  celtic: ['Celtic Cross', '10 cards · The complete picture']
-};
+const spreads = [
+  { id: 'three', name: 'Three-card reading', count: '03', detail: 'Past · Present · Future' },
+  { id: 'shadow', name: 'Shadow Compass', count: '05', detail: 'The pattern beneath it all' },
+  { id: 'love', name: 'Black Rose', count: '05', detail: 'Love & connection' },
+  { id: 'career', name: 'Iron Key', count: '05', detail: 'Work & direction' },
+  { id: 'celtic', name: 'Celtic Cross', count: '10', detail: 'Explore the complete picture' }
+];
+const starters = [
+  { label: 'A relationship', question: 'What do I need to understand about this connection?' },
+  { label: 'A decision', question: 'What am I overlooking as I make this decision?' },
+  { label: 'A new chapter', question: 'What am I ready to leave behind, and what comes next?' }
+];
 
-export default function ReadingForm({ value, onChange, onSubmit, onSaveProfile, loading, profileSaving, profileStatus, dbReady, dbState, error }) {
+export default function ReadingForm({ value, onChange, onSubmit, onSaveProfile, loading, profileSaving, profileStatus, dbReady, error }) {
+  const questionRef = useRef(null);
   const set = key => event => onChange({ ...value, [key]: event.target.value });
-  const memoryLabel = dbReady ? 'cloud + device memory' : dbState === 'checking' ? 'checking memory…' : 'device memory';
-  const selectedSpread = spreads[value.spread] || spreads.three;
-
-  return <section className="panel form-panel">
-    <div className="section-kicker">Begin your reading</div>
-    <h2>Your Reading</h2>
-    <p className="form-intro">Start with the question that keeps pulling at you. Everything else is optional.</p>
-
-    <form onSubmit={event => { event.preventDefault(); onSubmit(); }}>
-      <div className="form-grid mockup-form-grid">
-        <label className="full question-field primary-question"><span>Your Question</span><textarea autoFocus value={value.question} onChange={set('question')} maxLength={TEXT_LIMIT} placeholder="What would you like clarity on?" aria-label="Your Question" aria-describedby="question-count" /><small className="char-count" id="question-count">{value.question.length.toLocaleString()}/{TEXT_LIMIT_LABEL}</small></label>
-
-        <label className="full spread-field"><span>Choose a Spread</span>
-          <div className="spread-control">
-            <svg className="spread-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><rect x="11" y="4" width="22" height="31" rx="2" /><path d="m7 9-4 1 4 27 20-3M22 13l4 7-4 7-4-7z" /></svg>
-            <div className="spread-copy" aria-hidden="true"><b>{selectedSpread[0]}</b><small>{selectedSpread[1]}</small></div>
-            <svg className="select-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m4 7 6 6 6-6" /></svg>
-            <select aria-label="Choose a Spread" value={value.spread} onChange={set('spread')}>{Object.entries(spreads).map(([key, [name, detail]]) => <option key={key} value={key}>{name} · {detail}</option>)}</select>
-          </div>
+  return <section className="panel form-panel" aria-labelledby="reading-form-title">
+    <div className="section-kicker">A moment for yourself</div>
+    <h2 id="reading-form-title">Your reading begins here.</h2>
+    <p className="form-intro">Bring a question. Leave a little room for discovery.</p>
+    <form onSubmit={event => { event.preventDefault(); onSubmit(); }} aria-busy={loading}>
+      <fieldset className="reading-fieldset" disabled={loading}>
+        <legend className="step-heading"><span>01</span>Your question</legend>
+        <label className="question-field primary-question">
+          <span className="sr-only">Your Question</span>
+          <textarea ref={questionRef} id="reading-question" value={value.question} onChange={set('question')} maxLength={TEXT_LIMIT} placeholder="What's been on your mind?" aria-describedby="question-hint question-count" />
         </label>
+        <div className="question-caption"><small id="question-hint">A few honest words are enough.</small><small className="char-count" id="question-count">{value.question.length.toLocaleString()} / {TEXT_LIMIT_LABEL}</small></div>
+        {!value.question && <div className="question-starters" aria-label="Question inspiration">{starters.map(starter => <button key={starter.label} type="button" onClick={() => { onChange({ ...value, question: starter.question }); questionRef.current?.focus(); }}>{starter.label}<NavIcon name="plus" /></button>)}</div>}
+      </fieldset>
 
-        <button type="button" className="full oracle-toggle-row" aria-pressed={value.reversals === 'yes'} onClick={() => onChange({ ...value, reversals: value.reversals === 'yes' ? 'no' : 'yes' })}>
+      <fieldset className="reading-fieldset spread-fieldset" disabled={loading}>
+        <legend className="step-heading"><span>02</span>Choose your spread</legend>
+        <div className="spread-choices">
+          {spreads.map(spread => <label className={`spread-choice ${value.spread === spread.id ? 'is-selected' : ''}`} key={spread.id}>
+            <input type="radio" name="spread" value={spread.id} checked={value.spread === spread.id} onChange={set('spread')} />
+            <span className="spread-count" aria-hidden="true">{spread.count}</span>
+            <span className="spread-choice-copy"><b>{spread.name}</b><small>{spread.detail}</small><span className="sr-only">{Number(spread.count)} cards</span></span>
+            <span className="choice-check" aria-hidden="true"><NavIcon name="check" /></span>
+          </label>)}
+        </div>
+      </fieldset>
+
+      <div className="reading-settings">
+        <button type="button" className="oracle-toggle-row" disabled={loading} aria-pressed={value.reversals === 'yes'} onClick={() => onChange({ ...value, reversals: value.reversals === 'yes' ? 'no' : 'yes' })}>
+          <span className="oracle-toggle-copy"><b>Include reversed cards</b><small>Explore what may be hidden or held back.</small></span>
           <span className={`oracle-switch ${value.reversals === 'yes' ? 'on' : ''}`} aria-hidden="true"><i /></span>
-          <span className="oracle-toggle-copy"><b>Include Reversed Cards</b><small>Adds blocked, hidden or inward-facing meanings.</small></span>
         </button>
-
-        <button type="button" className="full oracle-toggle-row" aria-pressed={value.birthInfluence !== false} onClick={() => onChange({ ...value, birthInfluence: value.birthInfluence === false })}>
-          <span className={`oracle-switch ${value.birthInfluence !== false ? 'on' : ''}`} aria-hidden="true"><i /></span>
-          <span className="oracle-toggle-copy"><b>Use Personal Symbolism</b><small>Uses any birth or numerology details you choose to provide.</small></span>
-        </button>
-
-        {value.birthInfluence !== false && <div className="full quick-personalize">
-          <label><span>Name <em>(optional)</em></span><input autoComplete="name" value={value.name} onChange={set('name')} placeholder="Your name" maxLength={TEXT_LIMIT} /></label>
-          <label><span>Birth Date <em>(optional)</em></span><input type="date" min="1900-01-01" max={new Date().toISOString().slice(0, 10)} autoComplete="bday" value={value.birthday} onChange={set('birthday')} /></label>
-        </div>}
-
-        <label className="full save-toggle save-reading-toggle"><input type="checkbox" checked={Boolean(value.persist)} disabled={loading} onChange={event => onChange({ ...value, persist: event.target.checked })} /><span><b>Save this reading to Past Readings</b><small>{dbReady ? 'Saved privately with a device fallback.' : 'Saved on this device.'}</small></span></label>
+        <details id="personal-details" className="personal-details">
+          <summary><span><NavIcon name="profile" /><b>Make it personal</b><small>Optional</small></span><NavIcon name="plus" /></summary>
+          <div className="personal-details-content">
+            <p>Your name and birth details add personal symbolism to the reading.</p>
+            <div className="quick-personalize">
+              <label htmlFor="reading-name">Name<input id="reading-name" autoComplete="name" value={value.name} onChange={set('name')} placeholder="Your name" maxLength={TEXT_LIMIT} disabled={loading} /></label>
+              <label htmlFor="reading-birthday">Birth date<input id="reading-birthday" type="date" min="1900-01-01" max={new Date().toISOString().slice(0, 10)} autoComplete="bday" value={value.birthday} onChange={set('birthday')} disabled={loading} /></label>
+            </div>
+            <button type="button" className="oracle-toggle-row" disabled={loading} aria-pressed={value.birthInfluence !== false} onClick={() => onChange({ ...value, birthInfluence: value.birthInfluence === false })}>
+              <span className="oracle-toggle-copy"><b>Use personal symbolism</b><small>Include these details in your interpretation.</small></span>
+              <span className={`oracle-switch ${value.birthInfluence !== false ? 'on' : ''}`} aria-hidden="true"><i /></span>
+            </button>
+          </div>
+        </details>
       </div>
 
+      <label className="save-toggle save-reading-toggle"><input type="checkbox" checked={Boolean(value.persist)} disabled={loading} onChange={event => onChange({ ...value, persist: event.target.checked })} /><span><b>Keep this reading</b><small>{dbReady ? 'Save it to your private Past Readings.' : 'Save it to Past Readings on this device.'}</small></span><NavIcon name="history" /></label>
+      {error && <div className="error-banner" role="alert">{error}</div>}
       <button className="primary-button draw-button" type="submit" disabled={loading || profileSaving}>
-        <svg viewBox="0 0 52 34" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true"><path d="M2 17S12 3 26 3s24 14 24 14-10 14-24 14S2 17 2 17Z" /><circle cx="26" cy="17" r="9" fill="currentColor" /><circle cx="29" cy="14" r="2.4" fill="#eccc8c" stroke="none" /></svg>
-        <span>{loading ? 'THE DECK IS TURNING…' : 'DRAW THE CARDS'}</span>
+        <NavIcon name="eye" /><span>{loading ? 'Drawing your cards…' : 'Draw the cards'}</span><NavIcon name="arrow" />
       </button>
-      <div className="lift-veil-label">LIFT EVERY VEIL</div>
-      <p className={`muted draw-status ${loading ? '' : 'sr-only'}`} role="status" aria-live="polite">{loading ? 'Drawing, orienting and interpreting your cards…' : 'Every draw uses the complete 78-card Shadow Deck.'}</p>
+      <p className="draw-status" role="status" aria-live="polite">{loading ? 'Drawing, orienting and interpreting your cards…' : '78 cards. A reading shaped around you.'}</p>
 
       <details className="reading-options simplified-options">
-        <summary>Optional reading preferences</summary>
+        <summary>Fine-tune your reading</summary>
         <div className="form-grid">
-          <label><span>Focus</span><select value={value.focus} onChange={set('focus')}><option value="general">General</option><option value="love">Love / relationship</option><option value="career">Career / money</option><option value="decision">A decision</option><option value="healing">Healing / closure</option><option value="growth">Personal growth</option></select></label>
-          <label><span>Need most</span><select value={value.need} onChange={set('need')}><option value="clarity">Clarity</option><option value="direction">Direction</option><option value="closure">Closure</option><option value="courage">Courage</option><option value="understanding">Understanding</option></select></label>
-          <label className="full"><span>Gender <em>(optional)</em></span><select value={value.gender} onChange={set('gender')}><option value="">Prefer not to say</option><option>Woman</option><option>Man</option><option>Non-binary</option><option>Other</option></select></label>
+          <label><span>Focus</span><select value={value.focus} onChange={set('focus')} disabled={loading}><option value="general">General</option><option value="love">Love / relationship</option><option value="career">Career / money</option><option value="decision">A decision</option><option value="healing">Healing / closure</option><option value="growth">Personal growth</option></select></label>
+          <label><span>Need most</span><select value={value.need} onChange={set('need')} disabled={loading}><option value="clarity">Clarity</option><option value="direction">Direction</option><option value="closure">Closure</option><option value="courage">Courage</option><option value="understanding">Understanding</option></select></label>
+          <label className="full"><span>Gender <em>(optional)</em></span><select value={value.gender} onChange={set('gender')} disabled={loading}><option value="">Prefer not to say</option><option>Woman</option><option>Man</option><option>Non-binary</option><option>Other</option></select></label>
           <div className="full"><details className="birth-details"><summary>Add full birth-chart details</summary><NatalForm value={value} onChange={onChange}/></details></div>
-          <div className="full profile-save-row"><button className="secondary-button" type="button" disabled={loading || profileSaving} onClick={onSaveProfile}>{profileSaving ? 'Remembering…' : 'Remember My Profile'}</button><small className="muted" role="status" aria-live="polite">{profileStatus || `Memory mode: ${memoryLabel}.`}</small></div>
+          <div className="full profile-save-row"><button className="secondary-button" type="button" disabled={loading || profileSaving} onClick={onSaveProfile}>{profileSaving ? 'Remembering…' : 'Remember my profile'}</button><small className="muted" role="status" aria-live="polite">{profileStatus || 'Remember your details for next time.'}</small></div>
         </div>
       </details>
     </form>
-    {error && <div className="error-banner" role="alert">{error}</div>}
   </section>;
 }

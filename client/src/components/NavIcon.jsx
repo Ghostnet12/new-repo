@@ -1,4 +1,9 @@
 const paths = {
+ close: <path d="m5 5 14 14M19 5 5 19"/>,
+ arrow: <path d="M3 12h18m-7-7 7 7-7 7"/>,
+ plus: <path d="M12 5v14M5 12h14"/>,
+ check: <path d="m5 12 4 4L19 6"/>,
+ eye: <><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/></>,
  read: <><rect x="7" y="3" width="13" height="19" rx="1"/><path d="M4 19 2 2l12-1"/><circle cx="13.5" cy="12" r="2"/><path d="M10 6h1m5 13h1"/></>,
  history: <><path d="M12 5C8 2 4 2 1 4v16c4-2 7-2 11 0 4-2 7-2 11 0V4c-3-2-7-2-11 1Zm0 0v15"/></>,
  card: <><circle cx="12" cy="12" r="5"/><path d="M12 0v4m0 16v4M0 12h4m16 0h4M3 3l3 3m12 12 3 3M3 21l3-3M18 6l3-3"/></>,
