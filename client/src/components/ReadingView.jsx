@@ -3,6 +3,7 @@ import { PersonalLayers } from './KnowledgeGuide.jsx';
 import { useEffect, useState } from 'react';
 import TarotCard from './TarotCard.jsx';
 import MoonDivider from './MoonDivider.jsx';
+import NavIcon from './NavIcon.jsx';
 
 export default function ReadingView({ reading }) {
   const [revealed, setRevealed] = useState([]);
@@ -14,7 +15,8 @@ export default function ReadingView({ reading }) {
   }, [reading?.readingId]);
 
   if (!reading) return null;
-  const all = revealed.length && revealed.every(Boolean);
+  const revealedCount = revealed.filter(Boolean).length;
+  const all = revealedCount === reading.cards.length;
   const revealAll = () => {
     setBatchReveal(true);
     setRevealed(reading.cards.map(() => true));
@@ -23,31 +25,39 @@ export default function ReadingView({ reading }) {
     setBatchReveal(false);
     setRevealed(r => r.map((v, idx) => idx === index ? true : v));
   };
-  const persistence = reading.persisted ? 'Cloud memory' : reading.localSaved ? 'Device memory' : 'Not kept';
-  const oraclePath = reading.localFallback ? 'Device oracle' : 'Oracle online';
+  const persistence = reading.persisted ? 'Saved to Past Readings' : reading.localSaved ? 'Saved on this device' : 'This reading is not saved';
+  const personal = reading.personalization || {};
+  const personalDetails = [
+    personal.birthCard?.name && ['Birth card', personal.birthCard.name],
+    personal.zodiac && [personal.zodiacApproximate ? 'Sun sign · approximate' : 'Sun sign', personal.zodiac],
+    personal.lifePath != null && ['Life path', personal.lifePath]
+  ].filter(Boolean);
 
-  return <section className="reading-stack">
+  return <section className="reading-stack" aria-labelledby="reading-result-title">
     <div className="panel reading-head">
-      <div><div className="section-kicker">The veil opens</div><h2>{reading.profile?.name || 'Seeker'} · {reading.spread.name}</h2><p className="muted">{reading.question ? `“${reading.question}” — ` : ''}This draw uses the complete 78-card Shadow Deck. {oraclePath}.</p></div>
-      <div className="stat-grid">
-        <div><small>Birth card</small><b>{reading.personalization.birthCard?.name || 'Not provided'}</b></div>
-        <div><small>{reading.personalization.zodiacApproximate?'Sun sign · approximate':'Sun sign'}</small><b>{reading.personalization.zodiac || 'Not provided'}</b></div>
-        <div><small>Life path</small><b>{reading.personalization.lifePath ?? '—'}</b></div>
-        <div><small>Memory</small><b>{persistence}</b></div>
+      <div className="reading-heading">
+        <div className="section-kicker">The veil opens</div>
+        <h2 id="reading-result-title">{reading.spread.name}</h2>
+        <p className="reading-byline">{reading.profile?.name ? `A reading for ${reading.profile.name}` : 'Your moment of reflection'}<span aria-hidden="true"> · </span>{reading.cards.length} cards from the Shadow Deck</p>
+        {reading.question && <blockquote className="reading-question">“{reading.question}”</blockquote>}
+        <p className="reading-saved"><NavIcon name={reading.persisted || reading.localSaved ? 'check' : 'history'} />{persistence}</p>
       </div>
+      {personalDetails.length > 0 && <dl className="reading-symbols">{personalDetails.map(([label, detail]) => <div key={label}><dt>{label}</dt><dd>{detail}</dd></div>)}</dl>}
     </div>
-    <MoonDivider compact />
-    <div className="reading-actions"><button onClick={revealAll}>☾ Lift Every Veil ☽</button></div>
+    <div className="reading-actions reveal-toolbar">
+      <div><h3>{all ? 'The whole spread is open.' : 'Take a breath. Turn a card.'}</h3><p id="reveal-hint">{all ? 'Your interpretation follows the cards below.' : 'Reveal each card at your own pace, or open the whole spread.'}</p></div>
+      <div className="reveal-controls"><span className="reveal-progress" role="status" aria-live="polite" aria-atomic="true">{revealedCount} of {reading.cards.length} revealed</span><button type="button" onClick={revealAll} disabled={all} aria-describedby="reveal-hint"><NavIcon name={all ? 'check' : 'eye'} />{all ? 'All cards revealed' : 'Reveal all cards'}</button></div>
+    </div>
     <div className={`spread-grid cards-${reading.cards.length} spread-stage`}>
       {reading.cards.map((entry, i) => <TarotCard key={`${reading.readingId}-${i}`} card={entry.card} position={entry.position} reversed={entry.reversed} revealed={!!revealed[i]} revealDelay={batchReveal ? Math.min(i, 9) * 75 : 0} onReveal={() => revealOne(i)} />)}
     </div>
-    {all && <><MoonDivider compact /><Summary analysis={reading.analysis} personal={reading.personalization} /></>}
+    {all && <><MoonDivider compact /><Summary analysis={reading.analysis} personal={personal} /></>}
   </section>;
 }
 
 function Summary({ analysis, personal }) {
   return <div className="panel summary-panel summary-reveal">
-    <div className="section-kicker">The whole spread speaking together</div><h2>What the Spread Is Showing</h2>
+    <div className="section-kicker">Beyond the individual cards</div><h2>What your spread is showing</h2>
     <div className="reading-takeaway"><h3>Your reading in plain English</h3><p>{analysis.takeaway || analysis.core}</p></div>
     <p className="core-reading">{analysis.core}</p>
     {analysis.story?.length>0&&<div className="reading-story"><h3>The story your cards tell</h3>{analysis.story.map(item=><article key={item.title}><h4>{item.title}</h4><p>{item.text}</p></article>)}</div>}
