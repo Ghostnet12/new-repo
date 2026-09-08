@@ -28,12 +28,12 @@ export default function AmbientMusic() {
   const on = state === 'playing' || state === 'starting';
   const label = state === 'blocked' ? 'Tap to play' : state === 'error' ? 'Tap to retry' : state === 'starting' ? 'Starting…' : on ? 'On · Soft volume' : 'Off';
   return <div className="ambient-music">
-    <button ref={control} type="button" className="ambient-control" role="switch" aria-checked={on} aria-label="Relaxing background music" onClick={() => {
+    <button ref={control} type="button" className="ambient-control" role="switch" aria-checked={on} aria-label="Relaxing background music" title={`Music: ${label}`} onClick={() => {
       if (!player.current) return;
       const enabled = player.current.toggle();
       try { localStorage.setItem(preferenceKey, enabled ? 'on' : 'off'); } catch { /* Optional preference. */ }
     }}>
-      <span className="ambient-label">Moonlit music<small>{label}</small></span>
+      <span className="ambient-label">Music<span className="sr-only">: {label}</span></span>
       <span className={`ambient-switch ${on ? 'is-on' : ''}`} aria-hidden="true"><i /></span>
     </button>
     <span className="sr-only" role="status">{state === 'blocked' ? 'Music is ready. Tap to start playback.' : state === 'error' ? 'Music could not load. Tap to retry.' : ''}</span>

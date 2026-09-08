@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import NavIcon from './NavIcon.jsx';
+import AmbientMusic from './AmbientMusic.jsx';
 
 export default function TopNavigation({ items, activeId, onChoose, onHome, onProfile, onDeck }) {
   const [open, setOpen] = useState(false);
@@ -37,6 +38,7 @@ export default function TopNavigation({ items, activeId, onChoose, onHome, onPro
         <span className="brand-lockup"><b>THE FOLD</b><small>TRUTH LIVES IN THE SHADOWS</small></span>
       </button>
       <nav className="mystic-nav-scroll" aria-label="Main navigation">
+        <AmbientMusic />
         {items.map(item => <button key={item.id} className={activeId === item.id ? 'active' : ''} aria-current={activeId === item.id ? 'page' : undefined} onClick={() => choose(item)}>
           <NavIcon name={item.id} /><span>{item.label}</span>
         </button>)}
