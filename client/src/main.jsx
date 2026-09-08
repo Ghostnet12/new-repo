@@ -8,6 +8,7 @@ import './styles/ux-polish.css';
 import './styles/quick-mystic.css';
 import './styles/unified-nav.css';
 import './styles/refined-design.css';
+import './styles/ambient-music.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode><App /></StrictMode>

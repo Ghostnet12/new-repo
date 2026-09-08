@@ -16,6 +16,7 @@ import { deleteLocalReading, generateLocalReading, loadLocalHistory, loadLocalPr
 import ReadingForm from './components/ReadingForm.jsx';
 import ReadingView from './components/ReadingView.jsx';
 import HistoryPanel from './components/HistoryPanel.jsx';
+import AmbientMusic from './components/AmbientMusic.jsx';
 import HeroDecor from './components/HeroDecor.jsx';
 import MoonDivider from './components/MoonDivider.jsx';
 import DailyHoroscopes from './components/DailyHoroscopes.jsx';
@@ -62,6 +63,7 @@ export default function App(){
  return <div className="app-shell">
   <a className="skip-link" href="#reading-content">Skip to content</a>
   <TopNavigation items={navItems} activeId={quickTool==='card'?'card':quickTool==='match'?'match':tab} onChoose={chooseNav} onHome={()=>{setTab('read');window.scrollTo({top:0,behavior:scrollBehavior()})}} onProfile={()=>focusProfile()} onDeck={()=>setTab('deck')}/>
+  <AmbientMusic />
 
 
   <header className={`hero fold-hero ${tab!=='read'||quickTool?'hero-compact':''}`}><HeroDecor/><div className="side-whisper side-whisper-left">LOOK<br/>DEEPER.<br/>YOU<br/>ALREADY<br/>KNOW.</div><div className="side-whisper side-whisper-right">SOME<br/>QUESTIONS<br/>FIND<br/>YOU.</div><div className="hero-copy"><p>FRACTURE PRESENTS · THE SHADOW DECK</p><h1><span className="sr-only">The Fold</span><span className="title-wordmark" aria-hidden="true"/></h1><div className="hero-tagline">Truth lives in the shadows.</div><span>Seventy-eight cards. One honest question.<br/> A reading built around the pattern beneath the surface.</span><MoonDivider/><div className={`runtime-badge ${dbState==='checking'?'checking':'ok'}`} role="status"><i/>{dbState==='checking'?'PREPARING YOUR READING':dbState==='device-local'?'READY WHEN YOU ARE':'ORACLE ONLINE'}</div></div></header>

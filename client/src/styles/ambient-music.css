@@ -1,0 +1,11 @@
+.ambient-music { display:flex; justify-content:flex-end; padding:12px 0; position:relative; z-index:2; }
+.ambient-control { appearance:none; -webkit-appearance:none; display:flex; align-items:center; gap:18px; min-height:52px; padding:10px 16px; border:1px solid #b9945850; border-radius:10px; background:#100c15; color:#e2c08b; cursor:pointer; text-align:left; }
+.ambient-label { font:500 14px/1.4 system-ui,sans-serif; }
+.ambient-label small { display:block; margin-top:3px; color:#b9a9c2; font:12px/1.4 system-ui,sans-serif; }
+.ambient-switch { flex:none; width:42px; height:24px; padding:3px; border:1px solid #82683f; border-radius:20px; background:#241b2c; }
+.ambient-switch i { display:block; width:16px; height:16px; border-radius:50%; background:#baaec1; transition:transform .2s; }
+.ambient-switch.is-on { background:#795731; border-color:#d7af73; }
+.ambient-switch.is-on i { transform:translateX(17px); background:#ffe1ab; }
+.ambient-control:hover { border-color:#d7af73; }.ambient-control:focus-visible { outline:2px solid #e3bb7e; outline-offset:4px; }
+@media(max-width:600px) { .ambient-music { padding:10px 0 4px; }.ambient-control { padding:8px 12px; min-height:50px; } }
+@media(prefers-reduced-motion:reduce) { .ambient-switch i { transition:none; } }
