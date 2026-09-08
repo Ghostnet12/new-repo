@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildDailyHoroscope, calendarDay, nextDayStart } from '../src/tarot/horoscope.js';
-import { parsePublisherResponse, collectPublisher } from '../src/services/horoscopeSources.js';
+import { parsePublisherResponse, collectPublisher, rewritePublisher, dailyPublisher } from '../src/services/horoscopeSources.js';
 import { generateSchema, profileUpsertSchema, horoscopeSchema, readingUpdateSchema } from '../src/validation/schemas.js';
 import { Profile } from '../src/models/Profile.js';
 import { Reading } from '../src/models/Reading.js';
@@ -53,7 +53,7 @@ test('publisher content must match both the requested date and sign',()=>{
 });
 
 test('source adapter handles a dated feed, Qwen output, and exhausted AI quota',async()=>{
-  const env={PROKERALA_CLIENT_ID:'test-client',PROKERALA_CLIENT_SECRET:'test-secret',GROQ_API_KEY:'test-key',GROQ_HOROSCOPE_MODEL:'test-model'};
+  const env={PROKERALA_CLIENT_ID:'test-client',PROKERALA_CLIENT_SECRET:'test-secret',GROQ_API_KEY:'test-key',GROQ_HOROSCOPE_MODEL:'qwen/qwen3.6-27b'};
   let quota=false;const requests=[];
   const fetchImpl=async(url,options)=>{
     requests.push({url,options});
@@ -67,14 +67,82 @@ test('source adapter handles a dated feed, Qwen output, and exhausted AI quota',
   assert.equal(result.original,undefined);
   assert.equal(result.url,'https://www.prokerala.com/');
   const modelBody=JSON.parse(requests.find(r=>r.url.includes('groq.com')).options.body);
+  assert.equal(modelBody.reasoning_effort,'none');
+  assert.equal(modelBody.reasoning_format,'hidden');
+  assert.equal(modelBody.response_format.type,'json_object');
   assert.deepEqual(Object.keys(JSON.parse(modelBody.messages[1].content)).sort(),['date','publisherText','sign']);
   quota=true;
   const fallback=await collectPublisher('pisces','2026-09-08',{env,fetchImpl,now});
   assert.equal(fallback.mode,'publisher');
+  assert.equal(fallback.retellingStatus,'rate_limited');
   assert.match(fallback.original,/question/);
   let calls=0;
   const missing=await collectPublisher('pisces','2026-09-08',{env:{},fetchImpl:()=>calls++});
   assert.equal(missing.mode,'calculated');assert.equal(calls,0);
+});
+
+test('AI failures keep dated content and reveal only a safe availability code',async()=>{
+  const env={GROQ_API_KEY:'test-only-secret',GROQ_HOROSCOPE_MODEL:'test-model'};
+  const source={mode:'publisher',status:'ready',date:'2026-09-08',original:'Make room for one useful conversation today.'};
+  const failures=[
+    [()=>Response.json({error:'private provider details test-only-secret'},{status:401}),'authentication_failed'],
+    [()=>Response.json({error:'private provider details'},{status:404}),'model_unavailable'],
+    [()=>Response.json({error:'private provider details'},{status:400}),'request_rejected'],
+    [()=>Response.json({error:'private provider details'},{status:503}),'provider_unavailable'],
+    [()=>{throw new DOMException('private provider details','TimeoutError');},'timed_out'],
+    [()=>Response.json({choices:[{message:{content:'<think>unfinished'}}]}),'invalid_output'],
+    [()=>Response.json({choices:[{message:{content:'{"theme":"too short"}'}}]}),'invalid_output'],
+    [()=>Response.json({choices:[{finish_reason:'length',message:{content:'{}'}}]}),'invalid_output']
+  ];
+  for(const [fetchImpl,status] of failures) {
+    const result=await rewritePublisher(source,'pisces',{env,fetchImpl});
+    assert.equal(result.mode,'publisher');
+    assert.equal(result.original,source.original);
+    assert.equal(result.date,source.date);
+    assert.equal(result.retellingStatus,status);
+    assert.doesNotMatch(JSON.stringify(result),/test-only-secret|private provider details|<think>/);
+  }
+});
+
+test('a failed cached retelling retries without refetching the publisher or extending its lifetime',async()=>{
+  const env={PROKERALA_CLIENT_ID:'cached-test',PROKERALA_CLIENT_SECRET:'test-secret',GROQ_API_KEY:'test-key',GROQ_HOROSCOPE_MODEL:'qwen/qwen3.6-27b'};
+  const expiresAt=new Date(+now+3600_000);
+  const row={value:{mode:'publisher',status:'ready',date:'2026-09-08',original:'Make room for one useful conversation today.'},expiresAt,retryAfter:new Date(+now-60_000)};
+  const cache={
+    findById:()=>({lean:async()=>structuredClone(row)}),
+    findOneAndUpdate:async(_filter,update)=>{Object.assign(row,update.$set);return row;},
+    updateOne:async(_filter,update)=>{Object.assign(row,update.$set);}
+  };
+  let calls=0;
+  const fetchImpl=async(url)=>{
+    assert.equal(url,'https://api.groq.com/openai/v1/chat/completions');
+    calls++;
+    if(calls===1) return Response.json({error:'quota'},{status:429});
+    return Response.json({choices:[{message:{content:JSON.stringify({
+      theme:'A useful conversation can start with a simple question.',
+      meaning:'Give yourself time to listen before you decide what an answer means.',
+      action:'Ask one clear question today.'
+    })}}]});
+  };
+  const options={now,env,fetchImpl,cache,connect:async()=>true};
+  const [first,concurrent]=await Promise.all([
+    dailyPublisher('pisces','2026-09-08',options),dailyPublisher('pisces','2026-09-08',options)
+  ]);
+  assert.equal(first.retellingStatus,'rate_limited');
+  assert.deepEqual(concurrent,first);
+  await dailyPublisher('pisces','2026-09-08',options);
+  assert.equal(calls,1,'backoff prevents repeated requests');
+  const recovered=await dailyPublisher('pisces','2026-09-08',{...options,now:new Date(+now+6*60_000)});
+  assert.equal(recovered.mode,'rewritten');
+  assert.equal(recovered.retellingStatus,'ready');
+  assert.equal(recovered.original,undefined);
+  assert.equal(+row.expiresAt,+expiresAt,'AI retries do not extend publisher retention');
+  await dailyPublisher('pisces','2026-09-08',{...options,now:new Date(+now+7*60_000)});
+  assert.equal(calls,2,'successful retelling is shared for the rest of its cache lifetime');
+  const expired=await dailyPublisher('pisces','2026-09-08',{
+    ...options,now:new Date(+expiresAt+1),fetchImpl:async()=>{throw new Error('publisher unavailable');}
+  });
+  assert.equal(expired.mode,'calculated','expired publisher material is never served on failure');
 });
 
 test('25,000-character text survives schemas, models and local profile storage; 25,001 fails',()=>{
