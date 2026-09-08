@@ -1,5 +1,6 @@
 import { TEXT_LIMIT, TEXT_LIMIT_LABEL } from '../../../server/src/validation/limits.js';
 import NatalForm from './NatalForm.jsx';
+
 const spreads = {
   three: ['3 Card Reading', 'Past · Present · Future'],
   shadow: ['Shadow Compass', '5 cards · Find the hidden pattern'],
@@ -15,15 +16,12 @@ export default function ReadingForm({ value, onChange, onSubmit, onSaveProfile, 
 
   return <section className="panel form-panel">
     <div className="section-kicker">Begin your reading</div>
-    <h2>Your Information</h2>
+    <h2>Your Reading</h2>
+    <p className="form-intro">Start with the question that keeps pulling at you. Everything else is optional.</p>
+
     <form onSubmit={event => { event.preventDefault(); onSubmit(); }}>
       <div className="form-grid mockup-form-grid">
-        <label className="full"><span>Name</span><input autoComplete="name" value={value.name} onChange={set('name')} placeholder="Enter your name" maxLength={TEXT_LIMIT} /></label>
-        <label><span>Gender <em>(optional)</em></span><select value={value.gender} onChange={set('gender')}><option value="">Select</option><option>Woman</option><option>Man</option><option>Non-binary</option><option>Other</option></select></label>
-        <label><span>Birth Date <em>(optional)</em></span><input type="date" min="1900-01-01" max={new Date().toISOString().slice(0, 10)} autoComplete="bday" value={value.birthday} onChange={set('birthday')} /></label>
-
-        <div className="full"><details className="birth-details"><summary>Add a full natal chart</summary><NatalForm value={value} onChange={onChange}/></details></div>
-        <label className="full question-field"><span>Your Question</span><textarea value={value.question} onChange={set('question')} maxLength={TEXT_LIMIT} placeholder="What would you like to know?" aria-label="Your Question" aria-describedby="question-count" /><small className="char-count" id="question-count">{value.question.length.toLocaleString()}/{TEXT_LIMIT_LABEL}</small></label>
+        <label className="full question-field primary-question"><span>Your Question</span><textarea autoFocus value={value.question} onChange={set('question')} maxLength={TEXT_LIMIT} placeholder="What would you like clarity on?" aria-label="Your Question" aria-describedby="question-count" /><small className="char-count" id="question-count">{value.question.length.toLocaleString()}/{TEXT_LIMIT_LABEL}</small></label>
 
         <label className="full spread-field"><span>Choose a Spread</span>
           <div className="spread-control">
@@ -36,13 +34,20 @@ export default function ReadingForm({ value, onChange, onSubmit, onSaveProfile, 
 
         <button type="button" className="full oracle-toggle-row" aria-pressed={value.reversals === 'yes'} onClick={() => onChange({ ...value, reversals: value.reversals === 'yes' ? 'no' : 'yes' })}>
           <span className={`oracle-switch ${value.reversals === 'yes' ? 'on' : ''}`} aria-hidden="true"><i /></span>
-          <span className="oracle-toggle-copy"><b>Include Reversed Cards</b><small>Shows hidden energies and blockages</small></span>
+          <span className="oracle-toggle-copy"><b>Include Reversed Cards</b><small>Adds blocked, hidden or inward-facing meanings.</small></span>
         </button>
+
         <button type="button" className="full oracle-toggle-row" aria-pressed={value.birthInfluence !== false} onClick={() => onChange({ ...value, birthInfluence: value.birthInfluence === false })}>
           <span className={`oracle-switch ${value.birthInfluence !== false ? 'on' : ''}`} aria-hidden="true"><i /></span>
-          <span className="oracle-toggle-copy"><b>Include Personal Symbolism</b><small>Connects your birth card, natal chart and numerology</small></span>
+          <span className="oracle-toggle-copy"><b>Use Personal Symbolism</b><small>Uses any birth or numerology details you choose to provide.</small></span>
         </button>
-        <p className="full symbolism-note">Name and birth date are optional. Name numerology uses the name entered; a full birth name gives the traditional Expression basis. Gender never assigns personality traits. Add time and birthplace for calculated astrology; date alone gives an approximate Sun sign.</p>
+
+        {value.birthInfluence !== false && <div className="full quick-personalize">
+          <label><span>Name <em>(optional)</em></span><input autoComplete="name" value={value.name} onChange={set('name')} placeholder="Your name" maxLength={TEXT_LIMIT} /></label>
+          <label><span>Birth Date <em>(optional)</em></span><input type="date" min="1900-01-01" max={new Date().toISOString().slice(0, 10)} autoComplete="bday" value={value.birthday} onChange={set('birthday')} /></label>
+        </div>}
+
+        <label className="full save-toggle save-reading-toggle"><input type="checkbox" checked={Boolean(value.persist)} disabled={loading} onChange={event => onChange({ ...value, persist: event.target.checked })} /><span><b>Save this reading to Past Readings</b><small>{dbReady ? 'Saved privately with a device fallback.' : 'Saved on this device.'}</small></span></label>
       </div>
 
       <button className="primary-button draw-button" type="submit" disabled={loading || profileSaving}>
@@ -52,12 +57,13 @@ export default function ReadingForm({ value, onChange, onSubmit, onSaveProfile, 
       <div className="lift-veil-label">LIFT EVERY VEIL</div>
       <p className={`muted draw-status ${loading ? '' : 'sr-only'}`} role="status" aria-live="polite">{loading ? 'Drawing, orienting and interpreting your cards…' : 'Every draw uses the complete 78-card Shadow Deck.'}</p>
 
-      <details className="reading-options">
-        <summary>Personalize & remember this reading</summary>
+      <details className="reading-options simplified-options">
+        <summary>Optional reading preferences</summary>
         <div className="form-grid">
           <label><span>Focus</span><select value={value.focus} onChange={set('focus')}><option value="general">General</option><option value="love">Love / relationship</option><option value="career">Career / money</option><option value="decision">A decision</option><option value="healing">Healing / closure</option><option value="growth">Personal growth</option></select></label>
           <label><span>Need most</span><select value={value.need} onChange={set('need')}><option value="clarity">Clarity</option><option value="direction">Direction</option><option value="closure">Closure</option><option value="courage">Courage</option><option value="understanding">Understanding</option></select></label>
-          <label className="full save-toggle"><input type="checkbox" checked={Boolean(value.persist)} disabled={loading} onChange={event => onChange({ ...value, persist: event.target.checked })} /><span><b>Keep this reading</b><small>{dbReady ? 'Save to private history with a device fallback.' : 'Save this reading on this device.'}</small></span></label>
+          <label className="full"><span>Gender <em>(optional)</em></span><select value={value.gender} onChange={set('gender')}><option value="">Prefer not to say</option><option>Woman</option><option>Man</option><option>Non-binary</option><option>Other</option></select></label>
+          <div className="full"><details className="birth-details"><summary>Add full birth-chart details</summary><NatalForm value={value} onChange={onChange}/></details></div>
           <div className="full profile-save-row"><button className="secondary-button" type="button" disabled={loading || profileSaving} onClick={onSaveProfile}>{profileSaving ? 'Remembering…' : 'Remember My Profile'}</button><small className="muted" role="status" aria-live="polite">{profileStatus || `Memory mode: ${memoryLabel}.`}</small></div>
         </div>
       </details>
