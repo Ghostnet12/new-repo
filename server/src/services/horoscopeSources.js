@@ -11,7 +11,7 @@ const unavailable=(status='unavailable')=>({mode:'calculated',status,message:sta
   ?'An original Fold reflection from the calculated sky. A publisher feed is not connected.'
   :'The publisher feed is unavailable right now. This is an original Fold reflection from the calculated sky.'});
 
-async function fetchJson(fetchImpl,url,options={},timeout=3500) {
+export async function fetchJson(fetchImpl,url,options={},timeout=3500) {
   const response=await fetchImpl(url,{...options,redirect:'error',signal:AbortSignal.timeout(timeout)});
   if(!response.ok) {
     await response.body?.cancel().catch(()=>{});
@@ -59,7 +59,7 @@ export async function collectPublisher(sign,date,{env=process.env,fetchImpl=fetc
   return rewritePublisher(source,sign,{env,fetchImpl});
 }
 
-function retellingFailure(error) {
+export function retellingFailure(error) {
   if(error?.status===401||error?.status===403) return 'authentication_failed';
   if(error?.status===429) return 'rate_limited';
   if(error?.status===404) return 'model_unavailable';

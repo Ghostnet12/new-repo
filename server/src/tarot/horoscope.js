@@ -2,8 +2,9 @@ import { Temporal } from '@js-temporal/polyfill';
 import { longitudeAt, zodiacPosition, normalizeAngle, angleDistance, calculateAspects, planetNames } from './natal.js';
 import { personalContext, reduceNumber, digitSum } from './interpretation.js';
 import { signs, numbers, planetThemes } from './knowledge.js';
+import { buildDailyPerspective } from './dailyPersonalization.js';
 
-export const HOROSCOPE_VERSION = 'daily-1';
+export const HOROSCOPE_VERSION = 'daily-2';
 export function calendarDay(timeZone = 'UTC', now = new Date()) {
   return Temporal.Instant.from(now.toISOString()).toZonedDateTimeISO(timeZone).toPlainDate().toString();
 }
@@ -75,16 +76,20 @@ export function buildDailyHoroscope(input, {now=new Date(),source=null}={}) {
   const [headline,overview,question]=moonPrompts[moon.signIndex];
   const focus = dailyFocus[input.focus] || dailyFocus.general;
   const layers=[];
-  if(sign) layers.push({title:`${sign.name} · ${basis}`,text:`${sign.name}'s traditional theme of ${sign.theme} gives you a way into today's reflection. ${sign.practice}`});
+  if(sign) layers.push({id:'sun',title:`${sign.name} · ${basis}`,text:`${sign.name}'s traditional theme of ${sign.theme} gives you a way into today's reflection. ${sign.practice}`});
   if(personal?.natal?.status==='ready') {
     const chart=personal.natal, birthMoon=chart.planets[1], rising=chart.angles.ascendant;
-    layers.push({title:`Your Moon in ${birthMoon.sign}`,text:`Your birth Moon is traditionally read as a reflection of emotional needs. ${signs[birthMoon.signIndex].practice} Today's Moon is in ${moon.sign}; it describes a different, passing layer.`});
+    layers.push({id:'birth-moon',title:`Your Moon in ${birthMoon.sign}`,text:`Your birth Moon is traditionally read as a reflection of emotional needs. ${signs[birthMoon.signIndex].practice} Today's Moon is in ${moon.sign}; it describes a different, passing layer.`});
+    layers.push({id:'rising',title:`${rising.sign} rising`,text:`Your rising sign describes a traditional approach to new situations. ${signs[rising.signIndex].practice}${chart.timeAccuracy==='approximate'?' Your birth time is approximate, so angles and houses may shift.':''}`});
+    const focusPlanet={love:'Venus',career:'Saturn',decision:'Mercury',healing:'Moon',growth:'Mars',general:'Sun'}[input.focus]||'Sun';
+    const planet=chart.planets.find(item=>item.name===focusPlanet);
+    layers.push({id:'focus-planet',title:`Your ${focusPlanet} in ${planet.sign}`,text:`For ${focus.label.toLowerCase()}, ${focusPlanet} represents ${planetThemes[focusPlanet]}. Its ${planet.sign} sign offers this practice: ${signs[planet.signIndex].practice} House ${planet.house} concerns ${chart.houses[planet.house-1].meaning.toLowerCase()}.`});
     const house=((moon.signIndex-rising.signIndex+12)%12)+1;
-    layers.push({title:`Today's Moon in your ${house}${house===1?'st':house===2?'nd':house===3?'rd':'th'} house`,text:`Using your ${rising.sign} rising sign and Whole Sign houses, this places the daily Moon in the area of ${chart.houses[house-1].meaning.toLowerCase()}. Ask where that topic needs a little attention in your actual day.`});
+    layers.push({id:'moon-house',title:`Today's Moon in your ${house}${house===1?'st':house===2?'nd':house===3?'rd':'th'} house`,text:`Using your ${rising.sign} rising sign and Whole Sign houses, this places the daily Moon in the area of ${chart.houses[house-1].meaning.toLowerCase()}. Ask where that topic needs a little attention in your actual day.`});
     for(const contact of chartContacts(sky,chart)) {
       const easy=['trine','sextile'].includes(contact.aspect);
       const birthTheme=planetThemes[contact.birth]||'the way you approach new situations';
-      layers.push({title:`Today's ${contact.moving} ${contact.aspect} your birth ${contact.birth}`,text:`This connects the traditional themes of ${planetThemes[contact.moving]} with ${birthTheme}. ${easy?'Look for a small opening: a conversation, habit or choice that lets those needs support each other.':'If those needs seem to compete, pause and name what each one is asking for. A small adjustment can make room for both.'} The calculated angle is within ${contact.orb.toFixed(1)}° of exact. Notice whether the reflection fits your experience.`,kind:'transit'});
+      layers.push({id:`transit-${contact.moving}-${contact.birth}`,title:`Today's ${contact.moving} ${contact.aspect} your birth ${contact.birth}`,text:`This connects the traditional themes of ${planetThemes[contact.moving]} with ${birthTheme}. ${easy?'Look for a small opening: a conversation, habit or choice that lets those needs support each other.':'If those needs seem to compete, pause and name what each one is asking for. A small adjustment can make room for both.'} The calculated angle is within ${contact.orb.toFixed(1)}° of exact. Notice whether the reflection fits your experience.`,kind:'transit'});
     }
   }
   if(personal?.lifePath) {
@@ -93,15 +98,17 @@ export function buildDailyHoroscope(input, {now=new Date(),source=null}={}) {
     const personalYear=reduceNumber(month+day+digitSum(year),false);
     const personalMonth=reduceNumber(personalYear+todayMonth,false);
     const personalDay=reduceNumber(personalMonth+todayDay,false);
-    layers.push({title:`Personal day ${personalDay} · ${numbers[personalDay].title}`,text:numbers[personalDay].practice,calculation:`Calendar-year convention: personal year ${personalYear} + month ${todayMonth} → ${personalMonth}; + day ${todayDay} → ${personalDay}. A symbolic numerology layer.`});
+    layers.push({id:'personal-day',title:`Personal day ${personalDay} · ${numbers[personalDay].title}`,text:numbers[personalDay].practice,calculation:`Calendar-year convention: personal year ${personalYear} + month ${todayMonth} → ${personalMonth}; + day ${todayDay} → ${personalDay}. A symbolic numerology layer.`});
+    layers.push({id:'life-path',title:`Life path ${personal.lifePath} · ${numbers[personal.lifePath].title}`,text:numbers[personal.lifePath].practice});
   }
-  if(personal?.nameNumber) layers.push({title:`Name reflection ${personal.nameNumber}`,text:numbers[personal.nameNumber].practice});
+  if(personal?.nameNumber) layers.push({id:'name-number',title:`Name reflection ${personal.nameNumber}`,text:numbers[personal.nameNumber].practice});
   const chartMessage=personal?.natal?.status && !['ready','not_requested'].includes(personal.natal.status) ? personal.natal.message : '';
-  return {
+  const reading = {
     version:HOROSCOPE_VERSION,date,timeZone,nextUpdateAt:nextDayStart(timeZone,now),createdAt:now.toISOString(),
     sign,basis,headline,overview,question,focus,layers,chartMessage,
     sky:{instant:sky.instant,sun,moon,phase:sky.phase,planets:sky.planets},
     source:source||{mode:'calculated',status:'not_connected',message:'An original Fold reflection from the calculated sky. A publisher feed is not connected.'},
     method:'Tropical, geocentric sky at 12:00 UTC on the displayed date. Moon phases use eight equal longitude sectors. The Moon can change signs during the day. Birth-chart contacts use a 2° orb. Astrology and numerology are symbolic reflection practices, not guaranteed predictions.'
   };
+  return {...reading,perspective:buildDailyPerspective(input,reading)};
 }

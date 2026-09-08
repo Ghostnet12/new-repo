@@ -133,7 +133,7 @@ export async function POST(request) {
   if(route==='horoscopes/daily') {
     const parsed=horoscopeSchema.safeParse(body);
     if(!parsed.success) return json({error:'Invalid horoscope request',issues:parsed.error.issues},400);
-    return json(await generateHoroscope(parsed.data));
+    return json(await generateHoroscope(parsed.data,{clientId:auth.hash}));
   }
   const parsed = generateSchema.safeParse(body);
   if (!parsed.success) return json({ error: 'Invalid reading request', issues: parsed.error.issues }, 400);

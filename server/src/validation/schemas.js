@@ -16,7 +16,10 @@ export const horoscopeSchema=z.object({
  profile:profileSchema.optional().default({}),
  sign:z.enum(['profile',...signs.map(sign=>sign.name.toLowerCase())]).default('profile'),
  timeZone:z.string().max(TEXT_LIMIT,TEXT_LIMIT_MESSAGE).default('UTC').refine(value=>{try{calendarDay(value);return true;}catch{return false;}},'Choose a valid time zone.'),
- focus:z.enum(['general','love','career','decision','healing','growth']).default('general')
+ focus:z.enum(['general','love','career','decision','healing','growth']).default('general'),
+ need:z.enum(['clarity','direction','closure','courage','understanding']).default('clarity'),
+ context:z.string().max(TEXT_LIMIT,TEXT_LIMIT_MESSAGE).trim().default(''),
+ personalize:z.boolean().default(false)
 });
 
 export const readingUpdateSchema=z.object({favorite:z.boolean().optional(),notes:z.string().max(TEXT_LIMIT,TEXT_LIMIT_MESSAGE).optional()});
