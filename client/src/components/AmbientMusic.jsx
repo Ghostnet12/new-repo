@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { createAmbientPlayer } from '../lib/ambientPlayer.js';
+import { bindAmbientPageLifecycle, createAmbientPlayer } from '../lib/ambientPlayer.js';
 
 const preferenceKey = 'fold-ambient-music';
 export default function AmbientMusic() {
@@ -9,8 +9,9 @@ export default function AmbientMusic() {
   useEffect(() => {
     let enabled = true;
     try { enabled = localStorage.getItem(preferenceKey) !== 'off'; } catch { /* Playback works without storage. */ }
-    const instance = createAmbientPlayer(new Audio(), { enabled, onState: setState });
+    const instance = createAmbientPlayer(new Audio(), { enabled, active: document.visibilityState !== 'hidden', onState: setState });
     player.current = instance;
+    const unbindPageLifecycle = bindAmbientPageLifecycle(instance);
     const retry = event => {
       if (control.current?.contains(event.target) || event.defaultPrevented) return;
       if (event.type === 'keydown' && !['Enter', ' '].includes(event.key)) return;
@@ -22,11 +23,12 @@ export default function AmbientMusic() {
     return () => {
       document.removeEventListener('click', retry);
       document.removeEventListener('keydown', retry);
+      unbindPageLifecycle();
       instance.destroy(); player.current = null;
     };
   }, []);
-  const on = state === 'playing' || state === 'starting';
-  const label = state === 'blocked' ? 'Tap to play' : state === 'error' ? 'Tap to retry' : state === 'starting' ? 'Starting…' : on ? 'On · Soft volume' : 'Off';
+  const on = state === 'playing' || state === 'starting' || state === 'suspended';
+  const label = state === 'blocked' ? 'Tap to play' : state === 'error' ? 'Tap to retry' : state === 'starting' ? 'Starting…' : state === 'suspended' ? 'Paused while away' : on ? 'On · Soft volume' : 'Off';
   return <div className="ambient-music">
     <button ref={control} type="button" className="ambient-control" role="switch" aria-checked={on} aria-label="Relaxing background music" title={`Music: ${label}`} onClick={() => {
       if (!player.current) return;
