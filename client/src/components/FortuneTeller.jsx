@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from 'react';
-import {getDeviceFortuneDeck,fortuneDate,fortunes} from '../lib/fortunes.js';
+import {getDeviceFortuneDeck,fortuneDate} from '../lib/fortunes.js';
 import {createFortuneImage} from '../lib/fortuneCard.js';
 import {beginFortuneReveal,fortuneRevealSteps,fortuneRevealDuration} from '../lib/fortuneReveal.js';
 import NavIcon from './NavIcon.jsx';
@@ -46,7 +46,7 @@ export default function FortuneTeller() {
  };
 
  return <section className="fortune-teller" aria-labelledby="fortune-title">
-  <header className="fortune-heading"><p className="fortune-eyebrow">Step closer. A card is waiting.</p><h1 id="fortune-title">The Fortune Teller</h1><p>Hold a wish in mind. Let the teller choose your card.<br/>{fortunes.length.toLocaleString('en-US')} fortunes. A fresh shuffle after the last card.</p></header>
+  <header className="fortune-heading"><p className="fortune-eyebrow">Step closer. A card is waiting.</p><h1 id="fortune-title">The Fortune Teller</h1><p>Hold a wish in mind. Let the teller choose your card.</p></header>
   <div className="fortune-stage" style={{'--fortune-wait-duration':`${fortuneRevealDuration}ms`}}>
    <div className={`fortune-cabinet ${busy?'is-revealing':''}`}>
     <div className="fortune-portrait"><img src="/assets/the-fold/fortune-teller.webp" width="1024" height="1536" alt="An antique fortune teller with a violet crystal ball, framed in gold and velvet" fetchPriority="high"/><img className="fortune-portrait-awake" src="/assets/the-fold/fortune-teller-awake.webp" width="1024" height="1536" alt="" aria-hidden="true" decoding="async"/></div>
