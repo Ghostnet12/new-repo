@@ -1,4 +1,5 @@
 const paths = {
+ support: <><path d="M12 17 4 10C0 5 7 1 12 6c5-5 12-1 8 4Z"/><path d="M3 20h18M7 23h10"/></>,
  close: <path d="m5 5 14 14M19 5 5 19"/>,
  arrow: <path d="M3 12h18m-7-7 7 7-7 7"/>,
  plus: <path d="M12 5v14M5 12h14"/>,

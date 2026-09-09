@@ -14,6 +14,10 @@
       "dest": "/api/router?route=$path"
     },
     {
+      "src": "/support/?",
+      "dest": "/support/index.html"
+    },
+    {
       "src": "/daily-horoscopes/?",
       "dest": "/daily-horoscopes/index.html"
     },

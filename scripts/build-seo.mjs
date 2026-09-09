@@ -12,7 +12,7 @@ for(const page of Object.values(pages)){
 }
 await writeFile(new URL('robots.txt',root),`User-agent: *\nAllow: /\nDisallow: /api/\nAllow: /api/reviews\nDisallow: /api/reviews/mine\nDisallow: /history\nSitemap: ${siteOrigin}/sitemap.xml\n`);
 await writeFile(new URL('sitemap.xml',root),`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${Object.values(pages).map(p=>`<url><loc>${siteOrigin+p.path}</loc></url>`).join('')}</urlset>`);
-console.log('Built six public pages, structured metadata, robots.txt and sitemap.xml');
+console.log(`Built ${Object.keys(pages).length} public pages, structured metadata, robots.txt and sitemap.xml`);
 
 const historyPage=(await readFile(new URL('index.html',root),'utf8')).replace('content="index, follow"','content="noindex, nofollow"').replace(/<title>.*?<\/title>/s,'<title>Your Past Readings | The Fold</title>');
 await mkdir(new URL('history/',root),{recursive:true});await writeFile(new URL('history/index.html',root),historyPage);

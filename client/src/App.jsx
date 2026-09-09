@@ -2,6 +2,7 @@ import { pages, tabFromLocation, applyPageMetadata } from '../../shared/pages.js
 import NavIcon from './components/NavIcon.jsx';
 import TopNavigation from './components/TopNavigation.jsx';
 import RitualGuide from './components/RitualGuide.jsx';
+import Support from './components/Support.jsx';
 import Reviews from './components/Reviews.jsx';
 import './styles/reviews.css';
 import { calculateNatal, natalDefaults } from '../../server/src/tarot/natal.js';
@@ -32,7 +33,8 @@ const navItems=[
  {id:'natal',label:'Birth Chart'},
  {id:'match',label:'Compatibility',tool:'match'},
  {id:'learn',label:'Learn'},
- {id:'reviews',label:'Reviews'}
+ {id:'reviews',label:'Reviews'},
+ {id:'support',label:'Support The Fold'}
 ];
 
 export default function App(){
@@ -71,6 +73,7 @@ export default function App(){
   <main id="reading-content" tabIndex="-1">
   <QuickMysticTools profile={form} mode={quickTool} onClose={()=>setQuickTool('')} onStartReading={enterFold} onAddBirthDate={()=>focusProfile('reading-birthday')}/>
   {tab==='reviews'&&<Reviews/>}
+  {tab==='support'&&<Support onReviews={()=>setTab('reviews')}/>}
   {tab==='daily'&&<DailyHoroscopes value={form} onChange={setForm} onBirthChart={()=>setTab('natal')}/>} 
   {tab==='natal'&&<section className="panel knowledge-panel"><div className="section-kicker">Your birth sky</div><h2>Calculate Your Birth Chart</h2><NatalForm value={form} onChange={setForm} includeBirthday/><NatalChart chart={calculateNatal(form)}/><button className="secondary-button" onClick={()=>{setForm(f=>({...f,birthInfluence:true}));enterFold()}}>Use these details in a reading</button></section>}
   {tab==='deck'&&<DeckGallery deck={localDeck}/>} 
@@ -80,7 +83,7 @@ export default function App(){
   {tab==='read'&&!quickTool&&<><div ref={formRef} className="two-col reading-form-anchor mockup-grid"><div className="panel-shell panel-shell-left"><ReadingForm value={form} onChange={setForm} onSubmit={generate} onSaveProfile={saveProfile} loading={loading} profileSaving={profileSaving} profileStatus={profileStatus} dbReady={dbReady} dbState={dbState} error={error}/></div><div className="panel-shell panel-shell-right"><RitualGuide onDeck={()=>setTab('deck')}/></div></div><div ref={readingRef} className="reading-anchor"><ReadingView reading={reading}/></div></>}
 
   {tab==='history'&&<HistoryPanel history={history} dbReady={dbReady} onToggleFavorite={toggleFavorite} onDelete={deleteReading}/>} 
-  {pages[tab]&&!quickTool&&<section className="seo-intro"><h2>{pages[tab].heading}</h2><p>{pages[tab].text}</p></section>}
+  {pages[tab]&&tab!=='support'&&!quickTool&&<section className="seo-intro"><h2>{pages[tab].heading}</h2><p>{pages[tab].text}</p></section>}
   </main>
   <footer className="mockup-footer"><span>FRACTURE</span><span>A DEEPER YOU AWAITS</span><span>TRUTH LIVES HERE</span><small className="developer-credit">David Northrop · Developer of FRACTURE<br/>© 2026 · All rights reserved</small></footer>
  </div>
