@@ -4,7 +4,8 @@
 .mystic-brand { display:flex; align-items:center; flex:0 0 246px; gap:10px; padding:12px 18px 12px 0; border:0; border-right:1px solid #b9945824; background:none; color:#f5dfb9; cursor:pointer; text-align:left; }
 .mystic-brand .brand-eye { width:49px; height:49px; flex:none; object-fit:contain; }
 .brand-lockup { white-space:nowrap; }.brand-lockup b { display:block; font:400 29px/1.1 Georgia,serif; letter-spacing:.055em; }.brand-lockup small { display:block; margin-top:7px; font:500 8px/1.2 system-ui,sans-serif; letter-spacing:.13em; color:#bdaf9c; }
-.mystic-nav-scroll { display:flex; flex:1; min-width:0; overflow-x:auto; scrollbar-width:none; overscroll-behavior-inline:contain; }.mystic-nav-scroll::-webkit-scrollbar { display:none; }
+/* Keep swipes horizontal and stop elastic movement at either end of the bar. */
+.mystic-nav-scroll { display:flex; flex:1; min-width:0; overflow-x:auto; overflow-y:hidden; scrollbar-width:none; overscroll-behavior:none; touch-action:pan-x pinch-zoom; }.mystic-nav-scroll::-webkit-scrollbar { display:none; }
 .mystic-nav-scroll>button { position:relative; flex:1 0 0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:12px 8px; min-width:76px; border:0; border-right:1px solid #b9945816; background:none; color:#c3bcc7; cursor:pointer; transition:background .18s,color .18s; }
 .mystic-nav-scroll .nav-icon { width:25px; height:25px; flex:none; color:#c9a16e; }.mystic-nav-scroll>button>span { display:block; max-width:88px; font:400 13px/1.25 system-ui,sans-serif; text-align:center; }
 .mystic-nav-scroll>button:hover { color:#fff0d4; background:#b9925010; }.mystic-nav-scroll>button.active { color:#fff0d9; background:linear-gradient(180deg,#a5773410,#ad782435); }.mystic-nav-scroll>button.active::after { content:''; position:absolute; bottom:-1px; inset-inline:12px; height:2px; background:#dcba79; box-shadow:0 -3px 14px #e2b87666; }
