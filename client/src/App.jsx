@@ -1,4 +1,7 @@
 import { pages, tabFromLocation, applyPageMetadata } from '../../shared/pages.js';
+import {readingFaqs} from '../../shared/readingFaqs.js';
+import PageLink from './components/PageLink.jsx';
+import './styles/discovery.css';
 import NavIcon from './components/NavIcon.jsx';
 import TopNavigation from './components/TopNavigation.jsx';
 import RitualGuide from './components/RitualGuide.jsx';
@@ -71,6 +74,7 @@ export default function App(){
   <nav className="tabs mockup-tabs" aria-label="Reading navigation"><button className={tab==='read'&&!quickTool?'active':''} onClick={enterFold}> <NavIcon name="eye"/>Begin reading</button><button className={tab==='history'?'active':''} onClick={()=>setTab('history')}> <NavIcon name="history"/>Past readings</button></nav>
 
   <main id="reading-content" tabIndex="-1">
+  {tab==='read'&&!quickTool&&<aside className="support-invitation"><div><strong>Help The Fold grow.</strong><span>Discover the independent work behind the magic.</span></div><PageLink href="/support" onNavigate={()=>setTab('support')}><NavIcon name="support"/>Support The Fold<NavIcon name="arrow"/></PageLink></aside>}
   <QuickMysticTools profile={form} mode={quickTool} onClose={()=>setQuickTool('')} onStartReading={enterFold} onAddBirthDate={()=>focusProfile('reading-birthday')}/>
   {tab==='reviews'&&<Reviews/>}
   {tab==='support'&&<Support onReviews={()=>setTab('reviews')}/>}
@@ -84,7 +88,8 @@ export default function App(){
 
   {tab==='history'&&<HistoryPanel history={history} dbReady={dbReady} onToggleFavorite={toggleFavorite} onDelete={deleteReading}/>} 
   {pages[tab]&&tab!=='support'&&!quickTool&&<section className="seo-intro"><h2>{pages[tab].heading}</h2><p>{pages[tab].text}</p></section>}
+  {tab==='read'&&!quickTool&&<section className="reading-faqs" aria-labelledby="faq-heading"><div className="section-kicker">A little clarity before the cards</div><h2 id="faq-heading">Your tarot questions, answered.</h2>{readingFaqs.map(item=><details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}<p className="faq-next">Explore <PageLink href="/tarot-deck" onNavigate={()=>setTab('deck')}>all 78 tarot cards</PageLink> or visit our <PageLink href="/tarot-astrology-numerology" onNavigate={()=>setTab('learn')}>tarot, astrology and numerology guide</PageLink>.</p></section>}
   </main>
-  <footer className="mockup-footer"><span>FRACTURE</span><span>A DEEPER YOU AWAITS</span><span>TRUTH LIVES HERE</span><small className="developer-credit">David Northrop · Developer of FRACTURE<br/>© 2026 · All rights reserved</small></footer>
+  <footer className="mockup-footer"><nav className="footer-page-links" aria-label="Explore The Fold">{Object.entries(pages).map(([id,page])=><PageLink key={id} href={page.path} onNavigate={()=>setTab(id)}>{page.label}</PageLink>)}</nav><span>FRACTURE</span><span>A DEEPER YOU AWAITS</span><span>TRUTH LIVES HERE</span><small className="developer-credit">David Northrop · Developer of FRACTURE<br/>© 2026 · All rights reserved</small></footer>
  </div>
 }

@@ -1,0 +1,8 @@
+export const readingFaqs = [
+ {question:'How do I start an online tarot reading?',answer:'Enter your name and a question, then choose a spread. A three-card reading explores past, present and future themes. You can also choose whether to include reversed cards and personal birth influences before drawing your cards.'},
+ {question:'What makes a useful tarot question?',answer:'Ask about a situation you can reflect on or take action in. For example: “What should I consider before changing careers?” or “How can I approach this conversation?” Open questions leave room to explore choices instead of looking for a fixed verdict.'},
+ {question:'Do I need my birth time for a tarot reading?',answer:'No. You can read tarot without birth details. For a full natal birth chart, enter your birth date, time and birthplace. Missing or approximate information is identified rather than guessed.'},
+ {question:'What are reversed tarot cards?',answer:'A reversed card appears upside down. In The Fold, reversals offer another perspective on a card’s symbolism, such as an internal struggle, a delay or a blocked expression. You can turn reversals on or off before your reading.'},
+ {question:'Can tarot predict exactly what will happen?',answer:'The Fold offers symbolic reflection, not guaranteed predictions. Use a reading to consider patterns, questions and possible next steps while making your own decisions. It does not replace professional medical, legal or financial advice.'},
+ {question:'Who created The Fold?',answer:'The Fold is an independent creative project by David Northrop, developer of FRACTURE. It brings together the 78-card Shadow Deck, original music, tarot readings and astrology tools in one place.'}
+];
