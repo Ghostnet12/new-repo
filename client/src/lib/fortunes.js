@@ -1,5 +1,6 @@
 // Original fortunes written for The Fold. This is a playful, local card draw.
-export const fortunes = [
+import {expandedFortunes} from './fortuneChapters.js';
+const originalFortunes = [
  ['the-unopened-door', 'The unopened door', 'A door you stopped noticing is about to look different. Before you search for another key, try the handle you already hold.', 'Look again.'],
  ['the-small-beginning', 'The small beginning', 'Something important will arrive disguised as a small beginning. Give the first imperfect step a chance to become a path.', 'Begin with what you have.'],
  ['the-returning-spark', 'The returning spark', 'An old idea is waiting for a new version of you. This time, you may have the patience to give it a home.', 'Revisit what still glows.'],
@@ -33,24 +34,59 @@ export const fortunes = [
  ['the-unexpected-map', 'The unexpected map', 'A detour may show you something your original plan could not. Stay attentive to what you learn along the way, even when the road bends.', 'Collect the unexpected lesson.'],
  ['the-wish-you-keep', 'The wish you keep', 'One wish keeps returning for a reason worth exploring. Give it a real hour, a blank page or one practical step, and see what it becomes.', 'Give the wish some time.']
 ].map(([id,title,message,whisper])=>Object.freeze({id,title,message,whisper}));
+export const fortunes=Object.freeze([...originalFortunes,...expandedFortunes.map(card=>Object.freeze(card))]);
+export const fortuneDeckStorageKey='the-fold-fortune-deck-v1';
+const byId=new Map(fortunes.map(card=>[card.id,card]));
 
 // Deal the full collection before reshuffling, with no repeat at the boundary.
-export function createFortuneDeck(random=Math.random) {
+export function createFortuneDeck(random=Math.random,{storage=null}={}) {
  let remaining=[];
- let previous;
+ let previous=null,seenSnapshot;
+ const restore=()=>{
+  try {
+   const raw=storage?.getItem(fortuneDeckStorageKey);
+   if(raw===seenSnapshot)return;
+   seenSnapshot=raw;
+   if(!raw||raw.length>200000)return;
+   const saved=JSON.parse(raw);
+   if(saved?.version!==1||saved.size!==fortunes.length||!Array.isArray(saved.remaining)||saved.remaining.length>fortunes.length)return;
+   if(saved.last!==null&&!byId.has(saved.last))return;
+   if(new Set(saved.remaining).size!==saved.remaining.length||saved.remaining.some(id=>!byId.has(id)||id===saved.last))return;
+   remaining=[...saved.remaining];previous=saved.last;
+  } catch { /* Storage restrictions must not prevent a fortune. */ }
+ };
+ restore();
  return () => {
-  if(!remaining.length) {
-   remaining=[...fortunes];
+   // Pick up completed draws in other tabs, while retaining memory if storage fails.
+   restore();
+   if(!remaining.length) {
+   remaining=fortunes.map(card=>card.id);
    for(let i=remaining.length-1;i>0;i--) {
     const j=Math.floor(random()*(i+1));
     [remaining[i],remaining[j]]=[remaining[j],remaining[i]];
    }
-   if(remaining.at(-1).id===previous) [remaining[0],remaining[remaining.length-1]]=[remaining.at(-1),remaining[0]];
+   if(remaining.at(-1)===previous) [remaining[0],remaining[remaining.length-1]]=[remaining.at(-1),remaining[0]];
   }
-  const fortune=remaining.pop();
+  const fortune=byId.get(remaining.pop());
   previous=fortune.id;
+  try {
+   if(storage){
+    const snapshot=JSON.stringify({version:1,size:fortunes.length,remaining,last:previous});
+    storage.setItem(fortuneDeckStorageKey,snapshot);seenSnapshot=snapshot;
+   }
+  } catch { /* Keep the in-memory deck when a write is unavailable. */ }
   return {...fortune,luckyNumber:1+Math.floor(random()*99),issuedAt:new Date().toISOString()};
  };
+}
+
+let deviceDeck;
+export function getDeviceFortuneDeck() {
+ if(!deviceDeck){
+  let storage=null;
+  try{storage=globalThis.localStorage;}catch{ /* Private browsers may block storage. */ }
+  deviceDeck=createFortuneDeck(Math.random,{storage});
+ }
+ return deviceDeck;
 }
 
 export function fortuneDate(issuedAt) {

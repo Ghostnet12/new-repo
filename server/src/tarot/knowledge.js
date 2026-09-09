@@ -1,6 +1,7 @@
+import {extraPositionPrompts} from '../../../shared/spreads.js';
 // Shared, versioned symbolic reference. Original editorial explanations;
 // practitioner references describe traditions, not scientifically verified predictions.
-export const knowledgeVersion = '2026-09-07.2';
+export const knowledgeVersion = '2026-09-09.1';
 export const sources = [
   ['Tarot structure · Joan Bunning', 'https://www.learntarot.com/less12.htm'],
   ['Reading reversals · Joan Bunning', 'https://www.learntarot.com/less17.htm'],
@@ -83,6 +84,7 @@ export const tarotLessons = [
  ['Birth cards and correspondences','The Fold retains its birth-card convention: sum the birth-date digits and reduce until the result is 21 or below, then use that Major Arcana number. Other schools use pairs or different reductions. Zodiac-card associations are a separate esoteric tradition; they do not change which cards are randomly drawn.']
 ];
 export const positionPrompts = {
+ ...extraPositionPrompts,
  'What Shaped You':'Look back at an experience or habit that may still influence your response.',
  'Present Energy':'Look at what you can observe and respond to now.',
  'Conditional Direction':'Consider a possible next chapter, depending on what you choose.',

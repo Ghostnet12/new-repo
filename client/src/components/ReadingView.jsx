@@ -17,6 +17,7 @@ export default function ReadingView({ reading }) {
   if (!reading) return null;
   const revealedCount = revealed.filter(Boolean).length;
   const all = revealedCount === reading.cards.length;
+  const single = reading.cards.length === 1;
   const revealAll = () => {
     setBatchReveal(true);
     setRevealed(reading.cards.map(() => true));
@@ -38,15 +39,15 @@ export default function ReadingView({ reading }) {
       <div className="reading-heading">
         <div className="section-kicker">The veil opens</div>
         <h2 id="reading-result-title">{reading.spread.name}</h2>
-        <p className="reading-byline">{reading.profile?.name ? `A reading for ${reading.profile.name}` : 'Your moment of reflection'}<span aria-hidden="true"> · </span>{reading.cards.length} cards from the Shadow Deck</p>
+        <p className="reading-byline">{reading.profile?.name ? `A reading for ${reading.profile.name}` : 'Your moment of reflection'}<span aria-hidden="true"> · </span>{reading.cards.length} {reading.cards.length===1?'card':'cards'} from the Shadow Deck</p>
         {reading.question && <blockquote className="reading-question">“{reading.question}”</blockquote>}
         <p className="reading-saved"><NavIcon name={reading.persisted || reading.localSaved ? 'check' : 'history'} />{persistence}</p>
       </div>
       {personalDetails.length > 0 && <dl className="reading-symbols">{personalDetails.map(([label, detail]) => <div key={label}><dt>{label}</dt><dd>{detail}</dd></div>)}</dl>}
     </div>
     <div className="reading-actions reveal-toolbar">
-      <div><h3>{all ? 'The whole spread is open.' : 'Take a breath. Turn a card.'}</h3><p id="reveal-hint">{all ? 'Your interpretation follows the cards below.' : 'Reveal each card at your own pace, or open the whole spread.'}</p></div>
-      <div className="reveal-controls"><span className="reveal-progress" role="status" aria-live="polite" aria-atomic="true">{revealedCount} of {reading.cards.length} revealed</span><button type="button" onClick={revealAll} disabled={all} aria-describedby="reveal-hint"><NavIcon name={all ? 'check' : 'eye'} />{all ? 'All cards revealed' : 'Reveal all cards'}</button></div>
+      <div><h3>{all ? (single ? 'Your card is open.' : 'The whole spread is open.') : 'Take a breath. Turn a card.'}</h3><p id="reveal-hint">{single ? (all ? 'Your interpretation follows the card below.' : 'Turn your card when you are ready.') : (all ? 'Your interpretation follows the cards below.' : 'Reveal each card at your own pace, or open the whole spread.')}</p></div>
+      <div className="reveal-controls"><span className="reveal-progress" role="status" aria-live="polite" aria-atomic="true">{revealedCount} of {reading.cards.length} revealed</span><button type="button" onClick={revealAll} disabled={all} aria-describedby="reveal-hint"><NavIcon name={all ? 'check' : 'eye'} />{single ? (all ? 'Card revealed' : 'Reveal card') : (all ? 'All cards revealed' : 'Reveal all cards')}</button></div>
     </div>
     <div className={`spread-grid cards-${reading.cards.length} spread-stage`}>
       {reading.cards.map((entry, i) => <TarotCard key={`${reading.readingId}-${i}`} card={entry.card} position={entry.position} reversed={entry.reversed} revealed={!!revealed[i]} revealDelay={batchReveal ? Math.min(i, 9) * 75 : 0} onReveal={() => revealOne(i)} />)}

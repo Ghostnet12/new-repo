@@ -99,13 +99,13 @@ export function interpretReading(input, entries, personal) {
   }
   if (personal.lifePath) connections.push({title:'Your life path in practice',text:`Life path ${personal.lifePath} uses the theme of ${numbers[personal.lifePath].title.toLowerCase()}. ${numbers[personal.lifePath].practice} Alongside ${last.card.name} in “${last.position}”, use that as a way to explore ${last.reversed?last.card.reversed:last.card.upright}.`});
   if (personal.nameNumber) connections.push({title:'The name you brought to the reading',text:`Your entered name reduces to ${personal.nameNumber}, associated with ${numbers[personal.nameNumber].title.toLowerCase()}. ${numbers[personal.nameNumber].practice} Try that approach when considering ${first.card.name} and ${selected.label}.`});
-  const presentIndex = input.spread==='three'?1:0;
+  const presentIndex = spreads[input.spread]?.focusIndex || 0;
   const present = entries[presentIndex];
-  const contrasting = entries[input.spread==='three'?0:1] || first;
+  const contrasting = entries[presentIndex===0?1:0] || first;
   const takeaway = `${input.profile?.name?`${input.profile.name}, the most useful message here is this: `:'The most useful message here is this: '}${last.card.advice} ${plainMeaning(present.card,present.reversed)}`;
   const story = [
     {title:'What is asking for attention',text:`${present.card.name} appears in “${present.position}”. ${plainMeaning(present.card,present.reversed)} ${positionPrompts[present.position]}`},
-    {title:'What adds context',text:`${contrasting.card.name} appears in “${contrasting.position}”. ${plainMeaning(contrasting.card,contrasting.reversed)} Read it alongside ${present.card.name}: one position describes ${contrasting.position.toLowerCase()}, while the other describes ${present.position.toLowerCase()}. Together, they ask you to consider both parts before deciding what to do.`},
+    {title:entries.length===1?'One card, one focus':'What adds context',text:entries.length===1?`Keep the reflection small enough to use today. ${positionPrompts[present.position]} Ask where ${present.card.name} fits something you have actually noticed, and where it does not.`:`${contrasting.card.name} appears in “${contrasting.position}”. ${plainMeaning(contrasting.card,contrasting.reversed)} Read it alongside ${present.card.name}: one position describes ${contrasting.position.toLowerCase()}, while the other describes ${present.position.toLowerCase()}. Together, they ask you to consider both parts before deciding what to do.`},
     {title:'How to use the closing card',text:`${last.card.name} closes the spread in “${last.position}”. ${plainMeaning(last.card,last.reversed)} A useful response is: ${last.card.advice} This is a direction to explore; the card does not establish what will happen.`}
   ];
   const examples = {
@@ -116,7 +116,7 @@ export function interpretReading(input, entries, personal) {
     healing:'During a period of recovery, this might look like reducing one demand and making room for a person or routine that supports you.',
     growth:'For personal growth, this might look like choosing one behavior you can repeat, rather than trying to change your whole life at once.'
   };
-  const application = `${examples[input.focus]||examples.general} In this draw, ${present.card.name} adds: ${present.card.advice} Then ${last.card.name} brings the next step back to this: ${last.card.advice} These are examples to adapt, not claims that these events have happened to you.`;
+  const application = `${examples[input.focus]||examples.general} In this draw, ${present.card.name} adds: ${present.card.advice} ${entries.length===1?'Try that in one ordinary moment today.':`Then ${last.card.name} brings the next step back to this: ${last.card.advice}`} These are examples to adapt, not claims that these events have happened to you.`;
   const actionPlan = [
     {title:'Name the real situation',text:`Write one sentence about ${selected.label}. Add one fact you can verify and one thing you still do not know.`},
     {title:`Try the lesson of ${last.card.name}`,text:last.card.advice},

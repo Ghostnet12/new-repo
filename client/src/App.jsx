@@ -6,7 +6,6 @@ import NavIcon from './components/NavIcon.jsx';
 import TopNavigation from './components/TopNavigation.jsx';
 import RitualGuide from './components/RitualGuide.jsx';
 import Support from './components/Support.jsx';
-import FortuneTeller from './components/FortuneTeller.jsx';
 import Reviews from './components/Reviews.jsx';
 import './styles/reviews.css';
 import { calculateNatal, natalDefaults } from '../../server/src/tarot/natal.js';
@@ -15,7 +14,7 @@ import NatalChart from './components/NatalChart.jsx';
 import DeckGallery from './components/DeckGallery.jsx';
 import KnowledgeGuide from './components/KnowledgeGuide.jsx';
 import { localDeck } from './lib/localFallback.js';
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { api } from './lib/api.js';
 import { deleteLocalReading, generateLocalReading, loadLocalHistory, loadLocalProfile, saveLocalProfile, saveLocalReading, toggleLocalFavorite } from './lib/localFallback.js';
 import ReadingForm from './components/ReadingForm.jsx';
@@ -27,6 +26,7 @@ import DailyHoroscopes from './components/DailyHoroscopes.jsx';
 import QuickMysticTools from './components/QuickMysticTools.jsx';
 import { checkTextLimits } from '../../server/src/validation/limits.js';
 
+const FortuneTeller=lazy(()=>import('./components/FortuneTeller.jsx'));
 const scrollBehavior=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
 const initialForm={name:'',gender:'',birthday:'',natal:{...natalDefaults},birthInfluence:true,spread:'three',focus:'general',need:'clarity',reversals:'yes',question:'',persist:false};
 const navItems=[
@@ -79,7 +79,7 @@ export default function App(){
   {tab==='read'&&!quickTool&&<aside className="support-invitation"><div><strong>Help The Fold grow.</strong><span>Discover the independent work behind the magic.</span></div><PageLink href="/support" onNavigate={()=>setTab('support')}><NavIcon name="support"/>Support The Fold<NavIcon name="arrow"/></PageLink></aside>}
   <QuickMysticTools profile={form} mode={quickTool} onClose={()=>setQuickTool('')} onStartReading={enterFold} onAddBirthDate={()=>focusProfile('reading-birthday')}/>
   {tab==='reviews'&&<Reviews/>}
-  {tab==='fortune'&&<FortuneTeller/>}
+  {tab==='fortune'&&<Suspense fallback={<p className="fortune-status" role="status">Opening the fortune house…</p>}><FortuneTeller/></Suspense>}
   {tab==='support'&&<Support onReviews={()=>setTab('reviews')}/>}
   {tab==='daily'&&<DailyHoroscopes value={form} onChange={setForm} onBirthChart={()=>setTab('natal')}/>} 
   {tab==='natal'&&<section className="panel knowledge-panel"><div className="section-kicker">Your birth sky</div><h2>Calculate Your Birth Chart</h2><NatalForm value={form} onChange={setForm} includeBirthday/><NatalChart chart={calculateNatal(form)}/><button className="secondary-button" onClick={()=>{setForm(f=>({...f,birthInfluence:true}));enterFold()}}>Use these details in a reading</button></section>}

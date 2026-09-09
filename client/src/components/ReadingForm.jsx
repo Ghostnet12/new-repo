@@ -2,14 +2,10 @@ import { useRef } from 'react';
 import { TEXT_LIMIT, TEXT_LIMIT_LABEL } from '../../../server/src/validation/limits.js';
 import NatalForm from './NatalForm.jsx';
 import NavIcon from './NavIcon.jsx';
+import {spreadChoices} from '../../../shared/spreads.js';
+import '../styles/spreads.css';
 
-const spreads = [
-  { id: 'three', name: 'Three-card reading', count: '03', detail: 'Past · Present · Future' },
-  { id: 'shadow', name: 'Shadow Compass', count: '05', detail: 'The pattern beneath it all' },
-  { id: 'love', name: 'Black Rose', count: '05', detail: 'Love & connection' },
-  { id: 'career', name: 'Iron Key', count: '05', detail: 'Work & direction' },
-  { id: 'celtic', name: 'Celtic Cross', count: '10', detail: 'Explore the complete picture' }
-];
+const spreads=spreadChoices.slice(0,5),moreSpreads=spreadChoices.slice(5);
 const starters = [
   { label: 'A relationship', question: 'What do I need to understand about this connection?' },
   { label: 'A decision', question: 'What am I overlooking as I make this decision?' },
@@ -19,6 +15,7 @@ const starters = [
 export default function ReadingForm({ value, onChange, onSubmit, onSaveProfile, loading, profileSaving, profileStatus, dbReady, error }) {
   const questionRef = useRef(null);
   const set = key => event => onChange({ ...value, [key]: event.target.value });
+  const moreSelected=moreSpreads.find(spread=>spread.id===value.spread);
   return <section className="panel form-panel" aria-labelledby="reading-form-title">
     <div className="section-kicker">A moment for yourself</div>
     <h2 id="reading-form-title">Your reading begins here.</h2>
@@ -44,6 +41,18 @@ export default function ReadingForm({ value, onChange, onSubmit, onSaveProfile, 
             <span className="choice-check" aria-hidden="true"><NavIcon name="check" /></span>
           </label>)}
         </div>
+        <details className="more-spreads">
+          <summary><span>Explore {moreSpreads.length} more spreads</span><small>{moreSelected?`${moreSelected.name} selected`:'Daily guidance, decisions, moon rituals & more'}</small></summary>
+          <div className="spread-choices">
+            {moreSpreads.map(spread=><label className={`spread-choice ${value.spread===spread.id?'is-selected':''}`} key={spread.id}>
+              <input type="radio" name="spread" value={spread.id} checked={value.spread===spread.id} onChange={set('spread')}/>
+              <span className="spread-count" aria-hidden="true">{spread.count}</span>
+              <span className="spread-choice-copy"><b>{spread.name}</b><small>{spread.detail}</small><span className="sr-only">{Number(spread.count)} {Number(spread.count)===1?'card':'cards'}</span></span>
+              <span className="choice-check" aria-hidden="true"><NavIcon name="check"/></span>
+            </label>)}
+          </div>
+          <p className="spread-guidance">For Crossroads, name your two options in your question. Moon spreads can be used whenever you want to begin or reflect.</p>
+        </details>
       </fieldset>
 
       <div className="reading-settings">
