@@ -1,0 +1,22 @@
+{
+  "status": "editorial studies — not inventory and not for sale",
+  "composed": false,
+  "cards": [
+    {"mode":"fortune","title":"The spare key","message":"You kept a key to a life that no longer fits you. Put it down gently; leaving does not make the good memories counterfeit.","whisper":"Some doors deserve a thank-you, not another knock."},
+    {"mode":"fortune","title":"The unfinished hem","message":"Something you call a flaw may simply be the place where you are still growing. Stop letting an unfinished edge convince you the whole garment is ruined.","whisper":"Leave yourself room to be altered."},
+    {"mode":"fortune","title":"The small umbrella","message":"You have been offering shelter while pretending you do not mind the rain. Ask someone to hold the umbrella this time. Care is allowed to travel in both directions.","whisper":"Being dependable need not mean being drenched."},
+    {"mode":"fortune","title":"The wrong platform","message":"A departure can look like an opportunity simply because everyone else is boarding. Read the destination before you hurry. Missing this train might be excellent navigation.","whisper":"Your pace is not a public emergency."},
+    {"mode":"fortune","title":"The quiet invoice","message":"Resentment sometimes arrives carrying a bill for favors nobody knew were loans. Say what you need before another kindness becomes a debt you collect in silence.","whisper":"Clear words cost less than hidden expectations."},
+    {"mode":"fortune","title":"The windowsill orchard","message":"The small thing you keep tending does not need to impress the whole street. A single green shoot can be enough reason to open the curtains tomorrow.","whisper":"Let something matter without making it enormous."},
+    {"mode":"fortune","title":"The borrowed ladder","message":"You have climbed enough ladders leaning against somebody else’s wall. Before the next ambitious step, decide whether you actually want the room at the top.","whisper":"A higher view is not always a better home."},
+    {"mode":"fortune","title":"The last biscuit","message":"You saved the nicest part for an occasion that keeps postponing itself. Today may be ordinary, but you are here for it. Use the good cup.","whisper":"Pleasure does not require a formal invitation."},
+    {"mode":"yesno","title":"A promising first sentence","message":"Yes—but you will need to participate in the conversation. The crystal ball can create atmosphere; it cannot introduce you while you hide behind a menu.","whisper":"Try hello before planning the honeymoon."},
+    {"mode":"yesno","title":"The unavailable committee","message":"Not likely today. Your imaginary committee has scheduled seventeen objections before breakfast. Make one small move without inviting every possible disaster to comment.","whisper":"Confidence may arrive after you begin."},
+    {"mode":"yesno","title":"Permission to be obvious","message":"Yes, there may be an opening. Unfortunately, meaningful eye contact with your own shoes is not a universally recognized flirting technique.","whisper":"Look up. That is where the people are."},
+    {"mode":"yesno","title":"The sequel nobody ordered","message":"No. Repeating the same approach with a more dramatic soundtrack still gives the teller the same plot. Change the invitation, not just the background music.","whisper":"Character development would be attractive here."},
+    {"mode":"yesno","title":"A respectable amount of nerve","message":"Yes, give it a try. A little awkwardness is survivable, and your dignity is sturdier than the tiny committee of nerves currently managing it.","whisper":"You may blush and proceed simultaneously."},
+    {"mode":"yesno","title":"The evidence department","message":"Not on the evidence available. Three exclamation marks and a smiling emoji are not a signed declaration of destiny. Let an actual conversation join the investigation.","whisper":"The teller declines to subpoena a group chat."},
+    {"mode":"yesno","title":"The open seat","message":"Yes—if the invitation is welcome on both sides. Offer the seat beside you; there is no need to reserve the next forty years before anyone sits down.","whisper":"Curiosity travels lighter than expectation."},
+    {"mode":"yesno","title":"The dramatic pause","message":"No, not yet. You are trying to read the ending while the other person is still finding their glasses. Allow the moment to develop a personality of its own.","whisper":"Patience can be charming when it stops sighing."}
+  ]
+}

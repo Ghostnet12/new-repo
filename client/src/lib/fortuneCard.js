@@ -33,13 +33,14 @@ export function layoutFortuneCard(ctx,fortune) {
   add('THE FOLD',50,61,12);
   add(fortune.mode==='yesno'?'THE TELLER’S VERDICT':'A FORTUNE FOR YOU',21,29,32,'sans-serif','#806137');
   if(fortune.limited)add(`LIMITED EDITION · ${fortune.editionLabel} · ${fortune.serial}`,20,28,12,'sans-serif','#806137');
+  if(fortune.limited)add(fortune.joker?'JOKER · FOUR IN THIS EDITION':'NUMBERED DIGITAL KEEPSAKE',20,28,16,'sans-serif','#806137');
   add(fortune.title,48,58,26);
   add(fortune.message,bodySize,bodySize*1.42,25);
   add(fortune.whisper,28,39,34,'Georgia, serif','#77512c');
   add('YOUR LUCKY NUMBER',20,28,5,'sans-serif','#806137');
   add(String(fortune.luckyNumber).padStart(2,'0'),70,80,23);
   add(fortuneDate(fortune.issuedAt),22,30,8);
-  add('A little theatre. Your future is yours.',20,28,8);
+  add(fortune.preview?'PREVIEW · NOT ISSUED · NO DRAWS AWARDED':'A little theatre. Your future is yours.',fortune.preview?16:20,28,8);
   add('enterthefold.io/fortune-teller',20,28,0,'sans-serif','#806137');
   if(y<=1210)return lines;
  }

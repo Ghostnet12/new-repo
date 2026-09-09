@@ -18,7 +18,7 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: node scripts/build-collector-edition.mjs
-      - run: node --test server/test/collectors.test.js
+      - run: node --test server/test/collectors.test.js server/test/collectorEditorial.test.js
       - run: node --test client/test/fortunes.test.js client/test/yesNoFortunes.test.js client/test/fortuneReveal.test.js client/test/fortuneShare.test.js server/test/vercelRouter.test.js server/test/vercelRouting.test.js
       - run: node --test client/test/collectorCards.test.js
       - run: npm run build --workspace client

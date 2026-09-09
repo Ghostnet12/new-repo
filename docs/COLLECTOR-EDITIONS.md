@@ -2,7 +2,7 @@
 
 ## Release state
 
-Collector profiles, shared inventory, permanent collections, numbered PNGs and Stripe-hosted checkout are implemented. Payments default OFF. Existing free fortunes remain available; buyers choose Collector’s Edition. Do not turn on live checkout simply because a secret key has been supplied.
+Collector profiles, shared inventory, permanent collections, numbered PNGs and Stripe-hosted checkout are implemented. Payments default OFF. The first series also fails the new editorial release check because it recombines sentence parts; Stripe keys and payment flags cannot make that series purchasable. See COLLECTOR-PROMISE.md. Existing free fortunes remain available; buyers choose Collector’s Edition. Do not turn on live checkout simply because a secret key has been supplied.
 
 ## Product and inventory
 

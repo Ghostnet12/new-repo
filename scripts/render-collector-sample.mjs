@@ -1,0 +1,14 @@
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {dirname,resolve} from 'node:path';
+import {createCanvas,loadImage} from '@napi-rs/canvas';
+import {drawFortuneCard} from '../client/src/lib/fortuneCard.js';
+const {cards}=JSON.parse(readFileSync(new URL('../server/data/collector-first-edition.json',import.meta.url)));
+const original=cards.find(c=>c.id==='first-yesno-2040');
+if(!original||original.title!=='The cheeky benefactor')throw Error('Sample catalogue mismatch');
+const sample={...original,limited:true,preview:true,serial:'Y-2040',editionLabel:'First Series',luckyNumber:3,issuedAt:'2026-09-09T12:00:00Z'};
+const canvas=createCanvas(1000,1500);
+const frame=await loadImage(new URL('../client/public/assets/the-fold/fortune-card-ornate.webp',import.meta.url).pathname);
+drawFortuneCard(canvas.getContext('2d'),sample,frame);
+const destination=resolve(process.argv[2]||'output/the-fold-collector-joker-preview.png');
+mkdirSync(dirname(destination),{recursive:true});writeFileSync(destination,canvas.toBuffer('image/png'));
+console.log(JSON.stringify({file:destination,title:sample.title,message:sample.message,serial:sample.serial,preview:true}));

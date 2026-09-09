@@ -71,7 +71,7 @@ export default function FortuneTeller() {
       {imageReady?<img className="fortune-ticket-image" src={image.url} width="1000" height="1500" alt=""/>:!imageError?<div className="fortune-ticket-loading" aria-hidden="true"><NavIcon name="fortune"/><p>Preparing your keepsake…</p></div>:null}
       <div className={imageError?'fortune-ticket-copy':'fortune-ticket-copy sr-only'}>
        <div className="fortune-ticket-brand">THE FOLD</div><p className="fortune-ticket-label">{yesNo?'The teller’s verdict':'A fortune for you'}</p>
-       {fortune.limited&&<small className="fortune-limited-label">Limited Edition · {fortune.editionLabel} · {fortune.serial}</small>}<h2 id="fortune-card-title">{fortune.title}</h2><p className="fortune-message">{fortune.message}</p><p className="fortune-whisper">{fortune.whisper}</p>
+       {fortune.limited&&<small className="fortune-limited-label">Limited Edition · {fortune.editionLabel} · {fortune.serial}{fortune.joker?' · Joker · Four in this edition':' · Numbered digital keepsake'}</small>}<h2 id="fortune-card-title">{fortune.title}</h2><p className="fortune-message">{fortune.message}</p><p className="fortune-whisper">{fortune.whisper}</p>
        <div className="fortune-lucky"><span>Your lucky number</span><strong>{String(fortune.luckyNumber).padStart(2,'0')}</strong></div>
        <time dateTime={fortune.issuedAt}>{fortuneDate(fortune.issuedAt)}</time><small>enterthefold.io</small>
       </div>

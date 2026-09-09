@@ -1,4 +1,7 @@
 import {initialiseFirstSeries} from './initialise.js';
+import manifest from '../../data/collector-first-edition.json' with {type:'json'};
+import {assessCollectorWriting} from './editorial.js';
+const editorialReady=assessCollectorWriting(manifest).passes;
 import Stripe from 'stripe';
 import {connectMongo} from '../config/db.js';
 import {account,authBudget,cookieToken,digest,fail,sessionCookie,signIn} from './auth.js';
@@ -10,7 +13,7 @@ export function paymentConfig(){
  const origin=process.env.COLLECTOR_SITE_ORIGIN||'https://enterthefold.io';
  const secret=process.env.STRIPE_SECRET_KEY||'';
  const configured=/^sk_(test|live)_/.test(secret)&&Boolean(process.env.STRIPE_WEBHOOK_SECRET);
- const enabled=configured&&process.env.COLLECTOR_PAYMENTS_ENABLED==='true'&&process.env.COLLECTOR_JOKER_REVIEW_COMPLETE==='true';
+ const enabled=editorialReady&&configured&&process.env.COLLECTOR_PAYMENTS_ENABLED==='true'&&process.env.COLLECTOR_JOKER_REVIEW_COMPLETE==='true';
  return {origin,enabled,configured,live:secret.startsWith('sk_live_')};
 }
 let indexReady;
