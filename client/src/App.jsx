@@ -6,6 +6,7 @@ import NavIcon from './components/NavIcon.jsx';
 import TopNavigation from './components/TopNavigation.jsx';
 import RitualGuide from './components/RitualGuide.jsx';
 import Support from './components/Support.jsx';
+import FortuneTeller from './components/FortuneTeller.jsx';
 import Reviews from './components/Reviews.jsx';
 import './styles/reviews.css';
 import { calculateNatal, natalDefaults } from '../../server/src/tarot/natal.js';
@@ -30,6 +31,7 @@ const scrollBehavior=()=>window.matchMedia('(prefers-reduced-motion: reduce)').m
 const initialForm={name:'',gender:'',birthday:'',natal:{...natalDefaults},birthInfluence:true,spread:'three',focus:'general',need:'clarity',reversals:'yes',question:'',persist:false};
 const navItems=[
  {id:'read',label:'Tarot Reading'},
+ {id:'fortune',label:'Fortune Teller'},
  {id:'history',label:'Past Readings'},
  {id:'card',label:'Card of the Day',tool:'card'},
  {id:'daily',label:'Daily Horoscope'},
@@ -69,14 +71,15 @@ export default function App(){
   <TopNavigation items={navItems} activeId={quickTool==='card'?'card':quickTool==='match'?'match':tab} onChoose={chooseNav} onHome={()=>{setTab('read');window.scrollTo({top:0,behavior:scrollBehavior()})}} onProfile={()=>focusProfile()} onDeck={()=>setTab('deck')}/>
 
 
-  <header className={`hero fold-hero ${tab!=='read'||quickTool?'hero-compact':''}`}><HeroDecor/><div className="side-whisper side-whisper-left">LOOK<br/>DEEPER.<br/>YOU<br/>ALREADY<br/>KNOW.</div><div className="side-whisper side-whisper-right">SOME<br/>QUESTIONS<br/>FIND<br/>YOU.</div><div className="hero-copy"><p>FRACTURE PRESENTS · THE SHADOW DECK</p><h1><span className="sr-only">The Fold</span><span className="title-wordmark" aria-hidden="true"/></h1><div className="hero-tagline">Truth lives in the shadows.</div><span>Seventy-eight cards. One honest question.<br/> A reading built around the pattern beneath the surface.</span><MoonDivider/><div className={`runtime-badge ${dbState==='checking'?'checking':'ok'}`} role="status"><i/>{dbState==='checking'?'PREPARING YOUR READING':dbState==='device-local'?'READY WHEN YOU ARE':'ORACLE ONLINE'}</div></div></header>
+  {tab!=='fortune'&&<header className={`hero fold-hero ${tab!=='read'||quickTool?'hero-compact':''}`}><HeroDecor/><div className="side-whisper side-whisper-left">LOOK<br/>DEEPER.<br/>YOU<br/>ALREADY<br/>KNOW.</div><div className="side-whisper side-whisper-right">SOME<br/>QUESTIONS<br/>FIND<br/>YOU.</div><div className="hero-copy"><p>FRACTURE PRESENTS · THE SHADOW DECK</p><h1><span className="sr-only">The Fold</span><span className="title-wordmark" aria-hidden="true"/></h1><div className="hero-tagline">Truth lives in the shadows.</div><span>Seventy-eight cards. One honest question.<br/> A reading built around the pattern beneath the surface.</span><MoonDivider/><div className={`runtime-badge ${dbState==='checking'?'checking':'ok'}`} role="status"><i/>{dbState==='checking'?'PREPARING YOUR READING':dbState==='device-local'?'READY WHEN YOU ARE':'ORACLE ONLINE'}</div></div></header>}
 
-  <nav className="tabs mockup-tabs" aria-label="Reading navigation"><button className={tab==='read'&&!quickTool?'active':''} onClick={enterFold}> <NavIcon name="eye"/>Begin reading</button><button className={tab==='history'?'active':''} onClick={()=>setTab('history')}> <NavIcon name="history"/>Past readings</button></nav>
+  {tab!=='fortune'&&<nav className="tabs mockup-tabs" aria-label="Reading navigation"><button className={tab==='read'&&!quickTool?'active':''} onClick={enterFold}> <NavIcon name="eye"/>Begin reading</button><button className={tab==='history'?'active':''} onClick={()=>setTab('history')}> <NavIcon name="history"/>Past readings</button></nav>}
 
   <main id="reading-content" tabIndex="-1">
   {tab==='read'&&!quickTool&&<aside className="support-invitation"><div><strong>Help The Fold grow.</strong><span>Discover the independent work behind the magic.</span></div><PageLink href="/support" onNavigate={()=>setTab('support')}><NavIcon name="support"/>Support The Fold<NavIcon name="arrow"/></PageLink></aside>}
   <QuickMysticTools profile={form} mode={quickTool} onClose={()=>setQuickTool('')} onStartReading={enterFold} onAddBirthDate={()=>focusProfile('reading-birthday')}/>
   {tab==='reviews'&&<Reviews/>}
+  {tab==='fortune'&&<FortuneTeller/>}
   {tab==='support'&&<Support onReviews={()=>setTab('reviews')}/>}
   {tab==='daily'&&<DailyHoroscopes value={form} onChange={setForm} onBirthChart={()=>setTab('natal')}/>} 
   {tab==='natal'&&<section className="panel knowledge-panel"><div className="section-kicker">Your birth sky</div><h2>Calculate Your Birth Chart</h2><NatalForm value={form} onChange={setForm} includeBirthday/><NatalChart chart={calculateNatal(form)}/><button className="secondary-button" onClick={()=>{setForm(f=>({...f,birthInfluence:true}));enterFold()}}>Use these details in a reading</button></section>}
@@ -87,7 +90,7 @@ export default function App(){
   {tab==='read'&&!quickTool&&<><div ref={formRef} className="two-col reading-form-anchor mockup-grid"><div className="panel-shell panel-shell-left"><ReadingForm value={form} onChange={setForm} onSubmit={generate} onSaveProfile={saveProfile} loading={loading} profileSaving={profileSaving} profileStatus={profileStatus} dbReady={dbReady} dbState={dbState} error={error}/></div><div className="panel-shell panel-shell-right"><RitualGuide onDeck={()=>setTab('deck')}/></div></div><div ref={readingRef} className="reading-anchor"><ReadingView reading={reading}/></div></>}
 
   {tab==='history'&&<HistoryPanel history={history} dbReady={dbReady} onToggleFavorite={toggleFavorite} onDelete={deleteReading}/>} 
-  {pages[tab]&&tab!=='support'&&!quickTool&&<section className="seo-intro"><h2>{pages[tab].heading}</h2><p>{pages[tab].text}</p></section>}
+  {pages[tab]&&!['support','fortune'].includes(tab)&&!quickTool&&<section className="seo-intro"><h2>{pages[tab].heading}</h2><p>{pages[tab].text}</p></section>}
   {tab==='read'&&!quickTool&&<section className="reading-faqs" aria-labelledby="faq-heading"><div className="section-kicker">A little clarity before the cards</div><h2 id="faq-heading">Your tarot questions, answered.</h2>{readingFaqs.map(item=><details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}<p className="faq-next">Explore <PageLink href="/tarot-deck" onNavigate={()=>setTab('deck')}>all 78 tarot cards</PageLink> or visit our <PageLink href="/tarot-astrology-numerology" onNavigate={()=>setTab('learn')}>tarot, astrology and numerology guide</PageLink>.</p></section>}
   </main>
   <footer className="mockup-footer"><nav className="footer-page-links" aria-label="Explore The Fold">{Object.entries(pages).map(([id,page])=><PageLink key={id} href={page.path} onNavigate={()=>setTab(id)}>{page.label}</PageLink>)}</nav><span>FRACTURE</span><span>A DEEPER YOU AWAITS</span><span>TRUTH LIVES HERE</span><small className="developer-credit">David Northrop · Developer of FRACTURE<br/>© 2026 · All rights reserved</small></footer>

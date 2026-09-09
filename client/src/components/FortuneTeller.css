@@ -1,0 +1,45 @@
+.fortune-teller{max-width:1040px;margin:0 auto;padding:36px 0 24px;color:#ebddce}
+.fortune-heading{text-align:center;max-width:700px;margin:0 auto 30px}
+.fortune-heading .fortune-eyebrow{color:#c9a16e;font:500 .875rem/1.5 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;margin:0 0 14px}
+.fortune-heading h1{color:#f1dbb4;font:400 clamp(2rem,5vw,3.5rem)/1.1 Georgia,serif;margin:0 0 16px;letter-spacing:-.02em}
+.fortune-heading>p:last-child{color:#c7b8cd;font:1rem/1.65 system-ui,sans-serif;margin:0}
+.fortune-stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:start}
+.fortune-cabinet{min-width:0;width:100%;max-width:400px;justify-self:center;border:1px solid #a27b44;border-radius:18px 18px 10px 10px;overflow:hidden;background:#100b12;box-shadow:0 24px 65px #0007,0 0 44px #5a255325}
+.fortune-portrait{overflow:hidden;background:#170e1d;position:relative}
+.fortune-portrait img{display:block;width:100%;height:clamp(300px,43svh,460px);object-fit:cover;object-position:50% 25%;transition:filter .6s ease}
+.fortune-cabinet.is-revealing .fortune-portrait img{animation:fortune-glow 1.8s ease-in-out}
+.fortune-console{padding:20px;text-align:center;border-top:1px solid #9f7b4b;background:linear-gradient(135deg,#322017,#140f16)}
+.fortune-console-label{display:block;font:500 .75rem/1.5 system-ui,sans-serif;letter-spacing:.16em;color:#ccab7c;margin-bottom:15px}
+.fortune-teller .fortune-reveal{appearance:none;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:54px;padding:14px 16px;border:1px solid #e6c997;border-radius:9px;background:linear-gradient(110deg,#b68a4e,#ecd09e 55%,#caa36a);color:#251710;box-shadow:0 4px 22px #bb823329;font:600 1rem/1.4 system-ui,sans-serif;cursor:pointer;text-transform:none;letter-spacing:0;white-space:normal}
+.fortune-reveal .nav-icon{width:24px;height:24px;flex:none}
+.fortune-reveal:disabled{cursor:wait;opacity:.75}
+.fortune-reveal:hover:not(:disabled){filter:brightness(1.08)}
+.fortune-console>p{margin:13px 0 0;color:#bdacb9;font:400 .875rem/1.5 system-ui,sans-serif}
+.fortune-delivery{min-width:0;padding-top:22px;text-align:center}
+.fortune-slot{width:90%;height:12px;margin:0 auto;border:1px solid #8b6c45;border-radius:6px;background:#040305;box-shadow:0 2px 0 #b7914c38,inset 0 3px 5px #000}
+.fortune-status{color:#c7b8cd;font:.875rem/1.5 system-ui,sans-serif;margin:18px 0}
+.fortune-ticket{position:relative;margin:0 auto;padding:30px clamp(20px,3vw,36px);border:1px solid #c3a47a;outline-offset:4px;background:#efe2c6;color:#35261e;text-align:center;box-shadow:0 18px 45px #0007;animation:fortune-dispense .7s cubic-bezier(.2,.8,.2,1) both}
+.fortune-ticket::before{content:'';position:absolute;inset:9px;border:1px solid #ab8853;pointer-events:none}
+.fortune-ticket-brand{font:400 1.75rem/1.2 Georgia,serif;letter-spacing:.08em;color:#3b291e}
+.fortune-ticket .fortune-ticket-label{font:.75rem/1.5 system-ui,sans-serif;text-transform:uppercase;letter-spacing:.15em;color:#715337;margin:8px 0 24px}
+.fortune-ticket h2{font:400 clamp(1.65rem,3vw,2.2rem)/1.18 Georgia,serif;color:#35261e;margin:0 0 20px}
+.fortune-ticket .fortune-message{font:400 1.125rem/1.65 Georgia,serif;color:#35261e;margin:0}
+.fortune-ticket .fortune-whisper{font:italic 1rem/1.5 Georgia,serif;color:#63452a;margin:22px 0}
+.fortune-lucky{display:flex;align-items:center;justify-content:center;gap:20px;padding:18px 0;border-block:1px solid #ab885366;margin:22px 0}
+.fortune-lucky span{font:.875rem/1.5 system-ui,sans-serif;color:#614a36}
+.fortune-lucky strong{font:400 2.25rem/1 Georgia,serif;color:#35261e}
+.fortune-ticket time,.fortune-ticket small{display:block;color:#6e533a;font:.75rem/1.5 system-ui,sans-serif;margin-top:6px}
+.fortune-keep{margin:22px 0 0;min-height:48px}
+.fortune-keep :is(a,button){display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:12px 20px;border:1px solid #bc965d;border-radius:8px;color:#efd4a6;background:#38231666;font:500 .9375rem/1.4 system-ui,sans-serif;text-decoration:none;cursor:pointer}
+.fortune-keep .nav-icon{width:21px;height:21px}
+.fortune-keep p{color:#beaec6;font:.875rem/1.5 system-ui,sans-serif}
+.fortune-awaiting{display:grid;justify-items:center;align-content:center;min-height:360px;padding:32px 24px;border:1px dashed #9b78495c;background:radial-gradient(ellipse at center,#51245026,transparent 70%);border-radius:4px}
+.fortune-awaiting .nav-icon{width:54px;height:54px;color:#d1ad75;stroke-width:.8}
+.fortune-awaiting p{font:italic 1.5rem/1.4 Georgia,serif;color:#e0c49d;margin:24px 0 12px}
+.fortune-awaiting span{font:.9375rem/1.6 system-ui,sans-serif;color:#bbabc4}
+.fortune-footnote{font:.875rem/1.6 system-ui,sans-serif;color:#b7a8be;margin:26px 0 0}
+.fortune-teller :is(a,button,article):focus-visible{outline:2px solid #e7c487;outline-offset:4px}
+@keyframes fortune-glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3) saturate(1.2)}}
+@keyframes fortune-dispense{from{opacity:0;transform:translateY(-26px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){.fortune-teller{padding-top:26px}.fortune-stage{grid-template-columns:minmax(0,1fr);gap:22px;max-width:460px;margin:auto}.fortune-portrait img{height:auto;aspect-ratio:1.1;object-position:center 25%}.fortune-console{padding:16px}.fortune-delivery{padding-top:0}.fortune-awaiting{min-height:190px}.fortune-heading{margin-bottom:24px}.fortune-ticket{scroll-margin-top:160px}}
+@media(prefers-reduced-motion:reduce){.fortune-cabinet.is-revealing .fortune-portrait img,.fortune-ticket{animation:none}.fortune-portrait img{transition:none}}
