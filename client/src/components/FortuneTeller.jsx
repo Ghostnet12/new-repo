@@ -1,16 +1,18 @@
 import {useEffect,useRef,useState} from 'react';
 import {createFortuneDeck,fortuneDate} from '../lib/fortunes.js';
 import {createFortuneImage} from '../lib/fortuneCard.js';
+import {beginFortuneReveal,fortuneRevealSteps,fortuneRevealDuration} from '../lib/fortuneReveal.js';
 import NavIcon from './NavIcon.jsx';
 import './FortuneTeller.css';
 
 export default function FortuneTeller() {
  const deck=useRef(null);
  if(!deck.current)deck.current=createFortuneDeck();
- const timer=useRef(null),ticketRef=useRef(null);
+ const cancelReveal=useRef(null),drawing=useRef(false),ticketRef=useRef(null);
  const [busy,setBusy]=useState(false),[fortune,setFortune]=useState(null);
+ const [revealStep,setRevealStep]=useState(0);
  const [image,setImage]=useState(null),[imageError,setImageError]=useState(false),[attempt,setAttempt]=useState(0);
- useEffect(()=>()=>clearTimeout(timer.current),[]);
+ useEffect(()=>()=>cancelReveal.current?.(),[]);
  useEffect(()=>{
   if(!fortune)return;
   let cancelled=false,url;
@@ -28,24 +30,27 @@ export default function FortuneTeller() {
   ticketRef.current?.scrollIntoView({behavior:reduced?'auto':'smooth',block:'nearest'});
  },[fortune]);
  const reveal=()=>{
-  if(timer.current!==null)return;
+  if(drawing.current)return;
+  drawing.current=true;
   setBusy(true);setFortune(null);setImage(null);setImageError(false);
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  timer.current=setTimeout(()=>{
-   setFortune(deck.current());setBusy(false);timer.current=null;
-  },reduced?0:1800);
+  cancelReveal.current?.();
+  cancelReveal.current=beginFortuneReveal({
+   reducedMotion:reduced,onStep:setRevealStep,
+   onReady:()=>{setFortune(deck.current());setBusy(false);drawing.current=false;}
+  });
  };
 
  return <section className="fortune-teller" aria-labelledby="fortune-title">
   <header className="fortune-heading"><p className="fortune-eyebrow">Step closer. A card is waiting.</p><h1 id="fortune-title">The Fortune Teller</h1><p>Hold a wish in mind. Let the teller choose your card.</p></header>
-  <div className="fortune-stage">
-   <div className={`fortune-cabinet ${busy?'is-revealing':''}`}>
-    <div className="fortune-portrait"><img src="/assets/the-fold/fortune-teller.webp" width="1024" height="1536" alt="An antique mechanical fortune teller with a glowing violet crystal ball, framed in gold and velvet" fetchPriority="high"/></div>
-    <div className="fortune-console"><span className="fortune-console-label">THE FOLD · FORTUNE HOUSE</span><button type="button" className="fortune-reveal" onClick={reveal} disabled={busy}><NavIcon name="fortune"/>{busy?'Your fortune is unfolding…':fortune?'Reveal another fortune':'Reveal my fortune'}</button><p>One wish. One card. No coin required.</p></div>
+  <div className="fortune-stage" style={{'--fortune-wait-duration':`${fortuneRevealDuration}ms`}}>
+   <div className={`fortune-cabinet ${busy?'is-revealing':''} ${fortune?'is-awake':''}`}>
+    <div className="fortune-portrait"><img src="/assets/the-fold/fortune-teller.webp" width="1024" height="1536" alt="An antique fortune teller with glowing ruby-red eyes and a violet crystal ball, framed in gold and velvet" fetchPriority="high"/><img className="fortune-portrait-awake" src="/assets/the-fold/fortune-teller-awake.webp" width="1024" height="1536" alt="" aria-hidden="true" decoding="async"/></div>
+    <div className="fortune-console"><span className="fortune-console-label">THE FOLD · FORTUNE HOUSE</span><button type="button" className="fortune-reveal" onClick={reveal} disabled={busy}><NavIcon name="fortune"/>{busy?'Your fortune is unfolding…':fortune?'Reveal another fortune':'Reveal my fortune'}</button><div className={`fortune-progress ${busy?'is-running':''}`} aria-hidden="true"><i/></div><p role="status" aria-live="polite">{busy?fortuneRevealSteps[revealStep].message:'One wish. One card. No coin required.'}</p></div>
    </div>
-   <div className="fortune-delivery" aria-busy={busy}>
+   <div className={`fortune-delivery ${busy?'is-revealing':''}`}>
     <div className="fortune-slot" aria-hidden="true"/>
-    <p className="fortune-status" role="status" aria-live="polite">{busy?'The teller is choosing your card…':fortune?'Your fortune is ready.':'Your card will arrive here.'}</p>
+    <p className="fortune-status" role="status" aria-live="polite">{busy?'A message is on its way…':fortune?'Your fortune is ready.':'Your card will arrive here.'}</p>
     {fortune?<>
      <article className="fortune-ticket" key={fortune.issuedAt} ref={ticketRef} tabIndex="-1" aria-labelledby="fortune-card-title">
       <div className="fortune-ticket-brand">THE FOLD</div><p className="fortune-ticket-label">A fortune for you</p>
@@ -56,7 +61,7 @@ export default function FortuneTeller() {
      <div className="fortune-keep">
       {image?.id===fortune.id?<a href={image.url} download={`the-fold-fortune-${fortune.id}.png`}><NavIcon name="download"/>Save my fortune card</a>:imageError?<><p>The image couldn’t be prepared.</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Try saving again</button></>:<p role="status">Preparing your keepsake…</p>}
      </div>
-    </>:<div className="fortune-awaiting" aria-hidden="true"><NavIcon name="fortune"/><p>{busy?'A whisper takes shape.':'Some messages find you.'}</p><span>{busy?'Your card is on its way.':'Press the gold button to receive yours.'}</span></div>}
+    </>:<div className={`fortune-awaiting ${busy?'is-busy':''}`} aria-hidden="true">{busy?<div className="fortune-wait-emblem"><div className="fortune-wait-orbit"/><div className="fortune-wait-card"><span>THE FOLD</span><NavIcon name="fortune"/></div></div>:<NavIcon name="fortune"/>}<p>{busy?fortuneRevealSteps[revealStep].message:'Some messages find you.'}</p><span>{busy?'A little patience. A little possibility.':'Press the gold button to receive yours.'}</span></div>}
     <p className="fortune-footnote">A little theatre for reflection and fun.<br/>Your future is yours.</p>
    </div>
   </div>

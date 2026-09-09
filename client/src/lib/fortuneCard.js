@@ -1,41 +1,65 @@
 import {fortuneDate} from './fortunes.js';
 
-// This renders the keepsake document, not the fortune-teller artwork.
-export function drawFortuneCard(ctx,fortune) {
- const width=1000,height=1400;
- ctx.fillStyle='#efe2c6';ctx.fillRect(0,0,width,height);
- ctx.strokeStyle='#9b7444';ctx.lineWidth=3;ctx.strokeRect(38,38,924,1324);
- ctx.lineWidth=1;ctx.strokeRect(50,50,900,1300);
+export const fortuneCardSize={width:1000,height:1500};
+const frameUrl='/assets/the-fold/fortune-card-ornate.webp';
+let framePromise;
+
+function loadFrame() {
+ if(!framePromise)framePromise=new Promise((resolve,reject)=>{
+  const frame=new Image();
+  frame.onload=()=>resolve(frame);
+  frame.onerror=()=>reject(new Error('The card artwork could not be loaded'));
+  frame.src=frameUrl;
+ }).catch(error=>{framePromise=null;throw error;});
+ return framePromise;
+}
+
+// Keep every message within the artwork's clean parchment area.
+export function layoutFortuneCard(ctx,fortune) {
+ const maxWidth=670;
+ for(let bodySize=38;bodySize>=28;bodySize-=2){
+  const lines=[];let y=262;
+  const add=(value,size,lineHeight,gap=0,family='Georgia, serif',color='#382717')=>{
+   const font=`${size}px ${family}`;ctx.font=font;
+   const parts=[];let line='';
+   for(const word of value.split(/\s+/)){
+    const candidate=line?`${line} ${word}`:word;
+    if(line&&ctx.measureText(candidate).width>maxWidth){parts.push(line);line=word;}else line=candidate;
+   }
+   if(line)parts.push(line);
+   for(const text of parts){lines.push({text,y,size,font,color});y+=lineHeight;}
+   y+=gap;
+  };
+  add('THE FOLD',50,61,12);
+  add('A FORTUNE FOR YOU',21,29,32,'sans-serif','#806137');
+  add(fortune.title,48,58,26);
+  add(fortune.message,bodySize,bodySize*1.42,25);
+  add(fortune.whisper,28,39,34,'Georgia, serif','#77512c');
+  add('YOUR LUCKY NUMBER',20,28,5,'sans-serif','#806137');
+  add(String(fortune.luckyNumber).padStart(2,'0'),70,80,23);
+  add(fortuneDate(fortune.issuedAt),22,30,8);
+  add('A little theatre. Your future is yours.',20,28,8);
+  add('enterthefold.io/fortune-teller',20,28,0,'sans-serif','#806137');
+  if(y<=1210)return lines;
+ }
+ throw new Error('The fortune is too long for this card');
+}
+
+// The same ornate frame is used on the page and in the downloadable keepsake.
+export function drawFortuneCard(ctx,fortune,frame) {
+ const {width,height}=fortuneCardSize;
+ ctx.drawImage(frame,0,0,width,height);
  ctx.textAlign='center';ctx.textBaseline='top';
- const text=(value,y,size,family='Georgia',color='#35261e')=>{
-  ctx.fillStyle=color;ctx.font=`${size}px ${family}`;ctx.fillText(value,width/2,y);
- };
- const paragraph=(value,y,size,lineHeight,maxWidth=760)=>{
-  ctx.font=`${size}px Georgia`;ctx.fillStyle='#35261e';
-  const words=value.split(/\s+/);const lines=[];let line='';
-  for(const word of words){const candidate=line?`${line} ${word}`:word;if(line&&ctx.measureText(candidate).width>maxWidth){lines.push(line);line=word;}else line=candidate;}
-  if(line)lines.push(line);
-  lines.forEach((part,i)=>ctx.fillText(part,width/2,y+i*lineHeight));
-  return y+lines.length*lineHeight;
- };
- const rule=y=>{ctx.beginPath();ctx.moveTo(135,y);ctx.lineTo(865,y);ctx.stroke();};
- text('THE FOLD',110,58);text('THE FORTUNE TELLER',194,24,'sans-serif','#715337');
- text(`FORTUNE ${fortune.id.replaceAll('-',' ').toUpperCase()}`,259,17,'sans-serif','#715337');
- rule(309);
- let y=paragraph(fortune.title,360,52,65);
- y=paragraph(fortune.message,y+42,36,55);
- y=paragraph(fortune.whisper,y+42,30,43);
- rule(y+35);
- text('YOUR LUCKY NUMBER',y+72,22,'sans-serif','#715337');
- text(String(fortune.luckyNumber).padStart(2,'0'),y+115,64);
- text(fortuneDate(fortune.issuedAt),1190,24);
- text('A little theatre. Your future is yours.',1240,23);
- text('enterthefold.io/fortune-teller',1290,22,'sans-serif','#715337');
+ const lines=layoutFortuneCard(ctx,fortune);
+ for(const line of lines){ctx.font=line.font;ctx.fillStyle=line.color;ctx.fillText(line.text,width/2,line.y);}
+ return lines;
 }
 
 export async function createFortuneImage(fortune) {
- const canvas=document.createElement('canvas');canvas.width=1000;canvas.height=1400;
+ const frame=await loadFrame();
+ const canvas=document.createElement('canvas');
+ canvas.width=fortuneCardSize.width;canvas.height=fortuneCardSize.height;
  const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Image export unavailable');
- drawFortuneCard(ctx,fortune);
+ drawFortuneCard(ctx,fortune,frame);
  return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Image export failed')),'image/png'));
 }

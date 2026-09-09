@@ -7,7 +7,10 @@
 .fortune-cabinet{min-width:0;width:100%;max-width:400px;justify-self:center;border:1px solid #a27b44;border-radius:18px 18px 10px 10px;overflow:hidden;background:#100b12;box-shadow:0 24px 65px #0007,0 0 44px #5a255325}
 .fortune-portrait{overflow:hidden;background:#170e1d;position:relative}
 .fortune-portrait img{display:block;width:100%;height:clamp(300px,43svh,460px);object-fit:cover;object-position:50% 25%;transition:filter .6s ease}
-.fortune-cabinet.is-revealing .fortune-portrait img{animation:fortune-glow 1.8s ease-in-out}
+.fortune-portrait .fortune-portrait-awake{position:absolute;inset:0;height:100%;aspect-ratio:auto;opacity:.58;pointer-events:none;transition:opacity .8s ease;filter:brightness(1.08) saturate(1.12)}
+.fortune-cabinet.is-awake .fortune-portrait-awake{opacity:1}
+.fortune-cabinet.is-revealing{animation:fortune-cabinet-radiance 2.4s ease-in-out infinite}
+.fortune-cabinet.is-revealing .fortune-portrait-awake{opacity:1;animation:fortune-awakening var(--fortune-wait-duration) ease-in-out both}
 .fortune-console{padding:20px;text-align:center;border-top:1px solid #9f7b4b;background:linear-gradient(135deg,#322017,#140f16)}
 .fortune-console-label{display:block;font:500 .75rem/1.5 system-ui,sans-serif;letter-spacing:.16em;color:#ccab7c;margin-bottom:15px}
 .fortune-teller .fortune-reveal{appearance:none;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:54px;padding:14px 16px;border:1px solid #e6c997;border-radius:9px;background:linear-gradient(110deg,#b68a4e,#ecd09e 55%,#caa36a);color:#251710;box-shadow:0 4px 22px #bb823329;font:600 1rem/1.4 system-ui,sans-serif;cursor:pointer;text-transform:none;letter-spacing:0;white-space:normal}
@@ -18,10 +21,9 @@
 .fortune-delivery{min-width:0;padding-top:22px;text-align:center}
 .fortune-slot{width:90%;height:12px;margin:0 auto;border:1px solid #8b6c45;border-radius:6px;background:#040305;box-shadow:0 2px 0 #b7914c38,inset 0 3px 5px #000}
 .fortune-status{color:#c7b8cd;font:.875rem/1.5 system-ui,sans-serif;margin:18px 0}
-.fortune-ticket{position:relative;margin:0 auto;padding:30px clamp(20px,3vw,36px);border:1px solid #c3a47a;outline-offset:4px;background:#efe2c6;color:#35261e;text-align:center;box-shadow:0 18px 45px #0007;animation:fortune-dispense .7s cubic-bezier(.2,.8,.2,1) both}
-.fortune-ticket::before{content:'';position:absolute;inset:9px;border:1px solid #ab8853;pointer-events:none}
-.fortune-ticket-brand{font:400 1.75rem/1.2 Georgia,serif;letter-spacing:.08em;color:#3b291e}
-.fortune-ticket .fortune-ticket-label{font:.75rem/1.5 system-ui,sans-serif;text-transform:uppercase;letter-spacing:.15em;color:#715337;margin:8px 0 24px}
+.fortune-ticket{position:relative;margin:0 auto;padding:8px 5px 12px;border:solid transparent;border-width:clamp(80px,8vw,110px) clamp(30px,4vw,50px) clamp(80px,8vw,110px);border-image:url('/assets/the-fold/fortune-card-ornate.webp') 280 155 285 fill stretch;outline-offset:4px;background:#efe2c6;color:#35261e;text-align:center;box-shadow:0 22px 60px #0008,0 0 35px #c9993f28;animation:fortune-dispense 1s cubic-bezier(.2,.8,.2,1) both}
+.fortune-ticket-brand{font:400 1.875rem/1.2 Georgia,serif;letter-spacing:.1em;color:#3b291e}
+.fortune-ticket .fortune-ticket-label{font:.75rem/1.5 system-ui,sans-serif;text-transform:uppercase;letter-spacing:.15em;color:#715337;margin:8px 0 24px;padding-bottom:18px;border-bottom:1px solid #a9844a70}
 .fortune-ticket h2{font:400 clamp(1.65rem,3vw,2.2rem)/1.18 Georgia,serif;color:#35261e;margin:0 0 20px}
 .fortune-ticket .fortune-message{font:400 1.125rem/1.65 Georgia,serif;color:#35261e;margin:0}
 .fortune-ticket .fortune-whisper{font:italic 1rem/1.5 Georgia,serif;color:#63452a;margin:22px 0}
@@ -39,7 +41,25 @@
 .fortune-awaiting span{font:.9375rem/1.6 system-ui,sans-serif;color:#bbabc4}
 .fortune-footnote{font:.875rem/1.6 system-ui,sans-serif;color:#b7a8be;margin:26px 0 0}
 .fortune-teller :is(a,button,article):focus-visible{outline:2px solid #e7c487;outline-offset:4px}
-@keyframes fortune-glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3) saturate(1.2)}}
-@keyframes fortune-dispense{from{opacity:0;transform:translateY(-26px)}to{opacity:1;transform:translateY(0)}}
+
+@keyframes fortune-dispense{from{opacity:0;transform:perspective(800px) translateY(-70px) rotateX(12deg);filter:brightness(1.22)}to{opacity:1;transform:perspective(800px) translateY(0) rotateX(0);filter:brightness(1)}}
 @media(max-width:700px){.fortune-teller{padding-top:26px}.fortune-stage{grid-template-columns:minmax(0,1fr);gap:22px;max-width:460px;margin:auto}.fortune-portrait img{height:auto;aspect-ratio:1.1;object-position:center 25%}.fortune-console{padding:16px}.fortune-delivery{padding-top:0}.fortune-awaiting{min-height:190px}.fortune-heading{margin-bottom:24px}.fortune-ticket{scroll-margin-top:160px}}
-@media(prefers-reduced-motion:reduce){.fortune-cabinet.is-revealing .fortune-portrait img,.fortune-ticket{animation:none}.fortune-portrait img{transition:none}}
+
+
+.fortune-progress{height:3px;margin-top:15px;overflow:hidden;border-radius:4px;background:#bc90422b;opacity:0}
+.fortune-progress.is-running{opacity:1}
+.fortune-progress i{display:block;width:100%;height:100%;background:linear-gradient(90deg,#b52950,#d48cff,#ffe6a9);transform:scaleX(0);transform-origin:left;box-shadow:0 0 12px #efbafd}
+.fortune-progress.is-running i{animation:fortune-progress var(--fortune-wait-duration) linear both}
+.fortune-delivery.is-revealing .fortune-slot{border-color:#e7b5fc;box-shadow:0 0 22px #bd59ec99,0 0 4px #ffe0a4}
+.fortune-awaiting.is-busy{min-height:400px;border-color:#ba7ce38c;background:radial-gradient(ellipse at center,#792d823d,transparent 75%)}
+.fortune-wait-emblem{position:relative;display:grid;place-items:center;width:220px;max-width:100%;height:240px;margin-top:10px}
+.fortune-wait-orbit{position:absolute;inset:5px 0;border:1px solid #e4be6c50;border-top:3px solid #ffe1a3;border-bottom:2px solid #c381e2;border-radius:50%;box-shadow:0 0 28px #b64ed82b;animation:fortune-orbit 3s linear infinite}
+.fortune-wait-card{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;width:136px;aspect-ratio:2/3;background:url('/assets/the-fold/fortune-card-ornate.webp') center/100% 100%;box-shadow:0 0 26px #e2b57065;animation:fortune-card-hover 2.4s ease-in-out infinite}
+.fortune-wait-card span{color:#51391f;font:400 .875rem/1.3 Georgia,serif;letter-spacing:.08em}
+.fortune-wait-card .nav-icon{color:#946524;width:35px;height:35px}
+@keyframes fortune-awakening{0%{opacity:.58;filter:brightness(1.08) saturate(1.12)}28%{opacity:1;filter:brightness(1.22) saturate(1.22)}58%{opacity:.9;filter:brightness(1.12) saturate(1.2)}88%,100%{opacity:1;filter:brightness(1.32) saturate(1.25)}}
+@keyframes fortune-cabinet-radiance{0%,100%{box-shadow:0 0 24px #db202458,0 0 44px #9e40c44d}50%{box-shadow:0 0 38px #e4383e85,0 0 76px #c04aeb66}}
+@keyframes fortune-progress{to{transform:scaleX(1)}}
+@keyframes fortune-orbit{to{transform:rotate(360deg)}}
+@keyframes fortune-card-hover{0%,100%{transform:translateY(2px) rotate(-3deg)}50%{transform:translateY(-9px) rotate(3deg)}}
+@media(prefers-reduced-motion:reduce){.fortune-teller *{animation:none!important;transition:none!important}.fortune-cabinet.is-revealing .fortune-portrait-awake{opacity:1}}
