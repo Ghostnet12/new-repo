@@ -221,7 +221,7 @@ export default function App(){
   {!['fortune','dream'].includes(tab)&&<nav className="tabs mockup-tabs" aria-label="Reading navigation"><button className={tab==='read'&&!quickTool?'active':''} onClick={enterFold}> <NavIcon name="eye"/>Begin reading</button><button onClick={()=>setTab('fortune')}> <NavIcon name="fortune"/>Fortune teller</button></nav>}
 
   <main id="reading-content" tabIndex="-1">
-  {tab==='read'&&!quickTool&&<aside className="support-invitation"><div><strong>Help The Fold grow.</strong><span>Discover the independent work behind the magic.</span></div><PageLink href="/support" onNavigate={()=>setTab('support')}><NavIcon name="support"/>Support The Fold<NavIcon name="arrow"/></PageLink></aside>}
+  {tab==='read'&&!quickTool&&<aside className="support-invitation"><div><strong>Help The Fold grow.</strong><span>Free for everyone. Optional support helps cover hosting and AI costs.</span></div><PageLink href="/support" onNavigate={()=>setTab('support')}><NavIcon name="support"/>Support The Fold<NavIcon name="arrow"/></PageLink></aside>}
   <QuickMysticTools profile={form} mode={quickTool} onClose={enterFold} onStartReading={enterFold} onAddBirthDate={()=>focusProfile('reading-birthday')}/>
   {unseenReading&&reading&&<div className="notice-banner reading-ready-notice" role="status"><span>Your tarot reading is ready.</span><button className="secondary-button" onClick={viewReading}>View my reading</button></div>}
   {loading&&(tab!=='read'||quickTool)&&<div className="notice-banner" role="status">Your tarot reading is being prepared.</div>}
