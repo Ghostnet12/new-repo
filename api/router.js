@@ -1,3 +1,4 @@
+import {collectorHttp} from '../server/src/collectors/http.js';
 import { reviews, reviewResult } from '../server/src/services/reviewService.js';
 import { createHash } from 'node:crypto';
 import mongoose from 'mongoose';
@@ -94,6 +95,7 @@ async function saveReading(hash, input, reading) {
 
 export async function GET(request) {
   const route = routeOf(request);
+  if(route.startsWith('collectors/'))return collectorHttp(request,route.slice('collectors/'.length));
   if (route === 'health') {
     await connectMongo();
     return json({ status: 'ok', database: dbStatus(), databaseConfigured: Boolean(process.env.MONGODB_URI), stack: 'Vercel Functions + MongoDB', apiVersion: API_VERSION });
@@ -130,6 +132,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   const route = routeOf(request);
+  if(route.startsWith('collectors/'))return collectorHttp(request,route.slice('collectors/'.length));
   if (!['readings/generate','horoscopes/daily','reviews','dreams','dreams/reflect'].includes(route)) return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
   const auth = await requireClient(request);
   if (auth.response) return auth.response;

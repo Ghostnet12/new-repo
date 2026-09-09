@@ -1,0 +1,12 @@
+import mongoose from 'mongoose';
+const {Schema}=mongoose;
+const model=(name,fields,indexes=[])=>{const s=new Schema(fields,{timestamps:true});for(const [keys,opts] of indexes)s.index(keys,opts);return mongoose.models[name]||mongoose.model(name,s);};
+export const Collector=model('FoldCollector',{username:{type:String,required:true,unique:true},password:{type:String,required:true},recovery:{type:String,required:true}});
+export const CollectorSession=model('FoldCollectorSession',{token:{type:String,required:true,unique:true},owner:{type:Schema.Types.ObjectId,required:true},expiresAt:{type:Date,required:true}},[[{expiresAt:1},{expireAfterSeconds:0}]]);
+export const Edition=model('FoldFortuneEdition',{_id:String,mode:String,label:String,state:{type:String,enum:['ready','retired'],default:'ready'},total:Number,cursor:{type:Number,default:0},packLimit:Number,packsReserved:{type:Number,default:0},jokersLeft:Number,manifest:String});
+export const CollectorCard=model('FoldCollectorCard',{_id:String,edition:{type:String,required:true},position:Number,serial:String,mode:String,title:String,message:String,whisper:String,joker:Boolean,messageHash:{type:String,required:true,unique:true}},[[{edition:1,position:1},{unique:true}]]);
+export const Wallet=model('FoldCollectorWallet',{owner:{type:Schema.Types.ObjectId,required:true},edition:{type:String,required:true},credits:{type:Number,default:0}},[[{owner:1,edition:1},{unique:true}]]);
+export const PackOrder=model('FoldCollectorOrder',{_id:String,owner:{type:Schema.Types.ObjectId,required:true},edition:{type:String,required:true},state:{type:String,enum:['reserved','paid','expired'],default:'reserved'},stripeSession:String,checkoutExpiresAt:Date,livemode:Boolean,paidAt:Date},[[{owner:1},{unique:true,partialFilterExpression:{state:'reserved'}}]]);
+export const Draw=model('FoldCollectorDraw',{owner:{type:Schema.Types.ObjectId,required:true},requestId:String,edition:String,cardId:{type:String,required:true,unique:true},card:{type:Schema.Types.Mixed,required:true}},[[{owner:1,requestId:1},{unique:true}],[{owner:1,_id:-1},{}]]);
+export const AuthLimit=model('FoldCollectorAuthLimit',{_id:String,count:Number,expiresAt:Date},[[{expiresAt:1},{expireAfterSeconds:0}]]);
+export const collectorModels=[Collector,CollectorSession,Edition,CollectorCard,Wallet,PackOrder,Draw,AuthLimit];

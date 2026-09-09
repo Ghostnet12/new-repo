@@ -8,3 +8,6 @@ client/public/assets/cards/thumb/
 .vercel
 .DS_Store
 npm-debug.log*
+
+# Deterministically generated from the original collector composition source.
+server/data/collector-first-edition.json

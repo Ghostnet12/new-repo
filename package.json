@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "prebuild": "node scripts/generate-card-derivatives.mjs",
+    "prebuild": "node scripts/generate-card-derivatives.mjs && node scripts/build-collector-edition.mjs",
     "build": "npm run build --workspace client",
     "start": "npm run start --workspace server",
     "check": "npm run check --workspace server",

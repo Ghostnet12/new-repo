@@ -1,0 +1,24 @@
+name: Collector release checks
+on:
+  push:
+    branches: [feat/limited-fortune-collections]
+  pull_request:
+    paths: ['server/src/collectors/**', 'server/test/collectors.test.js', 'server/data/**', 'client/src/components/CollectorPanel*', 'client/src/components/FortuneTeller*', 'client/src/lib/fortuneCard.js']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/build-collector-edition.mjs
+      - run: node --test server/test/collectors.test.js
+      - run: node --test client/test/fortunes.test.js client/test/yesNoFortunes.test.js client/test/fortuneReveal.test.js client/test/fortuneShare.test.js server/test/vercelRouter.test.js server/test/vercelRouting.test.js
+      - run: node --test client/test/collectorCards.test.js
+      - run: npm run build --workspace client
