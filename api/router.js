@@ -9,6 +9,7 @@ import { generateHoroscope } from '../server/src/services/horoscopeService.js';
 import { connectMongo, dbStatus } from '../server/src/config/db.js';
 import { Profile } from '../server/src/models/Profile.js';
 import { Reading } from '../server/src/models/Reading.js';
+import { dreamJournal, dreamResult, reflectOnDream } from '../server/src/services/dreamService.js';
 
 const API_VERSION = '3.1.0';
 const jsonHeaders = {
@@ -103,6 +104,7 @@ export async function GET(request) {
   const auth = await requireClient(request);
   if (auth.response) return auth.response;
   if(route==='reviews/mine'){const result=await reviewResult(()=>reviews.mine(auth.hash));return json(result.body,result.status);}
+  if(route==='dreams'){const result=await dreamResult(()=>dreamJournal.list(auth.hash,new URL(request.url).searchParams.get('page')));return json(result.body,result.status);}
 
   if (route === 'profile') {
     if (!await connectMongo()) return json({ error: 'MongoDB is not connected', database: dbStatus(), apiVersion: API_VERSION }, 503);
@@ -128,12 +130,16 @@ export async function GET(request) {
 
 export async function POST(request) {
   const route = routeOf(request);
-  if (!['readings/generate','horoscopes/daily','reviews'].includes(route)) return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
+  if (!['readings/generate','horoscopes/daily','reviews','dreams','dreams/reflect'].includes(route)) return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);
   const auth = await requireClient(request);
   if (auth.response) return auth.response;
   const body = await readJson(request);
   if (!body) return json({ error: 'Invalid JSON body' }, 400);
   if(route==='reviews'){const result=await reviewResult(()=>reviews.save(auth.hash,body));return json(result.body,result.status);}
+  if(route==='dreams'||route==='dreams/reflect'){
+    const result=await dreamResult(()=>route==='dreams'?dreamJournal.save(auth.hash,body):reflectOnDream(body,{clientId:auth.hash}));
+    return json(result.body,result.status);
+  }
   if(route==='horoscopes/daily') {
     const parsed=horoscopeSchema.safeParse(body);
     if(!parsed.success) return json({error:'Invalid horoscope request',issues:parsed.error.issues},400);
@@ -190,6 +196,7 @@ export async function PATCH(request) {
 
 export async function DELETE(request) {
   const route = routeOf(request);
+  if(route.startsWith('dreams/')){const auth=await requireClient(request);if(auth.response)return auth.response;const result=await dreamResult(()=>dreamJournal.remove(auth.hash,route.slice('dreams/'.length)));return json(result.body,result.status);}
   if(route==='reviews/mine'){const auth=await requireClient(request);if(auth.response)return auth.response;const result=await reviewResult(()=>reviews.remove(auth.hash));return json(result.body,result.status);}
   const match = route.match(/^readings\/item\/([a-f0-9]{24})$/i);
   if (!match) return json({ error: 'API route not found', route, apiVersion: API_VERSION }, 404);

@@ -20,6 +20,7 @@ import QuickMysticTools from './components/QuickMysticTools.jsx';
 import { checkTextLimits } from '../../server/src/validation/limits.js';
 
 const FortuneTeller=lazy(()=>import('./components/FortuneTeller.jsx'));
+const DreamJournal=lazy(()=>import('./components/DreamJournal.jsx'));
 const Reviews=lazy(()=>import('./components/Reviews.jsx'));
 const Support=lazy(()=>import('./components/Support.jsx'));
 const BirthChartPage=lazy(()=>import('./components/BirthChartPage.jsx'));
@@ -37,6 +38,7 @@ const initialForm={name:'',gender:'',birthday:'',natal:{...natalDefaults},birthI
 const navItems=[
  {id:'read',label:'Tarot Reading'},
  {id:'fortune',label:'Fortune Teller'},
+ {id:'dream',label:'Dream Journal'},
  {id:'history',label:'Past Readings'},
  {id:'card',label:'Card of the Day',tool:'card'},
  {id:'daily',label:'Daily Horoscope'},
@@ -54,6 +56,7 @@ export default function App(){
  const [quickTool,setQuickTool]=useState('');
  const currentTab=useRef(tab),currentTool=useRef('');
  const [form,setForm]=useState(()=>restoreProfile(initialForm,loadLocalProfile()));
+ const [dreamDraft,setDreamDraft]=useState({entryId:null,text:'',mood:'',context:'',reflection:null,saved:false});
  const [reading,setReading]=useState(null),[history,setHistory]=useState(loadLocalHistory);
  const [dbReady,setDbReady]=useState(false),[dbState,setDbState]=useState('checking');
  const [loading,setLoading]=useState(false),[historyLoading,setHistoryLoading]=useState(true),[profileSaving,setProfileSaving]=useState(false);
@@ -213,9 +216,9 @@ export default function App(){
   <TopNavigation items={navItems} activeId={quickTool==='card'?'card':quickTool==='match'?'match':tab} onChoose={chooseNav} onHome={()=>setTab('read')} onProfile={()=>focusProfile()} onDeck={()=>setTab('deck')}/>
 
 
-  {tab!=='fortune'&&<header className={`hero fold-hero ${tab!=='read'||quickTool?'hero-compact':''}`}><HeroDecor/><div className="side-whisper side-whisper-left">LOOK<br/>DEEPER.<br/>YOU<br/>ALREADY<br/>KNOW.</div><div className="side-whisper side-whisper-right">SOME<br/>QUESTIONS<br/>FIND<br/>YOU.</div><div className="hero-copy"><p>FRACTURE PRESENTS · THE SHADOW DECK</p><h1><span className="sr-only">The Fold</span><span className="title-wordmark" aria-hidden="true"/></h1><div className="hero-tagline">Truth lives in the shadows.</div><span>Seventy-eight cards. One honest question.<br/> A reading built around the pattern beneath the surface.</span><MoonDivider/><div className={`runtime-badge ${dbState==='checking'?'checking':'ok'}`} role="status"><i/>{dbState==='checking'?'PREPARING YOUR READING':dbState==='device-local'?'READY WHEN YOU ARE':'ORACLE ONLINE'}</div></div></header>}
+  {!['fortune','dream'].includes(tab)&&<header className={`hero fold-hero ${tab!=='read'||quickTool?'hero-compact':''}`}><HeroDecor/><div className="side-whisper side-whisper-left">LOOK<br/>DEEPER.<br/>YOU<br/>ALREADY<br/>KNOW.</div><div className="side-whisper side-whisper-right">SOME<br/>QUESTIONS<br/>FIND<br/>YOU.</div><div className="hero-copy"><p>FRACTURE PRESENTS · THE SHADOW DECK</p><h1><span className="sr-only">The Fold</span><span className="title-wordmark" aria-hidden="true"/></h1><div className="hero-tagline">Truth lives in the shadows.</div><span>Seventy-eight cards. One honest question.<br/> A reading built around the pattern beneath the surface.</span><MoonDivider/><div className={`runtime-badge ${dbState==='checking'?'checking':'ok'}`} role="status"><i/>{dbState==='checking'?'PREPARING YOUR READING':dbState==='device-local'?'READY WHEN YOU ARE':'ORACLE ONLINE'}</div></div></header>}
 
-  {tab!=='fortune'&&<nav className="tabs mockup-tabs" aria-label="Reading navigation"><button className={tab==='read'&&!quickTool?'active':''} onClick={enterFold}> <NavIcon name="eye"/>Begin reading</button><button onClick={()=>setTab('fortune')}> <NavIcon name="fortune"/>Fortune teller</button></nav>}
+  {!['fortune','dream'].includes(tab)&&<nav className="tabs mockup-tabs" aria-label="Reading navigation"><button className={tab==='read'&&!quickTool?'active':''} onClick={enterFold}> <NavIcon name="eye"/>Begin reading</button><button onClick={()=>setTab('fortune')}> <NavIcon name="fortune"/>Fortune teller</button></nav>}
 
   <main id="reading-content" tabIndex="-1">
   {tab==='read'&&!quickTool&&<aside className="support-invitation"><div><strong>Help The Fold grow.</strong><span>Discover the independent work behind the magic.</span></div><PageLink href="/support" onNavigate={()=>setTab('support')}><NavIcon name="support"/>Support The Fold<NavIcon name="arrow"/></PageLink></aside>}
@@ -226,6 +229,7 @@ export default function App(){
   <PageBoundary key={tab}><Suspense fallback={<PageLoading label={pages[tab]?.label||'your page'}/>}>
   {tab==='reviews'&&<Reviews/>}
   {tab==='fortune'&&<FortuneTeller/>}
+  {tab==='dream'&&<DreamJournal value={dreamDraft} onChange={setDreamDraft}/>}
   {tab==='support'&&<Support onReviews={()=>setTab('reviews')}/>}
   {tab==='daily'&&<DailyHoroscopes value={form} onChange={changeForm} onBirthChart={()=>setTab('natal')}/>}
   {tab==='natal'&&<BirthChartPage value={form} onChange={changeForm} onUseInReading={()=>{changeForm(f=>({...f,birthInfluence:true}));enterFold();}}/>}

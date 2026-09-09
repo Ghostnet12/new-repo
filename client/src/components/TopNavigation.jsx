@@ -73,7 +73,7 @@ export default function TopNavigation({ items, activeId, onChoose, onHome, onPro
       <nav className="mystic-nav-scroll" ref={scrollRef} aria-label="Main navigation">
         <AmbientMusic />
         {items.map(item => {
-          const props={className:`${activeId===item.id?'active ':''}${['read','fortune','history'].includes(item.id)?'nav-primary':''}`, 'aria-current':activeId===item.id?'page':undefined};
+          const props={className:`${activeId===item.id?'active ':''}${['read','fortune','dream','history'].includes(item.id)?'nav-primary':''}`, 'aria-current':activeId===item.id?'page':undefined};
           const content=<><NavIcon name={item.id}/><span>{item.label}</span></>;
           return item.tool?<button key={item.id} {...props} onClick={()=>choose(item)}>{content}</button>:<PageLink key={item.id} {...props} href={pages[item.id]?.path||'/history'} onNavigate={()=>choose(item)}>{content}</PageLink>;
         })}
@@ -88,7 +88,7 @@ export default function TopNavigation({ items, activeId, onChoose, onHome, onPro
         <button ref={triggerRef} className="menu-control" aria-label={open ? 'Close explore menu' : 'Explore all features'} aria-expanded={open} aria-controls="fold-menu" onClick={() => setOpen(value => !value)}><NavIcon name={open ? 'close' : 'menu'} /><span>Explore</span></button>
       </div>
       {open && <nav id="fold-menu" className="fold-menu" ref={menuRef} aria-label="Explore The Fold">
-        {[{label:'Start here',ids:['read','fortune','history']},{label:'Daily & personal',ids:['card','daily','natal','match']},{label:'Discover more',ids:['learn','reviews','support']}].map(group=><div className="menu-group" key={group.label}>
+        {[{label:'Start here',ids:['read','fortune','dream','history']},{label:'Daily & personal',ids:['card','daily','natal','match']},{label:'Discover more',ids:['learn','reviews','support']}].map(group=><div className="menu-group" key={group.label}>
         <p className="menu-eyebrow">{group.label}</p>
         {items.filter(item=>group.ids.includes(item.id)).map(item => {
           const content=<><NavIcon name={item.id}/><span>{item.label}</span>{activeId===item.id&&<span className="menu-current">Current</span>}</>;

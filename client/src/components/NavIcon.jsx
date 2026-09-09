@@ -1,4 +1,5 @@
 const paths = {
+ dream: <><path d="M16 3A9 9 0 1 0 21 18 9 9 0 0 1 16 3Z" fill="currentColor" stroke="none"/><path d="M21 2v6m-3-3h6M15 10v4m-2-2h4"/></>,
  share: <path d="M12 16V1m-5 5 5-5 5 5M7 9H3v13h18V9h-4"/>,
  fortune: <><circle cx="12" cy="10" r="8"/><path d="m12 5 1.4 3.6L17 10l-3.6 1.4L12 15l-1.4-3.6L7 10l3.6-1.4ZM7 18l-2 4h14l-2-4"/></>,
  download: <path d="M12 2v13m-5-5 5 5 5-5M3 16v6h18v-6"/> ,
