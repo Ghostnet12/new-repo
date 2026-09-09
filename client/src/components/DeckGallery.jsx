@@ -1,8 +1,9 @@
 import { TEXT_LIMIT } from '../../../server/src/validation/limits.js';
 import { useState } from 'react';
 import TarotCard from './TarotCard.jsx';
+import {cards} from '../../../server/src/tarot/deck.js';
 const filters=[['all','All 78 cards'],['major','Major Arcana'],['wands','Wands'],['cups','Cups'],['swords','Swords'],['pentacles','Pentacles']];
-export default function DeckGallery({deck}) {
+export default function DeckGallery({deck=cards}) {
  const [filter,setFilter]=useState('all'),[query,setQuery]=useState('');
  const shown=deck.filter(card=>(filter==='all'||card.type===filter||card.suit===filter)&&`${card.name} ${card.upright} ${card.reversed}`.toLowerCase().includes(query.toLowerCase().trim()));
  return <section className="panel knowledge-panel deck-panel" aria-labelledby="deck-title"><div className="collection-heading"><div><div className="section-kicker">A language of symbols</div><h2 id="deck-title">The Shadow Deck</h2></div><span className="collection-count">78 cards</span></div><p className="collection-intro">Get to know the cards. Explore their upright and reversed meanings, and find a question to carry with you.</p>

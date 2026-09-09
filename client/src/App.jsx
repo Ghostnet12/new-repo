@@ -5,28 +5,33 @@ import './styles/discovery.css';
 import NavIcon from './components/NavIcon.jsx';
 import TopNavigation from './components/TopNavigation.jsx';
 import RitualGuide from './components/RitualGuide.jsx';
-import Support from './components/Support.jsx';
-import Reviews from './components/Reviews.jsx';
 import './styles/reviews.css';
-import { calculateNatal, natalDefaults } from '../../server/src/tarot/natal.js';
-import NatalForm from './components/NatalForm.jsx';
-import NatalChart from './components/NatalChart.jsx';
-import DeckGallery from './components/DeckGallery.jsx';
-import KnowledgeGuide from './components/KnowledgeGuide.jsx';
-import { localDeck } from './lib/localFallback.js';
+import {natalDefaults} from '../../shared/natalDefaults.js';
+import {spreadIds} from '../../shared/spreads.js';
+import PageBoundary,{PageLoading} from './components/PageBoundary.jsx';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { api } from './lib/api.js';
-import { deleteLocalReading, generateLocalReading, loadLocalHistory, loadLocalProfile, saveLocalProfile, saveLocalReading, toggleLocalFavorite } from './lib/localFallback.js';
+import { deleteLocalReading, loadLocalHistory, loadLocalProfile, saveLocalProfile, saveLocalReading, toggleLocalFavorite } from './lib/deviceStorage.js';
 import ReadingForm from './components/ReadingForm.jsx';
-import ReadingView from './components/ReadingView.jsx';
 import HistoryPanel from './components/HistoryPanel.jsx';
 import HeroDecor from './components/HeroDecor.jsx';
 import MoonDivider from './components/MoonDivider.jsx';
-import DailyHoroscopes from './components/DailyHoroscopes.jsx';
 import QuickMysticTools from './components/QuickMysticTools.jsx';
 import { checkTextLimits } from '../../server/src/validation/limits.js';
 
 const FortuneTeller=lazy(()=>import('./components/FortuneTeller.jsx'));
+const Reviews=lazy(()=>import('./components/Reviews.jsx'));
+const Support=lazy(()=>import('./components/Support.jsx'));
+const BirthChartPage=lazy(()=>import('./components/BirthChartPage.jsx'));
+const KnowledgeGuide=lazy(()=>import('./components/KnowledgeGuide.jsx'));
+const DeckGallery=lazy(()=>import('./components/DeckGallery.jsx'));
+const DailyHoroscopes=lazy(()=>import('./components/DailyHoroscopes.jsx'));
+const ReadingView=lazy(()=>import('./components/ReadingView.jsx'));
+function restoreProfile(current,saved){
+ if(!saved)return current;
+ const fields=Object.fromEntries(['name','gender','birthday'].filter(key=>typeof saved[key]==='string').map(key=>[key,saved[key]]));
+ return {...current,...fields,natal:{...natalDefaults,...(saved.natal&&typeof saved.natal==='object'?saved.natal:{})},spread:spreadIds.includes(saved.preferredSpread)?saved.preferredSpread:current.spread};
+}
 const scrollBehavior=()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
 const initialForm={name:'',gender:'',birthday:'',natal:{...natalDefaults},birthInfluence:true,spread:'three',focus:'general',need:'clarity',reversals:'yes',question:'',persist:false};
 const navItems=[
@@ -44,52 +49,194 @@ const navItems=[
 
 export default function App(){
  const formRef=useRef(null),readingRef=useRef(null);
+ const navigation=useRef(0),formEdited=useRef(false),generation=useRef(false),profilePending=useRef(false),historyRequest=useRef(0);
  const [tab,updateTab]=useState(()=>tabFromLocation(location));
  const [quickTool,setQuickTool]=useState('');
- const setTab=next=>{window.history.pushState(null,'',pages[next]?.path||'/history');updateTab(next);setQuickTool('');requestAnimationFrame(()=>window.scrollTo({top:0,behavior:scrollBehavior()}))};
- const [form,setForm]=useState(initialForm),[reading,setReading]=useState(null),[history,setHistory]=useState([]),[dbReady,setDbReady]=useState(false),[dbState,setDbState]=useState('checking'),[loading,setLoading]=useState(false),[profileSaving,setProfileSaving]=useState(false),[profileStatus,setProfileStatus]=useState(''),[error,setError]=useState(''),[notice,setNotice]=useState('');
+ const currentTab=useRef(tab),currentTool=useRef('');
+ const [form,setForm]=useState(()=>restoreProfile(initialForm,loadLocalProfile()));
+ const [reading,setReading]=useState(null),[history,setHistory]=useState(loadLocalHistory);
+ const [dbReady,setDbReady]=useState(false),[dbState,setDbState]=useState('checking');
+ const [loading,setLoading]=useState(false),[historyLoading,setHistoryLoading]=useState(true),[profileSaving,setProfileSaving]=useState(false);
+ const [profileStatus,setProfileStatus]=useState(''),[error,setError]=useState(''),[notice,setNotice]=useState(''),[unseenReading,setUnseenReading]=useState(false);
+ const changeForm=next=>{formEdited.current=true;setForm(next);};
 
- useEffect(()=>{applyPageMetadata(tab);if(location.hash==='#daily-horoscopes'||location.hash==='#reviews')window.history.replaceState(null,'',pages[tab]?.path||'/')},[tab]);
- useEffect(()=>{const c=()=>{updateTab(tabFromLocation(location));setQuickTool('')};addEventListener('popstate',c);addEventListener('hashchange',c);return()=>{removeEventListener('popstate',c);removeEventListener('hashchange',c)}},[]);
- const mergeHistory=(remote=[])=>setHistory([...(remote||[]).map(x=>({...x,_local:false})),...loadLocalHistory()]);
- const refreshHistory=async(force=false)=>{if(!dbReady&&!force){mergeHistory([]);return}try{const h=await api('/api/readings?limit=12');mergeHistory(h.readings||[])}catch{mergeHistory([])}};
- const enterFold=()=>{setTab('read');requestAnimationFrame(()=>setTimeout(()=>formRef.current?.scrollIntoView({behavior:scrollBehavior(),block:'start'}),50))};
+ const setTab=(next,{target='top',tool='',field='reading-name'}={})=>{
+  const revision=++navigation.current;
+  const changed=currentTab.current!==next||currentTool.current!==tool;
+  const path=pages[next]?.path||'/history';
+  if(location.pathname!==path||location.hash)window.history.pushState(null,'',path);
+  currentTab.current=next;currentTool.current=tool;updateTab(next);setQuickTool(tool);
+  if(target==='reading')setUnseenReading(false);
+  requestAnimationFrame(()=>{
+   if(navigation.current!==revision)return;
+   const main=document.getElementById('reading-content');
+   let element=target==='form'?formRef.current:target==='reading'?readingRef.current:target==='tool'?document.querySelector('.quick-mystic-single'):main;
+   if(target==='profile'){
+    const details=document.getElementById('personal-details');
+    if(details)details.open=true;
+    element=document.getElementById(field)||details;
+   }
+   element?.focus({preventScroll:true});
+   if(target==='top')window.scrollTo({top:0,behavior:'auto'});
+   else element?.scrollIntoView({behavior:changed?'auto':scrollBehavior(),block:target==='profile'?'center':'start'});
+  });
+ };
+ const enterFold=()=>setTab('read',{target:'form'});
+ const viewReading=()=>setTab('read',{target:'reading'});
+ const focusProfile=(field='reading-name')=>setTab('read',{target:'profile',field});
+ const chooseNav=item=>item.tool?setTab('read',{tool:item.tool,target:'tool'}):item.id==='read'?enterFold():setTab(item.id);
+ const mergeHistory=(remote=null)=>setHistory(previous=>[...(remote===null?previous.filter(item=>!item._local):remote.map(item=>({...item,_local:false}))),...loadLocalHistory()]);
 
- useEffect(()=>{const saved=loadLocalProfile();if(saved)setForm(f=>({...f,name:saved.name||'',gender:saved.gender||'',birthday:saved.birthday||'',natal:{...natalDefaults,...saved.natal},spread:saved.preferredSpread||f.spread}));mergeHistory([]);(async()=>{const health=await api('/api/health').catch(()=>null);if(!health){setDbState('device-local');return}const s=health.database||'unknown';setDbState(s);setDbReady(s==='connected');if(s==='connected'){try{const[h,p]=await Promise.all([api('/api/readings?limit=12'),api('/api/profile').catch(()=>null)]);mergeHistory(h.readings||[]);if(p?.profile)setForm(f=>({...f,name:p.profile.name||f.name,gender:p.profile.gender||f.gender,birthday:p.profile.birthday||f.birthday,natal:p.profile.natal?{...natalDefaults,...p.profile.natal}:f.natal,spread:p.profile.preferredSpread||f.spread}))}catch{mergeHistory([])}}})()},[]);
+ const refreshHistory=async(force=false,signal)=>{
+  const request=++historyRequest.current;
+  if(!dbReady&&!force){mergeHistory();setHistoryLoading(false);return;}
+  setHistoryLoading(true);
+  try{
+   const result=await api('/api/readings?limit=12',{signal,timeoutMs:12000});
+   if(request===historyRequest.current&&!signal?.aborted)mergeHistory(result.readings||[]);
+  }catch{
+   if(request===historyRequest.current&&!signal?.aborted)mergeHistory();
+  }finally{
+   if(request===historyRequest.current&&!signal?.aborted)setHistoryLoading(false);
+  }
+ };
 
- const saveProfile=async()=>{try{checkTextLimits(form)}catch(e){setError(e.message);return}setProfileSaving(true);setProfileStatus('');setError('');let p;try{p=saveLocalProfile({name:form.name,gender:form.gender,birthday:form.birthday,natal:form.natal,preferredSpread:form.spread})}catch{setError('Your device could not save this profile.');setProfileSaving(false);return}setProfileStatus('Profile remembered on this device.');try{const r=await api('/api/profile',{method:'PUT',body:JSON.stringify(p)}),s=r.database||'connected';setDbState(s);setDbReady(s==='connected');setProfileStatus(s==='connected'?'Profile remembered on this device and synced.':'Profile remembered on this device.')}catch{setDbReady(false)}finally{setProfileSaving(false)}};
+ useEffect(()=>{
+  applyPageMetadata(tab);
+  if(location.hash==='#daily-horoscopes'||location.hash==='#reviews')window.history.replaceState(null,'',pages[tab]?.path||'/');
+ },[tab]);
+ useEffect(()=>{
+  const changed=()=>{
+   navigation.current++;currentTab.current=tabFromLocation(location);currentTool.current='';
+   updateTab(currentTab.current);setQuickTool('');
+   requestAnimationFrame(()=>document.getElementById('reading-content')?.focus({preventScroll:true}));
+  };
+  addEventListener('popstate',changed);addEventListener('hashchange',changed);
+  return()=>{removeEventListener('popstate',changed);removeEventListener('hashchange',changed);};
+ },[]);
+ useEffect(()=>{
+  const controller=new AbortController();
+  (async()=>{
+   const health=await api('/api/health',{signal:controller.signal,timeoutMs:8000}).catch(()=>null);
+   if(controller.signal.aborted)return;
+   const state=health?.database||'device-local';
+   setDbState(state);setDbReady(state==='connected');
+   if(state!=='connected'){setHistoryLoading(false);return;}
+   await Promise.all([
+    refreshHistory(true,controller.signal),
+    api('/api/profile',{signal:controller.signal,timeoutMs:12000}).then(result=>{
+     if(!controller.signal.aborted&&!formEdited.current&&result.profile)setForm(current=>restoreProfile(current,result.profile));
+    }).catch(()=>{})
+   ]);
+  })();
+  return()=>controller.abort();
+ },[]);
 
- const generate=async()=>{try{checkTextLimits(form)}catch(e){setError(e.message);return}let working=form,messages=[];if(form.birthInfluence!==false&&form.natal?.enabled){const c=calculateNatal(form);if(c.status!=='ready'){working={...form,natal:{...form.natal,enabled:false}};messages.push('Full birth-chart details are incomplete, so this reading will use the personal symbolism you already provided.')}}setLoading(true);setProfileStatus('');setError('');setNotice('');let result,usedFallback=false;try{result=await api('/api/readings/generate',{method:'POST',body:JSON.stringify({persist:Boolean(working.persist),personalInfluence:working.birthInfluence!==false,profile:{name:working.name,gender:working.gender,birthday:working.birthday,natal:working.natal,preferredSpread:working.spread},question:working.question,spread:working.spread,focus:working.focus,need:working.need,reversals:working.reversals==='yes'})});const s=result.database||'unknown';setDbState(s);setDbReady(s==='connected')}catch(e){if(e.status&&e.status<500&&e.status!==429){setError(e.message);setLoading(false);return}try{result=generateLocalReading(working)}catch{setError('The reading could not be completed. Please try again.');setLoading(false);return}usedFallback=true;setDbState('device-local');setDbReady(false);messages.push('The Fold used the protected device oracle for this reading.')}if(working.persist){if(!result.persisted){try{saveLocalReading(result);result={...result,localSaved:true}}catch{messages.push('The reading is ready, but this device could not save it.')}}if(result.persisted){await refreshHistory(true);messages.push('Reading saved to Past Readings.')}else if(result.localSaved){mergeHistory([]);messages.push('Reading saved to Past Readings on this device.')}}setReading(result);if(!usedFallback&&result.localSaved&&!messages.some(m=>m.startsWith('Reading saved')))messages.push('Reading saved on this device.');setNotice(messages.join(' '));setTab('read');requestAnimationFrame(()=>setTimeout(()=>readingRef.current?.scrollIntoView({behavior:scrollBehavior(),block:'start'}),50));setLoading(false)};
+ const saveProfile=async()=>{
+  if(profilePending.current)return;
+  try{checkTextLimits(form);}catch(e){setError(e.message);return;}
+  formEdited.current=true;profilePending.current=true;setProfileSaving(true);setProfileStatus('');setError('');
+  try{
+   const profile=saveLocalProfile({name:form.name,gender:form.gender,birthday:form.birthday,natal:form.natal,preferredSpread:form.spread});
+   setProfileStatus('Profile remembered on this device.');
+   try{
+    const result=await api('/api/profile',{method:'PUT',body:JSON.stringify(profile),timeoutMs:12000});
+    if(result.database==='connected'){setDbState('connected');setDbReady(true);setProfileStatus('Profile remembered and synced.');}
+   }catch{ /* The device copy is already saved. */ }
+  }catch{setError('Your browser could not remember these details. You can still use them for this reading.');}
+  finally{profilePending.current=false;setProfileSaving(false);}
+ };
 
- const toggleFavorite=async item=>{if(item._local){const l=toggleLocalFavorite(item.localId);setHistory(h=>[...h.filter(x=>!x._local),...l]);return}try{const r=await api(`/api/readings/item/${item._id}`,{method:'PATCH',body:JSON.stringify({favorite:!item.favorite})});setHistory(h=>h.map(x=>x._id===item._id?{...x,favorite:r.reading.favorite}:x))}catch(e){setError(e.message)}};
- const deleteReading=async item=>{if(item._local){const l=deleteLocalReading(item.localId);setHistory(h=>[...h.filter(x=>!x._local),...l]);return}try{await api(`/api/readings/item/${item._id}`,{method:'DELETE'});setHistory(h=>h.filter(x=>x._id!==item._id))}catch(e){setError(e.message)}};
- const focusProfile=(field='reading-name')=>{enterFold();requestAnimationFrame(()=>setTimeout(()=>{const details=document.getElementById('personal-details');if(details)details.open=true;document.getElementById(field)?.focus({preventScroll:true});details?.scrollIntoView({behavior:scrollBehavior(),block:'center'})},60))};
- const chooseNav=item=>{if(item.tool){if(tab!=='read')setTab('read');setQuickTool(item.tool);requestAnimationFrame(()=>setTimeout(()=>document.querySelector('.quick-mystic-single')?.scrollIntoView({behavior:scrollBehavior(),block:'center'}),60));return}if(item.id==='history'){setTab('history');return}setTab(item.id)};
+ const generate=async()=>{
+  if(generation.current||profilePending.current)return;
+  try{checkTextLimits(form);}catch(e){setError(e.message);return;}
+  formEdited.current=true;generation.current=true;
+  const origin=navigation.current;
+  let working=form;
+  const messages=[];
+  setLoading(true);setReading(null);setUnseenReading(false);setProfileStatus('');setError('');setNotice('');
+  try{
+   if(working.birthInfluence!==false&&working.natal?.enabled){
+    const {calculateNatal}=await import('../../server/src/tarot/natal.js');
+    const chart=calculateNatal(working);
+    if(chart.status!=='ready'){
+     working={...working,natal:{...working.natal,enabled:false}};
+     messages.push('Full birth-chart details are incomplete, so this reading uses the personal symbolism you already provided.');
+    }
+   }
+   let result;
+   try{
+    result=await api('/api/readings/generate',{method:'POST',timeoutMs:20000,body:JSON.stringify({persist:Boolean(working.persist),personalInfluence:working.birthInfluence!==false,profile:{name:working.name,gender:working.gender,birthday:working.birthday,natal:working.natal,preferredSpread:working.spread},question:working.question,spread:working.spread,focus:working.focus,need:working.need,reversals:working.reversals==='yes'})});
+    if(result.database==='connected'){setDbState('connected');setDbReady(true);}
+   }catch(e){
+    if(e.status&&e.status<500&&e.status!==429)throw e;
+    const {generateLocalReading}=await import('./lib/localFallback.js');
+    result=generateLocalReading(working);
+    setDbState('device-local');setDbReady(false);
+    messages.push('Your reading was prepared on this device.');
+   }
+   if(working.persist&&!result.persisted){
+    try{saveLocalReading(result);result={...result,localSaved:true};}
+    catch{messages.push('Your reading is ready, but this browser could not save it.');}
+   }
+   if(result.persisted){void refreshHistory(true);messages.push('Reading saved to Past Readings.');}
+   else if(result.localSaved){mergeHistory();messages.push('Reading saved to Past Readings on this device.');}
+   setReading(result);setNotice(messages.join(' '));
+   if(navigation.current===origin&&currentTab.current==='read'&&!currentTool.current)viewReading();
+   else setUnseenReading(true);
+  }catch(e){
+   setError(e.status?e.message:'Your reading could not be completed. Please try again.');
+  }finally{generation.current=false;setLoading(false);}
+ };
+
+ const toggleFavorite=async item=>{
+  historyRequest.current++;setHistoryLoading(false);
+  if(item._local){
+   const local=toggleLocalFavorite(item.localId);
+   setHistory(previous=>[...previous.filter(entry=>!entry._local),...local]);return;
+  }
+  const result=await api('/api/readings/item/'+item._id,{method:'PATCH',body:JSON.stringify({favorite:!item.favorite})});
+  setHistory(previous=>previous.map(entry=>entry._id===item._id?{...entry,favorite:result.reading.favorite}:entry));
+ };
+ const deleteReading=async item=>{
+  historyRequest.current++;setHistoryLoading(false);
+  if(item._local){
+   const local=deleteLocalReading(item.localId);
+   setHistory(previous=>[...previous.filter(entry=>!entry._local),...local]);return;
+  }
+  await api('/api/readings/item/'+item._id,{method:'DELETE'});
+  setHistory(previous=>previous.filter(entry=>entry._id!==item._id));
+ };
 
  return <div className="app-shell">
-  <a className="skip-link" href="#reading-content">Skip to content</a>
-  <TopNavigation items={navItems} activeId={quickTool==='card'?'card':quickTool==='match'?'match':tab} onChoose={chooseNav} onHome={()=>{setTab('read');window.scrollTo({top:0,behavior:scrollBehavior()})}} onProfile={()=>focusProfile()} onDeck={()=>setTab('deck')}/>
+  <a className="skip-link" href="#reading-content" onClick={event=>{event.preventDefault();const main=document.getElementById('reading-content');main?.focus({preventScroll:true});main?.scrollIntoView({behavior:'auto',block:'start'});}}>Skip to content</a>
+  <TopNavigation items={navItems} activeId={quickTool==='card'?'card':quickTool==='match'?'match':tab} onChoose={chooseNav} onHome={()=>setTab('read')} onProfile={()=>focusProfile()} onDeck={()=>setTab('deck')}/>
 
 
   {tab!=='fortune'&&<header className={`hero fold-hero ${tab!=='read'||quickTool?'hero-compact':''}`}><HeroDecor/><div className="side-whisper side-whisper-left">LOOK<br/>DEEPER.<br/>YOU<br/>ALREADY<br/>KNOW.</div><div className="side-whisper side-whisper-right">SOME<br/>QUESTIONS<br/>FIND<br/>YOU.</div><div className="hero-copy"><p>FRACTURE PRESENTS · THE SHADOW DECK</p><h1><span className="sr-only">The Fold</span><span className="title-wordmark" aria-hidden="true"/></h1><div className="hero-tagline">Truth lives in the shadows.</div><span>Seventy-eight cards. One honest question.<br/> A reading built around the pattern beneath the surface.</span><MoonDivider/><div className={`runtime-badge ${dbState==='checking'?'checking':'ok'}`} role="status"><i/>{dbState==='checking'?'PREPARING YOUR READING':dbState==='device-local'?'READY WHEN YOU ARE':'ORACLE ONLINE'}</div></div></header>}
 
-  {tab!=='fortune'&&<nav className="tabs mockup-tabs" aria-label="Reading navigation"><button className={tab==='read'&&!quickTool?'active':''} onClick={enterFold}> <NavIcon name="eye"/>Begin reading</button><button className={tab==='history'?'active':''} onClick={()=>setTab('history')}> <NavIcon name="history"/>Past readings</button></nav>}
+  {tab!=='fortune'&&<nav className="tabs mockup-tabs" aria-label="Reading navigation"><button className={tab==='read'&&!quickTool?'active':''} onClick={enterFold}> <NavIcon name="eye"/>Begin reading</button><button onClick={()=>setTab('fortune')}> <NavIcon name="fortune"/>Fortune teller</button></nav>}
 
   <main id="reading-content" tabIndex="-1">
   {tab==='read'&&!quickTool&&<aside className="support-invitation"><div><strong>Help The Fold grow.</strong><span>Discover the independent work behind the magic.</span></div><PageLink href="/support" onNavigate={()=>setTab('support')}><NavIcon name="support"/>Support The Fold<NavIcon name="arrow"/></PageLink></aside>}
-  <QuickMysticTools profile={form} mode={quickTool} onClose={()=>setQuickTool('')} onStartReading={enterFold} onAddBirthDate={()=>focusProfile('reading-birthday')}/>
+  <QuickMysticTools profile={form} mode={quickTool} onClose={enterFold} onStartReading={enterFold} onAddBirthDate={()=>focusProfile('reading-birthday')}/>
+  {unseenReading&&reading&&<div className="notice-banner reading-ready-notice" role="status"><span>Your tarot reading is ready.</span><button className="secondary-button" onClick={viewReading}>View my reading</button></div>}
+  {loading&&(tab!=='read'||quickTool)&&<div className="notice-banner" role="status">Your tarot reading is being prepared.</div>}
+  {error&&(tab!=='read'||quickTool)&&<div className="error-banner reading-ready-notice" role="alert"><span>{error}</span><button className="secondary-button" onClick={enterFold}>Return to reading</button></div>}
+  <PageBoundary key={tab}><Suspense fallback={<PageLoading label={pages[tab]?.label||'your page'}/>}>
   {tab==='reviews'&&<Reviews/>}
-  {tab==='fortune'&&<Suspense fallback={<p className="fortune-status" role="status">Opening the fortune house…</p>}><FortuneTeller/></Suspense>}
+  {tab==='fortune'&&<FortuneTeller/>}
   {tab==='support'&&<Support onReviews={()=>setTab('reviews')}/>}
-  {tab==='daily'&&<DailyHoroscopes value={form} onChange={setForm} onBirthChart={()=>setTab('natal')}/>} 
-  {tab==='natal'&&<section className="panel knowledge-panel"><div className="section-kicker">Your birth sky</div><h2>Calculate Your Birth Chart</h2><NatalForm value={form} onChange={setForm} includeBirthday/><NatalChart chart={calculateNatal(form)}/><button className="secondary-button" onClick={()=>{setForm(f=>({...f,birthInfluence:true}));enterFold()}}>Use these details in a reading</button></section>}
-  {tab==='deck'&&<DeckGallery deck={localDeck}/>} 
-  {tab==='learn'&&<KnowledgeGuide profile={form}/>} 
-  {notice&&<div className="notice-banner" role="status">{notice}</div>}
+  {tab==='daily'&&<DailyHoroscopes value={form} onChange={changeForm} onBirthChart={()=>setTab('natal')}/>}
+  {tab==='natal'&&<BirthChartPage value={form} onChange={changeForm} onUseInReading={()=>{changeForm(f=>({...f,birthInfluence:true}));enterFold();}}/>}
+  {tab==='deck'&&<DeckGallery/>}
+  {tab==='learn'&&<KnowledgeGuide profile={form}/>}
+  </Suspense></PageBoundary>
+  {notice&&tab==='read'&&!quickTool&&<div className="notice-banner" role="status">{notice}</div>}
 
-  {tab==='read'&&!quickTool&&<><div ref={formRef} className="two-col reading-form-anchor mockup-grid"><div className="panel-shell panel-shell-left"><ReadingForm value={form} onChange={setForm} onSubmit={generate} onSaveProfile={saveProfile} loading={loading} profileSaving={profileSaving} profileStatus={profileStatus} dbReady={dbReady} dbState={dbState} error={error}/></div><div className="panel-shell panel-shell-right"><RitualGuide onDeck={()=>setTab('deck')}/></div></div><div ref={readingRef} className="reading-anchor"><ReadingView reading={reading}/></div></>}
+  {tab==='read'&&!quickTool&&<><div ref={formRef} tabIndex="-1" className="two-col reading-form-anchor mockup-grid"><div className="panel-shell panel-shell-left"><ReadingForm value={form} onChange={changeForm} onSubmit={generate} onSaveProfile={saveProfile} loading={loading} profileSaving={profileSaving} profileStatus={profileStatus} dbReady={dbReady} dbState={dbState} error={error}/></div><div className="panel-shell panel-shell-right"><RitualGuide onDeck={()=>setTab('deck')}/></div></div><div ref={readingRef} tabIndex="-1" className="reading-anchor">{reading&&<PageBoundary key={reading.readingId}><Suspense fallback={<PageLoading label="your reading"/>}><ReadingView reading={reading}/></Suspense></PageBoundary>}</div></>}
 
-  {tab==='history'&&<HistoryPanel history={history} dbReady={dbReady} onToggleFavorite={toggleFavorite} onDelete={deleteReading}/>} 
+  {tab==='history'&&<HistoryPanel history={history} dbReady={dbReady} loading={historyLoading} onStartReading={enterFold} onToggleFavorite={toggleFavorite} onDelete={deleteReading}/>}
   {pages[tab]&&!['support','fortune'].includes(tab)&&!quickTool&&<section className="seo-intro"><h2>{pages[tab].heading}</h2><p>{pages[tab].text}</p></section>}
   {tab==='read'&&!quickTool&&<section className="reading-faqs" aria-labelledby="faq-heading"><div className="section-kicker">A little clarity before the cards</div><h2 id="faq-heading">Your tarot questions, answered.</h2>{readingFaqs.map(item=><details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}<p className="faq-next">Explore <PageLink href="/tarot-deck" onNavigate={()=>setTab('deck')}>all 78 tarot cards</PageLink> or visit our <PageLink href="/tarot-astrology-numerology" onNavigate={()=>setTab('learn')}>tarot, astrology and numerology guide</PageLink>.</p></section>}
   </main>

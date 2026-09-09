@@ -1,0 +1,74 @@
+/* Consistent, calm interaction states across The Fold. */
+:root{--fold-header-height:90px;--focus-gold:#e4be7c}
+html{scroll-behavior:auto;scroll-padding-top:calc(var(--fold-header-height) + 20px)}
+.app-shell :is(button,a,input,select,textarea,summary):focus-visible{outline:2px solid var(--focus-gold);outline-offset:4px}
+.app-shell .mystic-topbar :is(button,a):focus-visible{outline-offset:-3px}
+.app-shell :is(button,a,input,select,textarea,summary){-webkit-tap-highlight-color:#d4ae6d24}
+.app-shell button{touch-action:manipulation}
+.app-shell button:disabled{cursor:default;opacity:.55}
+.app-shell :is(input,select,textarea){font-size:1rem}
+.app-shell :is(summary,.secondary-button,.history-actions button,.fortune-keep-links a,.fortune-keep-links button){min-height:44px}
+.app-shell :is(.reading-form-anchor,.reading-anchor,.quick-mystic-single,.fortune-ticket,.fortune-image-preview,#reading-content){scroll-margin-top:0}
+.reading-anchor:focus,.reading-form-anchor:focus{outline:none}
+.navigation-rail{display:flex;flex:1;min-width:0;align-items:stretch}
+.mystic-nav-scroll>.nav-primary>span{font-weight:500}
+.nav-scroll-controls{display:flex;flex:0 0 48px;flex-direction:column;justify-content:center;border-left:1px solid #b9945824;background:#0d0a10}
+.nav-scroll-controls button{display:grid;place-items:center;width:44px;min-height:44px;padding:10px;border:0;background:transparent;color:#dfbd84}
+.nav-scroll-controls button:first-child .nav-icon{transform:rotate(180deg)}
+.nav-scroll-controls button:hover:not(:disabled){background:#d1a46b14}
+.nav-scroll-controls .nav-icon{width:20px;height:20px}
+.mystic-actions .menu-control{width:auto;min-width:44px;gap:5px;display:flex;border-radius:8px}
+.menu-control span{font:500 14px/1.3 system-ui,sans-serif}
+.menu-group+.menu-group{margin-top:12px;padding-top:12px;border-top:1px solid #b9945824}
+.menu-eyebrow{font-size:12px;letter-spacing:.12em}
+.fold-menu{width:min(340px,calc(100vw - 28px));overscroll-behavior:contain}
+.fold-menu :is(a,button){min-height:46px;font-size:15px}
+.menu-current{font-size:12px}
+.route-pending,.route-error{padding:32px 24px;margin:24px auto;max-width:760px;border:1px solid #b994584d;border-radius:16px;background:#120d19;color:#ddcfdf;text-align:center}
+.route-pending p,.route-error p{font:16px/1.7 system-ui,sans-serif}
+.route-pending .nav-icon,.route-error>.nav-icon{width:30px;height:30px;color:#d9b77c}
+.notice-banner{font-size:14px;font-weight:400;line-height:1.6}
+.reading-ready-notice{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.reading-ready-notice button{flex-shrink:0;min-height:44px}
+.history-actions button{min-width:44px}
+.history-actions .danger{font-size:14px}
+.history-empty .secondary-button{margin-top:18px}
+.history-confirmation{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:16px;padding:14px;border:1px solid #b994585e;border-radius:10px;background:#1c1220}
+.history-confirmation p{flex:1 1 200px;margin:0;font:14px/1.6 system-ui,sans-serif}
+.history-confirmation button{min-height:44px;padding:10px 14px}
+.history-feedback{min-height:24px;margin-block:8px;font:14px/1.6 system-ui,sans-serif;color:#d5bd93}
+.form-panel .form-intro,.app-shell .form-intro{font-size:16px}
+.app-shell .oracle-toggle-copy small,.app-shell .save-reading-toggle small{font-size:14px!important;line-height:1.5}
+.app-shell .simplified-options>summary{font-size:14px}
+.app-shell .question-starters button{min-height:44px}
+.app-shell .draw-status{font-size:14px}
+.app-shell .draw-button:disabled{opacity:1;background:#39291f!important;color:#f2d7aa!important;box-shadow:none!important}
+@media(max-width:960px){
+ .navigation-rail{grid-row:2;grid-column:1/-1;min-height:76px}
+ .mystic-nav-scroll{height:auto;min-height:76px}
+ .mystic-nav-scroll>:is(button,a){min-width:104px;flex-basis:104px}
+ .mystic-nav-scroll>:is(button,a)>span{font-size:.875rem;line-height:1.3}
+ .nav-scroll-controls{display:none}
+ .mystic-actions button{min-width:44px;height:44px}
+ .menu-control span{display:none}
+ .fold-menu{max-height:calc(100dvh - 90px)}
+}
+@media(max-width:360px){
+ .topbar-inner{grid-template-columns:minmax(0,1fr) auto}
+ .mystic-brand{min-width:0}
+ .brand-lockup b{font-size:22px}
+ .brand-lockup small{display:none}
+}
+@media(max-width:600px){
+ .app-shell .tabs.mockup-tabs{gap:6px;padding:6px}
+ .app-shell .tabs.mockup-tabs button{min-width:0;gap:8px;font-size:14px;padding:12px 8px;min-height:56px}
+ .reading-ready-notice{align-items:stretch;flex-direction:column}
+ .reading-ready-notice button{align-self:flex-start}
+ .history-top{flex-wrap:wrap;gap:14px}
+ .history-actions{margin-left:auto}
+ .app-shell .draw-button{bottom:max(10px,env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto!important}
+ .app-shell :is(button,a,input,select,textarea,summary){transition:none!important}
+}

@@ -1,29 +1,34 @@
 import { TEXT_LIMIT } from '../../../server/src/validation/limits.js';
-import { useState } from 'react';
-import { natalDefaults } from '../../../server/src/tarot/natal.js';
-export default function NatalForm({value,onChange,includeBirthday=false}) {
+import { useEffect, useRef, useState } from 'react';
+import { natalDefaults } from '../../../shared/natalDefaults.js';
+export default function NatalForm({value,onChange,includeBirthday=false,disabled=false}) {
  const natal={...natalDefaults,...value.natal};
  const [query,setQuery]=useState(''),[results,setResults]=useState([]),[searching,setSearching]=useState(false),[message,setMessage]=useState('');
+ const searchVersion=useRef(0),pending=useRef(false);
+ useEffect(()=>()=>{searchVersion.current++;pending.current=false;},[]);
  const set=(key,val)=>onChange({...value,natal:{...natal,[key]:val}});
  const search=async()=>{
+  if(pending.current||disabled)return;
   if(query.trim().length<2){setMessage('Enter at least two letters of the birthplace.');return;}
+  const version=++searchVersion.current;pending.current=true;
   setSearching(true);setMessage('');
   try {
    const {default:cityMap}=await import('city-timezones/data/cityMap.json');
+   if(version!==searchVersion.current)return;
    const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
    const words=[...new Set(normalize(query).split(/[\s,]+/).filter(Boolean))];
    const matches=cityMap.filter(c=>words.every(w=>normalize(`${c.city} ${c.city_ascii} ${c.province} ${c.country} ${c.iso2}`).includes(w))).sort((a,b)=>b.pop-a.pop);
    setResults(matches.slice(0,12));setMessage(matches.length?`${matches.length} matching places. Choose the correct city and region.${matches.length>12?' Showing 12; add a region to narrow the results.':''}`:'No match in this city list. You can enter coordinates and a time zone manually below.');
-  } catch {setMessage('The city list could not load. Try again or enter the location manually.');}
-  finally{setSearching(false);}
+  } catch {if(version===searchVersion.current)setMessage('The city list could not load. Try again or enter the location manually.');}
+  finally{if(version===searchVersion.current){pending.current=false;setSearching(false);}}
  };
- return <fieldset className="natal-inputs"><legend>Birth chart details</legend>
+ return <fieldset className="natal-inputs" disabled={disabled}><legend>Birth chart details</legend>
   <label className="natal-check"><input type="checkbox" checked={natal.enabled} onChange={e=>set('enabled',e.target.checked)}/><span>Include my natal chart</span></label>
   <p className="symbolism-note">Your birth time and birthplace unlock the Moon, rising sign, planets, houses and aspects. Use the local clock time recorded at birth.</p>
   {natal.enabled&&<>
    {includeBirthday&&<label><span>Birth date</span><input type="date" min="1900-01-01" max={new Date().toISOString().slice(0,10)} value={value.birthday} onChange={e=>onChange({...value,birthday:e.target.value})}/></label>}
    <div className="natal-fields"><label><span>Local birth time</span><input type="time" value={natal.time} onChange={e=>set('time',e.target.value)}/></label><label><span>Time accuracy</span><select value={natal.timeAccuracy} onChange={e=>set('timeAccuracy',e.target.value)}><option value="exact">From birth record</option><option value="approximate">Approximate time</option><option value="unknown">I don’t know</option></select></label></div>
-   <label><span>Search birthplace</span><input maxLength={TEXT_LIMIT} value={query} onChange={e=>{setQuery(e.target.value);setResults([]);setMessage('');}} placeholder="City, region or country" onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();search();}}}/></label>
+   <label><span>Search birthplace</span><input maxLength={TEXT_LIMIT} value={query} onChange={e=>{searchVersion.current++;pending.current=false;setSearching(false);setQuery(e.target.value);setResults([]);setMessage('');}} placeholder="City, region or country" onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();search();}}}/></label>
    <button className="secondary-button" type="button" disabled={searching} onClick={search}>{searching?'Finding places…':'Find birthplace'}</button>
    {message&&<p role="status" className="symbolism-note">{message}</p>}
    {results.length>0&&<ul className="place-results">{results.map((c,i)=><li key={`${c.city}-${c.lat}-${c.lng}-${i}`}><button type="button" onClick={()=>{onChange({...value,natal:{...natal,place:`${c.city}, ${c.province}, ${c.country}`,latitude:String(c.lat),longitude:String(c.lng),timezone:c.timezone}});setResults([]);setMessage('Birthplace selected. Check the region and time zone below.');}}>{c.city} · {c.province} · {c.country}<small>{c.timezone}</small></button></li>)}</ul>}

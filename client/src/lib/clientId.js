@@ -1,4 +1,5 @@
 const KEY = 'fracture-shadow-deck-client-token';
+let sessionToken;
 
 function createToken() {
   const bytes = new Uint8Array(32);
@@ -7,10 +8,11 @@ function createToken() {
 }
 
 export function getClientToken() {
-  let token = localStorage.getItem(KEY);
-  if (!token || !/^[a-f0-9]{64}$/.test(token)) {
-    token = createToken();
-    localStorage.setItem(KEY, token);
-  }
-  return token;
+  try {
+    const stored=localStorage.getItem(KEY);
+    if(stored&&/^[a-f0-9]{64}$/.test(stored)){sessionToken=stored;return stored;}
+  } catch { /* Keep the current visit usable when browser storage is restricted. */ }
+  sessionToken ||= createToken();
+  try{localStorage.setItem(KEY,sessionToken);}catch{}
+  return sessionToken;
 }

@@ -10,10 +10,10 @@ export default function QuickMysticTools({profile,onStartReading,mode,onClose,on
  const today=new Date().toISOString().slice(0,10); const index=hash(today)%cards.length;
  const compatibility=useMemo(()=>{if(!profile?.birthday||!otherDate)return null;return 55+(hash(profile.birthday+'|'+otherDate)%41)},[profile?.birthday,otherDate]);
  if(!mode)return null;
- return <section className="quick-mystic quick-mystic-single" aria-label="Mystic tool">
+ return <section className="quick-mystic quick-mystic-single" tabIndex="-1" aria-label={mode==='match'?'Compatibility':'Card of the Day'}>
   <div className="quick-mystic-result">
    <button className="quick-close" type="button" onClick={onClose} aria-label={mode==='match'?'Close compatibility':mode==='card'?'Close Card of the Day':'Close daily reflection'}><NavIcon name="close" /></button>
-   {mode==='card'&&<><em>YOUR CARD TODAY</em><h3>{cards[index]}</h3><p>{messages[index]}</p><button className="quick-start" onClick={onStartReading}>Use this in a full reading</button></>}
+   {mode==='card'&&<><em>YOUR CARD TODAY</em><h3>{cards[index]}</h3><p>{messages[index]}</p><button className="quick-start" onClick={onStartReading}>Begin a full reading</button></>}
    {mode==='match'&&<><em>SYMBOLIC COMPATIBILITY</em>{!profile?.birthday?<><p>Add your birth date in Your Information first.</p><button className="quick-start" onClick={onAddBirthDate||onStartReading}>Add my birth date</button></>:<><label>Other person's birth date<input type="date" value={otherDate} onChange={e=>setOtherDate(e.target.value)}/></label>{compatibility&&<><h3>{compatibility}% resonance</h3><p>A playful symbolic comparison for reflection, not a prediction of relationship success.</p></>}</>}</>}
    {mode==='daily'&&<><em>TODAY'S PERSONAL LENS</em><h3>{profile?.name?`${profile.name}, today asks for ${cards[index]}`:`Today asks for ${cards[index]}`}</h3><p>{messages[index]} Use this as a reflection prompt, or open a full reading for more context.</p><button className="quick-start" onClick={onStartReading}>Start my reading</button></>}
   </div>

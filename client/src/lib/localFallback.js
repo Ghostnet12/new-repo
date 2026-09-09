@@ -3,63 +3,9 @@ import { natalDefaults } from '../../../server/src/tarot/natal.js';
 import { buildReading } from '../../../server/src/tarot/interpretation.js';
 import { cards, spreads } from '../../../server/src/tarot/deck.js';
 
-const PROFILE_KEY = 'fracture-shadow-profile-v3';
-const HISTORY_KEY = 'fracture-shadow-history-v3';
+export {loadLocalProfile,saveLocalProfile,loadLocalHistory,saveLocalReading,toggleLocalFavorite,deleteLocalReading} from './deviceStorage.js';
 
 export const localDeck = cards;
-
-function safeParse(value, fallback) {
-  try { return JSON.parse(value); } catch { return fallback; }
-}
-
-export function loadLocalProfile() {
-  return safeParse(localStorage.getItem(PROFILE_KEY), null);
-}
-
-export function saveLocalProfile(profile) {
-  checkTextLimits(profile);
-  const clean = {
-    name: String(profile?.name || ''),
-    gender: String(profile?.gender || ''),
-    birthday: String(profile?.birthday || '').slice(0, 10),
-    natal: { ...natalDefaults, ...profile?.natal },
-    preferredSpread: profile?.preferredSpread || 'three'
-  };
-  localStorage.setItem(PROFILE_KEY, JSON.stringify(clean));
-  return clean;
-}
-
-export function loadLocalHistory() {
-  const value = safeParse(localStorage.getItem(HISTORY_KEY), []);
-  return Array.isArray(value) ? value.slice(0, 50) : [];
-}
-
-function writeHistory(history) {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 50)));
-  return history.slice(0, 50);
-}
-
-export function saveLocalReading(reading) {
-  const history = loadLocalHistory();
-  const entry = {
-    localId: reading.readingId || crypto.randomUUID(),
-    _local: true,
-    spreadName: reading.spread?.name || 'Tarot Reading',
-    question: reading.question || '',
-    focus: reading.focus || 'general',
-    favorite: false,
-    createdAt: new Date().toISOString()
-  };
-  return writeHistory([entry, ...history.filter(x => x.localId !== entry.localId)]);
-}
-
-export function toggleLocalFavorite(localId) {
-  return writeHistory(loadLocalHistory().map(x => x.localId === localId ? { ...x, favorite: !x.favorite } : x));
-}
-
-export function deleteLocalReading(localId) {
-  return writeHistory(loadLocalHistory().filter(x => x.localId !== localId));
-}
 
 function secureInt(max) {
   if (!Number.isInteger(max) || max <= 0) return 0;

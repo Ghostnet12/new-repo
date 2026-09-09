@@ -1,8 +1,9 @@
 import { Body, GeoVector, Ecliptic, SiderealTime, Rotation_ECT_EQD } from './astronomy.cjs';
 import { Temporal } from '@js-temporal/polyfill';
 import { signs, houses } from './knowledge.js';
+import {natalDefaults} from '../../../shared/natalDefaults.js';
 
-export const natalDefaults = { enabled:false, time:'', place:'', latitude:'', longitude:'', timezone:'', timeAccuracy:'exact', disambiguation:'reject' };
+export {natalDefaults};
 export const planetNames = ['Sun','Moon','Mercury','Venus','Mars','Jupiter','Saturn','Uranus','Neptune','Pluto'];
 export const normalizeAngle = a => ((a % 360) + 360) % 360;
 export const angleDistance = (a,b) => Math.abs(((a-b+540)%360)-180);

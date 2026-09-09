@@ -61,7 +61,7 @@ export default function DailyHoroscopes({value,onChange,onBirthChart}) {
     const controller=new AbortController();personalRequest.current=controller;
     setPersonalizing(true);setError('');
     try {
-      const result=await api('/api/horoscopes/daily',{method:'POST',body:JSON.stringify({...input,personalize:true}),signal:controller.signal});
+      const result=await api('/api/horoscopes/daily',{method:'POST',body:JSON.stringify({...input,personalize:true}),signal:controller.signal,timeoutMs:45000});
       if(!controller.signal.aborted) setReading(result);
     } catch(err) {
       if(!controller.signal.aborted) setError(err.status===429?'Please wait a moment before trying another personal reading.':'Your overview is still here. The personal reading could not finish; please try again shortly.');
