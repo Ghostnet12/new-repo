@@ -24,7 +24,31 @@ body { min-width:0; background:radial-gradient(ellipse 80% 45% at 50% 400px,#2a1
 @media (max-width:960px) { html { scroll-padding-top:154px; }.reading-form-anchor,.reading-anchor { scroll-margin-top:154px; }.fold-hero .side-whisper { display:none; }.mockup-grid { grid-template-columns:minmax(0,1fr); max-width:660px; margin-inline:auto; gap:22px; }.panel-shell h2 { font-size:34px; }.panel-shell .panel { padding:32px; }.panel-shell .ritual-panel { padding:32px 32px 0; }.ritual-deck-preview { width:calc(100% + 64px); margin:28px -32px 0; aspect-ratio:1.7; min-height:0; }.ritual-deck-caption { margin-inline:-32px; }.ritual-panel h2 br { display:none; }.ritual-panel h2 em::before { content:' '; }.ritual-steps { grid-template-columns:1fr 1fr; gap:24px; }.fold-hero .hero-copy { padding-top:27cqw; } }
 @media (max-width:600px) { .app-shell { padding-inline:14px!important; }.fold-hero .hero-cosmos { background-size:640px auto; background-position:center top; mask-image:linear-gradient(180deg,#000 70%,transparent); }.fold-hero .hero-copy { padding:177px 20px 22px; }.fold-hero .hero-copy>p { font-size:9px; letter-spacing:.17em; margin-bottom:16px; }.fold-hero h1 { width:94%; max-width:450px; }.fold-hero .hero-tagline { font-size:11px; letter-spacing:.16em; margin:10px 0 18px; }.fold-hero .hero-copy>span { font:400 16px/1.6 Georgia,serif; max-width:31ch; }.fold-hero .hero-copy>span br { display:none; }.fold-hero .moon-divider { width:76%; margin-block:17px 14px; }.fold-hero .runtime-badge { font-size:9px; }.mockup-tabs { width:100%; margin:0 auto 26px; }.mockup-tabs button { min-height:47px; padding:10px 8px; font-size:10px; gap:8px; }.mockup-tabs .nav-icon { width:21px; height:21px; }.panel-shell .panel { padding:26px 21px!important; }.panel-shell .section-kicker { font-size:10px; letter-spacing:.18em; }.panel-shell h2 { font-size:30px!important; margin-bottom:14px!important; }.form-intro { font-size:14px; margin-bottom:26px; }.spread-choice-copy b { font-size:15px; }.spread-choice { min-height:82px; }.question-starters button { font-size:10px; padding:8px; gap:5px; }.form-panel .primary-question textarea { min-height:124px!important; padding:14px; }.question-caption { font-size:11px; }.form-panel .oracle-toggle-copy b { font-size:13px!important; }.form-panel .oracle-toggle-copy small { font-size:11px!important; }.form-panel .oracle-toggle-row { padding:16px 0!important; }.form-panel .oracle-switch { flex-basis:40px; width:40px!important; height:24px!important; }.form-panel .oracle-switch.on i { transform:translateX(15px)!important; }.personal-details .quick-personalize { grid-template-columns:1fr!important; }.form-panel .draw-button { margin:0!important; position:static; box-shadow:0 3px 18px #c59b4220!important; min-height:58px; }.form-panel .save-reading-toggle { padding:0!important; }.panel-shell .ritual-panel { padding:28px 22px 0!important; }.ritual-panel h2 br { display:block; }.ritual-panel h2 em::before { content:none; }.ritual-intro { font-size:16px; }.ritual-steps { grid-template-columns:1fr; gap:24px; }.ritual-steps li { grid-template-columns:25px minmax(0,1fr); gap:15px; }.ritual-steps b { font-size:18px; }.ritual-steps small { font-size:13px; }.ritual-note { font-size:22px; padding:24px 0; }.ritual-deck-preview { width:calc(100% + 44px); margin:20px -22px 0; aspect-ratio:1.35; }.ritual-deck-caption { margin-inline:-22px; padding:20px; }.ritual-deck-caption b { font-size:15px; }.seo-intro { margin-block:42px 28px; padding-inline:14px; }.seo-intro h2 { font-size:23px; }.mockup-footer { justify-content:center; flex-wrap:wrap; font-size:8px; gap:14px; }.developer-credit { font-size:10px; } }
 @media (max-width:360px) { .spread-choices { grid-template-columns:1fr; }.spread-choice { min-height:70px; }.question-starters { gap:5px; }.question-starters button { font-size:9px; }.personal-details>summary small { display:none; } }
-@media (min-width:961px) and (max-height:800px) { .fold-hero .hero-cosmos { background-size:960px auto; }.fold-hero .hero-copy { padding-top:260px; }.fold-hero h1 { width:540px; }.fold-hero .hero-copy>span { font-size:17px; } }
+/* Scale the desktop artwork and its text clearance together on laptop screens.
+   Fade the actual image bounds so a narrower image cannot leave hard side edges. */
+@media (min-width:961px) {
+  .fold-hero:not(.hero-compact) { --desktop-hero-art-width:clamp(680px,86svh,880px); }
+  .fold-hero:not(.hero-compact) .hero-cosmos {
+    inset:0 auto 0 50%;
+    width:var(--desktop-hero-art-width);
+    max-width:100%;
+    transform:translateX(-50%);
+    background-size:100% auto;
+    -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 52%,transparent 100%),linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+    mask-image:linear-gradient(180deg,#000 0%,#000 52%,transparent 100%),linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+    -webkit-mask-composite:source-in;
+    mask-composite:intersect;
+  }
+  .fold-hero:not(.hero-compact) .hero-copy { padding:calc(var(--desktop-hero-art-width) * .28) 24px 14px; }
+  .fold-hero:not(.hero-compact) .hero-copy>p { margin-bottom:12px; letter-spacing:.18em; }
+  .fold-hero:not(.hero-compact) h1 { width:clamp(400px,36cqw,540px); }
+  .fold-hero:not(.hero-compact) .hero-tagline { margin:8px 0 14px; font-size:14px; letter-spacing:.2em; }
+  .fold-hero:not(.hero-compact) .hero-copy>span { font:400 18px/1.5 Georgia,serif; }
+  .fold-hero:not(.hero-compact) .moon-divider { width:320px; margin:12px auto 10px; }
+  .fold-hero:not(.hero-compact) .runtime-badge { font-size:12px; letter-spacing:.15em; }
+  .fold-hero:not(.hero-compact) .side-whisper { display:none; }
+  .mockup-tabs { width:min(600px,100%); margin-bottom:26px; }
+}
 @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; }.spread-choice,.draw-button,.oracle-switch i { transition:none; }.draw-button:hover:not(:disabled) { transform:none; } }
 
 /* Keep the interactive copy legible across the compact reading surface. */
