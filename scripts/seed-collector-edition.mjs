@@ -8,7 +8,7 @@ if(!process.argv.includes('--confirm-first-series'))throw Error('Pass --confirm-
 if(!await connectMongo())throw Error('MONGODB_URI must point to the intended replica-set database.');
 try{
  await Promise.all(collectorModels.map(m=>m.init()));
- const file=readFileSync(new URL('../server/data/collector-first-edition.json',import.meta.url));const data=JSON.parse(file);const manifest=createHash('sha256').update(file).digest('hex');
+ const file=readFileSync(new URL('../server/data/collector-first-edition.json',import.meta.url));const data=JSON.parse(file);const manifest=createHash('sha256').update(JSON.stringify(data)).digest('hex');
  for(const mode of ['fortune','yesno']){
   const id=`first-${mode}`,cards=data.cards.filter(c=>c.mode===mode);
   if(cards.length!==2042||cards.filter(c=>c.joker).length!==4||new Set(cards.map(c=>c.messageHash)).size!==2042)throw Error('Invalid edition manifest');

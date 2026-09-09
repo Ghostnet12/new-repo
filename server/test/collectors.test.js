@@ -1,3 +1,4 @@
+import {initialiseFirstSeries} from '../src/collectors/initialise.js';
 import test,{before,after,beforeEach} from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID,randomInt} from 'node:crypto';
@@ -98,4 +99,12 @@ test('signed webhook verifies amount and environment before granting an order',a
  async function send(data,live=false){const payload=JSON.stringify({id:'evt_test',type:'checkout.session.completed',livemode:live,data:{object:data}});const signature=stripe.webhooks.generateTestHeaderString({payload,secret:'whsec_placeholder'});return collectorHttp(new Request('https://enterthefold.io/api/collectors/webhook',{method:'POST',headers:{'stripe-signature':signature},body:payload}),'webhook');}
  assert.equal((await send({...paid(order),amount_total:1})).status,400);assert.equal((await send(paid(order),true)).status,400);assert.equal(await Wallet.countDocuments(),0);
  assert.equal((await send(paid(order))).status,200);assert.equal((await Wallet.findOne({owner})).credits,10);
+});
+
+test('first-series bootstrap is idempotent and cannot reshuffle or overwrite issued cards',async()=>{
+ await initialiseFirstSeries();assert.equal(await CollectorCard.countDocuments(),4084);
+ const first=await CollectorCard.findOne({edition:'first-fortune',position:0}).lean();
+ const owner=new mongoose.Types.ObjectId();await buy(owner);const issued=await drawCard(owner,'first-fortune',randomUUID());
+ await initialiseFirstSeries();assert.equal(await CollectorCard.countDocuments(),4084);
+ assert.equal((await Edition.findById('first-fortune')).cursor,1);assert.equal((await CollectorCard.findOne({edition:'first-fortune',position:0}))._id,first._id);assert.equal(issued.id,first._id);
 });

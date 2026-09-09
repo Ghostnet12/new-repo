@@ -1,3 +1,4 @@
+import {initialiseFirstSeries} from './initialise.js';
 import Stripe from 'stripe';
 import {connectMongo} from '../config/db.js';
 import {account,authBudget,cookieToken,digest,fail,sessionCookie,signIn} from './auth.js';
@@ -38,6 +39,7 @@ export async function collectorHttp(request,route){
   if(!await connectMongo())return route==='status'?json({editions:[],paymentsEnabled:false,unavailable:true}):json({error:'Your collection is temporarily unavailable. Please try again.'},503);
   await ensureIndexes();
   if(route==='status'&&method==='GET'){
+   await initialiseFirstSeries();
    const editions=await Edition.find({state:'ready'}).sort({createdAt:-1}).select('_id mode label total cursor packLimit packsReserved').lean();
    return json({paymentsEnabled:cfg.enabled,testMode:cfg.enabled&&!cfg.live,editions:editions.map(e=>({id:e._id,mode:e.mode,label:e.label,total:e.total,remaining:e.total-e.cursor,packsAvailable:e.packLimit-e.packsReserved}))});
   }
