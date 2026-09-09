@@ -48,8 +48,8 @@ export default function FortuneTeller() {
  };
 
  return <section className="fortune-teller" aria-labelledby="fortune-title">
-  <header className="fortune-heading"><p className="fortune-eyebrow">Step closer. A card is waiting.</p><h1 id="fortune-title">The Fortune Teller</h1><p id="fortune-mode-help">{yesNo?'Hold a yes-or-no question in mind. The teller has opinions.':'Hold a wish in mind. Let the teller choose your card.'}</p>
-   <button type="button" className="fortune-mode-toggle" role="switch" aria-checked={yesNo} aria-label="Yes or no question mode" aria-describedby="fortune-mode-help" disabled={busy} onClick={()=>{if(!drawing.current)setYesNo(value=>!value);}}><span>Yes / No mode</span><span className={`fortune-mode-switch ${yesNo?'is-on':''}`} aria-hidden="true"><i/></span><span className="fortune-mode-state">{yesNo?'On':'Off'}</span></button>
+  <header className="fortune-heading"><p className="fortune-eyebrow">Step closer. A card is waiting.</p><h1 id="fortune-title">The Fortune Teller</h1>{!yesNo&&<p id="fortune-mode-help">Hold a wish in mind. Let the teller choose your card.</p>}
+   <button type="button" className="fortune-mode-toggle" role="switch" aria-checked={yesNo} aria-label="Yes or no question mode" aria-describedby={yesNo?undefined:'fortune-mode-help'} disabled={busy} onClick={()=>{if(!drawing.current)setYesNo(value=>!value);}}><span>Yes / No mode</span><span className={`fortune-mode-switch ${yesNo?'is-on':''}`} aria-hidden="true"><i/></span><span className="fortune-mode-state">{yesNo?'On':'Off'}</span></button>
   </header>
   <div className="fortune-stage" style={{'--fortune-wait-duration':`${fortuneRevealDuration}ms`}}>
    <div className={`fortune-cabinet ${busy?'is-revealing':''}`}>
