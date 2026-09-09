@@ -1,4 +1,5 @@
 const paths = {
+ share: <path d="M12 16V1m-5 5 5-5 5 5M7 9H3v13h18V9h-4"/>,
  fortune: <><circle cx="12" cy="10" r="8"/><path d="m12 5 1.4 3.6L17 10l-3.6 1.4L12 15l-1.4-3.6L7 10l3.6-1.4ZM7 18l-2 4h14l-2-4"/></>,
  download: <path d="M12 2v13m-5-5 5 5 5-5M3 16v6h18v-6"/> ,
  support: <><path d="M12 17 4 10C0 5 7 1 12 6c5-5 12-1 8 4Z"/><path d="M3 20h18M7 23h10"/></>,

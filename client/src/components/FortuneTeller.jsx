@@ -3,6 +3,7 @@ import {createFortuneDeck,fortuneDate} from '../lib/fortunes.js';
 import {createFortuneImage} from '../lib/fortuneCard.js';
 import {beginFortuneReveal,fortuneRevealSteps,fortuneRevealDuration} from '../lib/fortuneReveal.js';
 import NavIcon from './NavIcon.jsx';
+import FortuneKeepsake from './FortuneKeepsake.jsx';
 import './FortuneTeller.css';
 
 export default function FortuneTeller() {
@@ -19,7 +20,9 @@ export default function FortuneTeller() {
   setImage(null);setImageError(false);
   createFortuneImage(fortune).then(blob=>{
    if(cancelled)return;
-   url=URL.createObjectURL(blob);setImage({url,id:fortune.id});
+   const filename=`the-fold-fortune-${fortune.id}.png`;
+   const file=typeof File==='function'?new File([blob],filename,{type:'image/png'}):null;
+   url=URL.createObjectURL(blob);setImage({url,file,filename,id:fortune.id});
   }).catch(()=>{if(!cancelled)setImageError(true);});
   return ()=>{cancelled=true;if(url)URL.revokeObjectURL(url);};
  },[fortune,attempt]);
@@ -58,9 +61,7 @@ export default function FortuneTeller() {
       <div className="fortune-lucky"><span>Your lucky number</span><strong>{String(fortune.luckyNumber).padStart(2,'0')}</strong></div>
       <time dateTime={fortune.issuedAt}>{fortuneDate(fortune.issuedAt)}</time><small>enterthefold.io</small>
      </article>
-     <div className="fortune-keep">
-      {image?.id===fortune.id?<a href={image.url} download={`the-fold-fortune-${fortune.id}.png`}><NavIcon name="download"/>Save my fortune card</a>:imageError?<><p>The image couldn’t be prepared.</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Try saving again</button></>:<p role="status">Preparing your keepsake…</p>}
-     </div>
+     {image?.id===fortune.id?<FortuneKeepsake key={image.url} image={image} fortune={fortune}/>:<div className="fortune-keep">{imageError?<><p>The image couldn’t be prepared.</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Try saving again</button></>:<p role="status">Preparing your keepsake…</p>}</div>}
     </>:<div className={`fortune-awaiting ${busy?'is-busy':''}`} aria-hidden="true"><NavIcon name="fortune"/><p>{busy?fortuneRevealSteps[revealStep].message:'Some messages find you.'}</p><span>{busy?'A little patience. A little possibility.':'Press the gold button to receive yours.'}</span></div>}
     <p className="fortune-footnote">A little theatre for reflection and fun.<br/>Your future is yours.</p>
    </div>
