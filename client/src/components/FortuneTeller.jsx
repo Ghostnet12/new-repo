@@ -44,8 +44,8 @@ export default function FortuneTeller() {
  return <section className="fortune-teller" aria-labelledby="fortune-title">
   <header className="fortune-heading"><p className="fortune-eyebrow">Step closer. A card is waiting.</p><h1 id="fortune-title">The Fortune Teller</h1><p>Hold a wish in mind. Let the teller choose your card.</p></header>
   <div className="fortune-stage" style={{'--fortune-wait-duration':`${fortuneRevealDuration}ms`}}>
-   <div className={`fortune-cabinet ${busy?'is-revealing':''} ${fortune?'is-awake':''}`}>
-    <div className="fortune-portrait"><img src="/assets/the-fold/fortune-teller.webp" width="1024" height="1536" alt="An antique fortune teller with glowing ruby-red eyes and a violet crystal ball, framed in gold and velvet" fetchPriority="high"/><img className="fortune-portrait-awake" src="/assets/the-fold/fortune-teller-awake.webp" width="1024" height="1536" alt="" aria-hidden="true" decoding="async"/></div>
+   <div className={`fortune-cabinet ${busy?'is-revealing':''}`}>
+    <div className="fortune-portrait"><img src="/assets/the-fold/fortune-teller.webp" width="1024" height="1536" alt="An antique fortune teller with a violet crystal ball, framed in gold and velvet" fetchPriority="high"/><img className="fortune-portrait-awake" src="/assets/the-fold/fortune-teller-awake.webp" width="1024" height="1536" alt="" aria-hidden="true" decoding="async"/></div>
     <div className="fortune-console"><span className="fortune-console-label">THE FOLD · FORTUNE HOUSE</span><button type="button" className="fortune-reveal" onClick={reveal} disabled={busy}><NavIcon name="fortune"/>{busy?'Your fortune is unfolding…':fortune?'Reveal another fortune':'Reveal my fortune'}</button><div className={`fortune-progress ${busy?'is-running':''}`} aria-hidden="true"><i/></div><p role="status" aria-live="polite">{busy?fortuneRevealSteps[revealStep].message:'One wish. One card. No coin required.'}</p></div>
    </div>
    <div className={`fortune-delivery ${busy?'is-revealing':''}`}>
@@ -61,7 +61,7 @@ export default function FortuneTeller() {
      <div className="fortune-keep">
       {image?.id===fortune.id?<a href={image.url} download={`the-fold-fortune-${fortune.id}.png`}><NavIcon name="download"/>Save my fortune card</a>:imageError?<><p>The image couldn’t be prepared.</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Try saving again</button></>:<p role="status">Preparing your keepsake…</p>}
      </div>
-    </>:<div className={`fortune-awaiting ${busy?'is-busy':''}`} aria-hidden="true">{busy?<div className="fortune-wait-emblem"><div className="fortune-wait-orbit"/><div className="fortune-wait-card"><span>THE FOLD</span><NavIcon name="fortune"/></div></div>:<NavIcon name="fortune"/>}<p>{busy?fortuneRevealSteps[revealStep].message:'Some messages find you.'}</p><span>{busy?'A little patience. A little possibility.':'Press the gold button to receive yours.'}</span></div>}
+    </>:<div className={`fortune-awaiting ${busy?'is-busy':''}`} aria-hidden="true"><NavIcon name="fortune"/><p>{busy?fortuneRevealSteps[revealStep].message:'Some messages find you.'}</p><span>{busy?'A little patience. A little possibility.':'Press the gold button to receive yours.'}</span></div>}
     <p className="fortune-footnote">A little theatre for reflection and fun.<br/>Your future is yours.</p>
    </div>
   </div>
