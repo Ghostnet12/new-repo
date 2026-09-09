@@ -13,6 +13,7 @@ export default function FortuneTeller() {
  const [busy,setBusy]=useState(false),[fortune,setFortune]=useState(null);
  const [revealStep,setRevealStep]=useState(0);
  const [image,setImage]=useState(null),[imageError,setImageError]=useState(false),[attempt,setAttempt]=useState(0);
+ const imageReady=Boolean(fortune&&image?.id===fortune.id);
  useEffect(()=>()=>cancelReveal.current?.(),[]);
  useEffect(()=>{
   if(!fortune)return;
@@ -27,11 +28,11 @@ export default function FortuneTeller() {
   return ()=>{cancelled=true;if(url)URL.revokeObjectURL(url);};
  },[fortune,attempt]);
  useEffect(()=>{
-  if(!fortune)return;
+  if(!fortune||(!imageReady&&!imageError))return;
   ticketRef.current?.focus({preventScroll:true});
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   ticketRef.current?.scrollIntoView({behavior:reduced?'auto':'smooth',block:'nearest'});
- },[fortune]);
+ },[fortune,imageReady,imageError]);
  const reveal=()=>{
   if(drawing.current)return;
   drawing.current=true;
@@ -53,15 +54,18 @@ export default function FortuneTeller() {
    </div>
    <div className={`fortune-delivery ${busy?'is-revealing':''}`}>
     <div className="fortune-slot" aria-hidden="true"/>
-    <p className="fortune-status" role="status" aria-live="polite">{busy?'A message is on its way…':fortune?'Your fortune is ready.':'Your card will arrive here.'}</p>
+    <p className="fortune-status" role="status" aria-live="polite">{busy?'A message is on its way…':fortune?imageReady||imageError?'Your fortune is ready.':'Finishing your card…':'Your card will arrive here.'}</p>
     {fortune?<>
-     <article className="fortune-ticket" key={fortune.issuedAt} ref={ticketRef} tabIndex="-1" aria-labelledby="fortune-card-title">
-      <div className="fortune-ticket-brand">THE FOLD</div><p className="fortune-ticket-label">A fortune for you</p>
-      <h2 id="fortune-card-title">{fortune.title}</h2><p className="fortune-message">{fortune.message}</p><p className="fortune-whisper">{fortune.whisper}</p>
-      <div className="fortune-lucky"><span>Your lucky number</span><strong>{String(fortune.luckyNumber).padStart(2,'0')}</strong></div>
-      <time dateTime={fortune.issuedAt}>{fortuneDate(fortune.issuedAt)}</time><small>enterthefold.io</small>
+     <article className={`fortune-ticket ${imageError?'is-fallback':''}`} key={fortune.issuedAt} ref={ticketRef} tabIndex="-1" aria-labelledby="fortune-card-title" aria-busy={!imageReady&&!imageError}>
+      {imageReady?<img className="fortune-ticket-image" src={image.url} width="1000" height="1500" alt=""/>:!imageError?<div className="fortune-ticket-loading" aria-hidden="true"><NavIcon name="fortune"/><p>Preparing your keepsake…</p></div>:null}
+      <div className={imageError?'fortune-ticket-copy':'fortune-ticket-copy sr-only'}>
+       <div className="fortune-ticket-brand">THE FOLD</div><p className="fortune-ticket-label">A fortune for you</p>
+       <h2 id="fortune-card-title">{fortune.title}</h2><p className="fortune-message">{fortune.message}</p><p className="fortune-whisper">{fortune.whisper}</p>
+       <div className="fortune-lucky"><span>Your lucky number</span><strong>{String(fortune.luckyNumber).padStart(2,'0')}</strong></div>
+       <time dateTime={fortune.issuedAt}>{fortuneDate(fortune.issuedAt)}</time><small>enterthefold.io</small>
+      </div>
      </article>
-     {image?.id===fortune.id?<FortuneKeepsake key={image.url} image={image} fortune={fortune}/>:<div className="fortune-keep">{imageError?<><p>The image couldn’t be prepared.</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Try saving again</button></>:<p role="status">Preparing your keepsake…</p>}</div>}
+     {imageReady?<FortuneKeepsake key={image.url} image={image} fortune={fortune}/>:imageError?<div className="fortune-keep"><p>The card image couldn’t be prepared.</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Try preparing the card again</button></div>:null}
     </>:<div className={`fortune-awaiting ${busy?'is-busy':''}`} aria-hidden="true"><NavIcon name="fortune"/><p>{busy?fortuneRevealSteps[revealStep].message:'Some messages find you.'}</p><span>{busy?'A little patience. A little possibility.':'Press the gold button to receive yours.'}</span></div>}
     <p className="fortune-footnote">A little theatre for reflection and fun.<br/>Your future is yours.</p>
    </div>
