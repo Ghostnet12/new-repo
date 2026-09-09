@@ -31,7 +31,7 @@ export function layoutFortuneCard(ctx,fortune) {
    y+=gap;
   };
   add('THE FOLD',50,61,12);
-  add('A FORTUNE FOR YOU',21,29,32,'sans-serif','#806137');
+  add(fortune.mode==='yesno'?'THE TELLER’S VERDICT':'A FORTUNE FOR YOU',21,29,32,'sans-serif','#806137');
   add(fortune.title,48,58,26);
   add(fortune.message,bodySize,bodySize*1.42,25);
   add(fortune.whisper,28,39,34,'Georgia, serif','#77512c');

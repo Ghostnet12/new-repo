@@ -1,5 +1,6 @@
 // Original fortunes written for The Fold. This is a playful, local card draw.
 import {expandedFortunes} from './fortuneChapters.js';
+import {yesNoFortunes,yesNoDeckStorageKey} from './yesNoFortunes.js';
 const originalFortunes = [
  ['the-unopened-door', 'The unopened door', 'A door you stopped noticing is about to look different. Before you search for another key, try the handle you already hold.', 'Look again.'],
  ['the-small-beginning', 'The small beginning', 'Something important will arrive disguised as a small beginning. Give the first imperfect step a chance to become a path.', 'Begin with what you have.'],
@@ -36,20 +37,20 @@ const originalFortunes = [
 ].map(([id,title,message,whisper])=>Object.freeze({id,title,message,whisper}));
 export const fortunes=Object.freeze([...originalFortunes,...expandedFortunes.map(card=>Object.freeze(card))]);
 export const fortuneDeckStorageKey='the-fold-fortune-deck-v1';
-const byId=new Map(fortunes.map(card=>[card.id,card]));
 
 // Deal the full collection before reshuffling, with no repeat at the boundary.
-export function createFortuneDeck(random=Math.random,{storage=null}={}) {
+export function createFortuneDeck(random=Math.random,{storage=null,collection=fortunes,storageKey=fortuneDeckStorageKey}={}) {
+ const byId=new Map(collection.map(card=>[card.id,card]));
  let remaining=[];
  let previous=null,seenSnapshot;
  const restore=()=>{
   try {
-   const raw=storage?.getItem(fortuneDeckStorageKey);
+   const raw=storage?.getItem(storageKey);
    if(raw===seenSnapshot)return;
    seenSnapshot=raw;
    if(!raw||raw.length>200000)return;
    const saved=JSON.parse(raw);
-   if(saved?.version!==1||saved.size!==fortunes.length||!Array.isArray(saved.remaining)||saved.remaining.length>fortunes.length)return;
+   if(saved?.version!==1||saved.size!==collection.length||!Array.isArray(saved.remaining)||saved.remaining.length>collection.length)return;
    if(saved.last!==null&&!byId.has(saved.last))return;
    if(new Set(saved.remaining).size!==saved.remaining.length||saved.remaining.some(id=>!byId.has(id)||id===saved.last))return;
    remaining=[...saved.remaining];previous=saved.last;
@@ -60,7 +61,7 @@ export function createFortuneDeck(random=Math.random,{storage=null}={}) {
    // Pick up completed draws in other tabs, while retaining memory if storage fails.
    restore();
    if(!remaining.length) {
-   remaining=fortunes.map(card=>card.id);
+   remaining=collection.map(card=>card.id);
    for(let i=remaining.length-1;i>0;i--) {
     const j=Math.floor(random()*(i+1));
     [remaining[i],remaining[j]]=[remaining[j],remaining[i]];
@@ -71,22 +72,26 @@ export function createFortuneDeck(random=Math.random,{storage=null}={}) {
   previous=fortune.id;
   try {
    if(storage){
-    const snapshot=JSON.stringify({version:1,size:fortunes.length,remaining,last:previous});
-    storage.setItem(fortuneDeckStorageKey,snapshot);seenSnapshot=snapshot;
+    const snapshot=JSON.stringify({version:1,size:collection.length,remaining,last:previous});
+    storage.setItem(storageKey,snapshot);seenSnapshot=snapshot;
    }
   } catch { /* Keep the in-memory deck when a write is unavailable. */ }
   return {...fortune,luckyNumber:1+Math.floor(random()*99),issuedAt:new Date().toISOString()};
  };
 }
 
-let deviceDeck;
-export function getDeviceFortuneDeck() {
- if(!deviceDeck){
+export function createYesNoDeck(random=Math.random,{storage=null}={}) {
+ return createFortuneDeck(random,{storage,collection:yesNoFortunes,storageKey:yesNoDeckStorageKey});
+}
+const deviceDecks=new Map();
+export function getDeviceFortuneDeck(mode='fortune') {
+ const key=mode==='yesno'?'yesno':'fortune';
+ if(!deviceDecks.has(key)){
   let storage=null;
   try{storage=globalThis.localStorage;}catch{ /* Private browsers may block storage. */ }
-  deviceDeck=createFortuneDeck(Math.random,{storage});
+  deviceDecks.set(key,key==='yesno'?createYesNoDeck(Math.random,{storage}):createFortuneDeck(Math.random,{storage}));
  }
- return deviceDeck;
+ return deviceDecks.get(key);
 }
 
 export function fortuneDate(issuedAt) {
