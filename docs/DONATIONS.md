@@ -1,6 +1,6 @@
 # The Fold voluntary support
 
-Prepared September 13, 2026. NOT activated: the connected Stripe app currently exposes only Bravo K9 accounts. Confirm the receiving account before creating a live link. The Fold account recorded in project history is acct_1UDdR6ILQcKTVr78; verify that current account rather than relying on history alone.
+Prepared September 13, 2026. David explicitly authorized Bravo K9's main live Stripe account (acct_1UE6e4IjdZtbYCrs) to receive The Fold donations, using a separate The Fold checkout identity. The Stripe connection currently exposes GET operations only for prices and payment links; no existing active links were found. Activation remains blocked on creation access or a donor-chosen live Payment Link supplied by David. Do not change Bravo's global business identity.
 
 The public site is https://enterthefold.io, repository Ghostnet12/new-repo, Vercel project fracture-shadow-deck-mern-v2. This change adds a prominent donation action to Support The Fold once its verified live link is supplied. No login is required to donate. No card details or Stripe keys enter this application.
 
