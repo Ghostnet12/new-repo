@@ -14,7 +14,7 @@ export default function Support({onReviews}) {
   <div className="support-donation" aria-labelledby="donation-title">
    <h3 id="donation-title">A little support. A little more magic.</h3>
    {checkout ? <>
-    <p>Choose the amount that feels right for you on Stripe’s secure payment page. This is a one-time donation, with no subscription or automatic renewal.</p>
+    <p>Give $1 or more. Choose your amount on Stripe’s secure payment page, within its supported payment limits. This is a one-time donation, with no subscription or automatic renewal.</p>
     <a className="donation-button" href={checkout}>Donate your chosen amount <NavIcon name="arrow"/></a>
     <p className="donation-help">Choose your amount, review it, then confirm your payment. Stripe will show a thank-you message when you finish.</p>
    </> : <p>Online donations are being connected. Thank you for wanting to support The Fold. In the meantime, sharing the site or leaving a review helps us grow.</p>}

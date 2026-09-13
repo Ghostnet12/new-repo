@@ -12,7 +12,7 @@ export function donationLink(value = DONATION_LINK) {
 
 // A one-time, donor-chosen amount. Stripe applies its own supported amount limits.
 export const donationPrice = {
- currency: 'usd', custom_unit_amount: { enabled: true },
+ currency: 'usd', custom_unit_amount: { enabled: true, minimum: 100 },
  product_data: { name: 'Support The Fold', metadata: { project: 'the-fold', purpose: 'voluntary-support' } },
  metadata: { project: 'the-fold', purpose: 'voluntary-support' }
 };

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { donationLink, donationPrice, donationPaymentLink, DONATION_THANK_YOU } from '../../shared/donations.js';
 
 test('donations use a donor-chosen one-time price and Stripe-hosted thank-you', () => {
- assert.deepEqual(donationPrice.custom_unit_amount, {enabled:true});
+ assert.deepEqual(donationPrice.custom_unit_amount, {enabled:true,minimum:100});
  assert.equal(donationPrice.recurring, undefined);
  assert.equal(donationPrice.unit_amount, undefined);
  const link = donationPaymentLink('price_fixture');
